@@ -11,5 +11,5 @@ By the end of the session, students will be able to:
 3. Calculate and interpret risk, relative risk, risk difference (attributable risk), attributable fraction and odds ratio.
 4. Explain why a case-control study gives an odds ratio but not a risk, and when the odds ratio approximates the relative risk.
 5. Distinguish relative from absolute risk when communicating with patients.
-6. Recognise ecological fallacy, confounding and survivorship bias in everyday claims.
+6. Recognise ecological fallacy, confounding and survivorship bias in everyday claims and in classic datasets (Farr, Snow, Nightingale, the 1954 polio trial).
 7. Calculate sensitivity, specificity and predictive values, and explain how prevalence changes the predictive value of a test.
