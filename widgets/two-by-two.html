@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2 by 2 Lab</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="widget.css">
+<script src="theme.js"></script>
+<style>
+  table.t2 { font-size: 16px; }
+  table.t2 th, table.t2 td { padding: 8px 12px; vertical-align: middle; }
+  table.t2 .tag { display: block; font-size: 12px; color: var(--dim); font-weight: 400; }
+  .waf { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .waf figure { margin: 0; }
+  .waf figcaption { font-size: 14px; color: var(--dim); margin-top: 4px; }
+  .waf figcaption b { color: var(--ink); font: 600 20px var(--font-head); }
+  #say { margin: 0; }
+  .stat .l b { color: var(--ink); }
+  .stat.off { opacity: .5; }
+  .lay { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .lay .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lay .stat .n { font-size: 26px; }
+  @media (max-width: 760px) { .lay { grid-template-columns: 1fr; } }
+  html.embed #src { display: none; }
+  @media (max-width: 520px) { input.cellin { width: 5em; font-size: 17px; } }
+</style>
+</head>
+<body>
+<header class="band"><div>
+  <p class="kicker"><a href="../index.html">Epidemiological thinking</a> · Lab 1</p>
+  <h1>2 by 2 Lab</h1>
+  <p>Type counts into the four cells. Every measure, and the pictures, update as you type.</p>
+</div></header>
+<main>
+  <section class="panel">
+    <div class="row"><span class="label">Example</span><div class="row" id="presets" role="group" aria-label="Example"></div></div>
+    <div class="row"><span class="label">Study design</span>
+      <div class="seg" role="group" aria-label="Study design"><button type="button" data-d="cohort">Cohort: follow exposed and unexposed</button><button type="button" data-d="cc">Case-control: start from cases</button></div>
+    </div>
+  </section>
+
+  <section class="lay">
+    <div class="panel">
+      <div class="scroll"><table class="t2" id="tab"></table></div>
+      <p class="note" id="src"></p>
+    </div>
+    <div class="panel">
+      <p class="claim" id="say"></p>
+      <div class="stats" aria-live="polite" id="stats"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="picture">
+    <h2 id="pich"></h2>
+    <div class="waf" id="waf"></div>
+  </section>
+
+  <section class="two">
+    <div class="panel">
+      <h2>How strong, and how sure?</h2>
+      <svg id="forest" viewBox="0 0 460 150" style="width:100%;max-width:520px" role="img" aria-label="Ratio measures with 95% confidence intervals on a log scale"></svg>
+      <p class="note">Log scale. The dashed line at 1 means no difference. A wide bar means few people, so less certainty.</p>
+    </div>
+    <div class="panel" id="orrr">
+      <h2>When is the odds ratio close to the relative risk?</h2>
+      <svg id="orplot" viewBox="0 0 460 220" style="width:100%;max-width:520px" role="img" aria-label="Odds ratio against risk in the unexposed, for the current relative risk"></svg>
+      <p class="note">Keeping this relative risk fixed, the odds ratio drifts further from it as the disease becomes common. The dot is your table.</p>
+    </div>
+  </section>
+
+  <footer>Confidence intervals use the usual log (Woolf) method; if a cell is 0, 0.5 is added to every cell. Built for teaching at AIIMS Bhopal.</footer>
+</main>
+<script>
+const PRESETS = {
+  snow: { name: 'Snow, London 1854', d: 'cohort', e1: 'Southwark and Vauxhall water', e0: 'Lambeth water', o1: 'Died of cholera', o0: 'Did not die', unit: 'houses', cells: [1263, 38783, 98, 26009],
+    src: 'Snow J. On the Mode of Communication of Cholera, 1855. Counted per house.' },
+  semm: { name: 'Semmelweis, Vienna 1841-46', d: 'cohort', e1: 'First Clinic (doctors)', e0: 'Second Clinic (midwives)', o1: 'Mother died', o0: 'Survived', unit: 'mothers', cells: [1989, 18053, 691, 17100],
+    src: 'Semmelweis 1861, yearly figures as tabulated by Loudon, J R Soc Med 2013.' },
+  doll: { name: 'Doll and Hill, 1950', d: 'cc', e1: 'Smoked', e0: 'Never smoked', o1: 'Lung cancer (cases)', o0: 'Controls', unit: 'men', cells: [647, 622, 2, 27],
+    src: 'Doll R, Hill AB. BMJ 1950;2:739-48. Men only.' },
+  pill: { name: 'Pill scare, 1995', d: 'cohort', e1: 'Newer pill', e0: 'Older pill', o1: 'Blood clot in a year', o0: 'No clot', unit: 'women', cells: [29, 99971, 14, 99986],
+    src: 'About 1 vs 2 women per 7,000 a year, scaled to 100,000 women per group. Gigerenzer 2007.' },
+  own: { name: 'Your own', d: 'cohort', e1: 'Exposed', e0: 'Not exposed', o1: 'Disease', o0: 'No disease', unit: 'people', cells: [30, 70, 10, 90], src: 'Type any counts.' }
+};
+const $ = id => document.getElementById(id);
+let P, key, cells, design;
+const qs = new URLSearchParams(location.search);
+
+const fmt = (x, d = 2) => !isFinite(x) ? 'n/a' : x >= 100 ? x.toFixed(0) : x.toFixed(d);
+const per = (r, k = 1000) => { const v = r * k; return !isFinite(v) ? 'n/a' : v >= 100 ? v.toFixed(0) : v >= 10 ? v.toFixed(1) : v.toFixed(2); };
+const pct = x => !isFinite(x) ? 'n/a' : (100 * x).toFixed(x < 0.1 ? 1 : 0) + '%';
+
+function load(k) {
+  key = k; P = PRESETS[k]; cells = P.cells.slice(); design = P.d;
+  document.querySelectorAll('#presets .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === k));
+  drawTable(); update();
+}
+function drawTable() {
+  const o1 = design === 'cc' && key !== 'doll' && key !== 'own' ? P.o1 + ' (cases)' : P.o1;
+  $('tab').innerHTML = `<tr><th></th><th>${o1}</th><th>${P.o0}</th><th class="num">Total</th></tr>` +
+    `<tr><th>${P.e1}</th><td class="cellw"><input class="cellin" id="c0" type="number" min="0" step="1" aria-label="cell a"><span class="tag">a</span></td><td class="cellw"><input class="cellin" id="c1" type="number" min="0" step="1" aria-label="cell b"><span class="tag">b</span></td><td class="num" id="r1"></td></tr>` +
+    `<tr><th>${P.e0}</th><td class="cellw"><input class="cellin" id="c2" type="number" min="0" step="1" aria-label="cell c"><span class="tag">c</span></td><td class="cellw"><input class="cellin" id="c3" type="number" min="0" step="1" aria-label="cell d"><span class="tag">d</span></td><td class="num" id="r0"></td></tr>` +
+    `<tr><th>Total</th><td class="num" id="k1"></td><td class="num" id="k0"></td><td class="num" id="kk"></td></tr>`;
+  for (let i = 0; i < 4; i++) {
+    const el = $('c' + i); el.value = cells[i];
+    el.addEventListener('input', () => { const v = Math.max(0, Math.round(+el.value || 0)); cells[i] = v; update(); });
+  }
+  $('src').textContent = P.src;
+}
+function calc() {
+  let [a, b, c, d] = cells; const n1 = a + b, n0 = c + d;
+  const r1 = a / n1, r0 = c / n0;
+  const zero = [a, b, c, d].some(v => v === 0);
+  const [A, B, C, D] = zero ? [a + .5, b + .5, c + .5, d + .5] : [a, b, c, d];
+  const rr = (A / (A + B)) / (C / (C + D)), seRR = Math.sqrt(1 / A - 1 / (A + B) + 1 / C - 1 / (C + D));
+  const or = (A * D) / (B * C), seOR = Math.sqrt(1 / A + 1 / B + 1 / C + 1 / D);
+  const rd = r1 - r0, seRD = Math.sqrt(r1 * (1 - r1) / n1 + r0 * (1 - r0) / n0);
+  return { a, b, c, d, n1, n0, r1, r0, rr, rrL: rr * Math.exp(-1.96 * seRR), rrH: rr * Math.exp(1.96 * seRR),
+    or, orL: or * Math.exp(-1.96 * seOR), orH: or * Math.exp(1.96 * seOR), rd, rdL: rd - 1.96 * seRD, rdH: rd + 1.96 * seRD,
+    af: (rr - 1) / rr, zero };
+}
+function update() {
+  const m = calc(), cc = design === 'cc';
+  document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.d === design));
+  $('r1').textContent = m.n1.toLocaleString('en-IN'); $('r0').textContent = m.n0.toLocaleString('en-IN');
+  $('k1').textContent = (m.a + m.c).toLocaleString('en-IN'); $('k0').textContent = (m.b + m.d).toLocaleString('en-IN');
+  $('kk').textContent = (m.n1 + m.n0).toLocaleString('en-IN');
+  const k = m.r0 < 0.001 && m.r1 < 0.01 ? 100000 : 1000, kl = k === 1000 ? '1,000' : '100,000';
+  const S = [];
+  if (!cc) {
+    S.push(['', per(m.r1, k), `risk in <b>${P.e1}</b>, per ${kl} ${P.unit}`]);
+    S.push(['', per(m.r0, k), `risk in <b>${P.e0}</b>, per ${kl} ${P.unit}`]);
+    S.push(['', fmt(m.rr), `relative risk (95% CI ${fmt(m.rrL)} to ${fmt(m.rrH)})`]);
+    S.push(['', (m.rd >= 0 ? '+' : '') + per(m.rd, k), `risk difference per ${kl} (${per(m.rdL, k)} to ${per(m.rdH, k)})`]);
+    S.push(['', m.rr > 1 ? pct(m.af) : 'n/a', m.rr > 1 ? 'of cases in the exposed are due to exposure (attributable fraction)' : 'attributable fraction applies only when RR is above 1']);
+    S.push(['', fmt(m.or), `odds ratio (95% CI ${fmt(m.orL)} to ${fmt(m.orH)})`]);
+  } else {
+    S.push(['', pct(m.a / (m.a + m.c)), `of cases were exposed (${P.e1})`]);
+    S.push(['', pct(m.b / (m.b + m.d)), `of controls were exposed`]);
+    S.push(['', fmt(m.or), `odds ratio (95% CI ${fmt(m.orL)} to ${fmt(m.orH)})`]);
+    S.push(['off', 'n/a', 'risk and relative risk: not valid here, because the study chose how many cases and controls to include']);
+  }
+  $('stats').innerHTML = S.map(s => `<div class="stat ${s[0]}"><div class="n">${s[1]}</div><div class="l">${s[2]}</div></div>`).join('');
+
+  // Plain-language reading
+  let say;
+  if (cc) say = `The odds of having been exposed were ${fmt(m.or)} times higher in cases than in controls. If the disease is rare, this approximates the relative risk.`;
+  else {
+    const dir = m.rr >= 1 ? 'higher' : 'lower';
+    say = `Risk was ${fmt(m.rr >= 1 ? m.rr : 1 / m.rr)} times ${dir} in the ${P.e1} group than in the ${P.e0} group: ${per(Math.abs(m.rd), k)} ${m.rd >= 0 ? 'extra' : 'fewer'} cases per ${kl} ${P.unit}.`;
+    if (m.rrL <= 1 && m.rrH >= 1) say += ' The confidence interval includes 1, so chance is a real possibility.';
+  }
+  if (m.zero) say += ' (A cell is 0, so 0.5 was added to each cell for the ratios.)';
+  $('say').textContent = say;
+
+  drawWaffles(m, cc); drawForest(m, cc); drawOR(m, cc);
+}
+function waffle(n, total, lab, sub) {
+  let h = ''; const on = Math.round(n);
+  for (let i = 0; i < 1000; i++) { const c = i % 40, r = Math.floor(i / 40); h += `<circle class="${i < on ? 'on' : 'off'}" cx="${5 + c * 9}" cy="${5 + r * 9}" r="3.4"/>`; }
+  return `<figure><svg viewBox="0 0 360 225" style="width:100%;max-width:380px" role="img" aria-label="${lab}: ${sub}">${h}</svg><figcaption><b>${sub}</b><br>${lab}</figcaption></figure>`;
+}
+function drawWaffles(m, cc) {
+  if (!cc) {
+    $('pich').textContent = `Out of every 1,000 ${P.unit}`;
+    const t = r => { const v = r * 1000; return v >= 1 ? Math.round(v) + ' in 1,000' : (v === 0 ? '0' : 'fewer than 1') + ' in 1,000'; };
+    $('waf').innerHTML = waffle(m.r1 * 1000, 1000, P.e1, t(m.r1)) + waffle(m.r0 * 1000, 1000, P.e0, t(m.r0));
+  } else {
+    $('pich').textContent = 'How many were exposed? Out of every 1,000 in each group';
+    const pc = m.a / (m.a + m.c), pk = m.b / (m.b + m.d);
+    $('waf').innerHTML = waffle(pc * 1000, 1000, 'cases', Math.round(pc * 1000) + ' in 1,000 exposed') + waffle(pk * 1000, 1000, 'controls', Math.round(pk * 1000) + ' in 1,000 exposed');
+  }
+}
+function drawForest(m, cc) {
+  const rows = cc ? [['Odds ratio', m.or, m.orL, m.orH]] : [['Relative risk', m.rr, m.rrL, m.rrH], ['Odds ratio', m.or, m.orL, m.orH]];
+  let lo = Math.min(0.5, ...rows.map(r => r[2])), hi = Math.max(2, ...rows.map(r => r[3]));
+  lo = Math.max(lo, 0.01); hi = Math.min(hi, 1000);
+  const L = Math.log10(lo), H = Math.log10(hi), x = v => 120 + (Math.log10(Math.min(Math.max(v, lo), hi)) - L) / (H - L) * 320;
+  let s = `<line class="ref" x1="${x(1)}" y1="8" x2="${x(1)}" y2="118"/>`;
+  const ticks = [0.01, 0.1, 0.25, 0.5, 1, 2, 3, 5, 10, 20, 50, 100, 1000].filter(t => t >= lo && t <= hi);
+  ticks.forEach(t => { s += `<text class="tk" x="${x(t)}" y="138" text-anchor="middle">${t}</text>`; });
+  rows.forEach((r, i) => {
+    const y = 34 + i * 44;
+    s += `<text class="lb" x="0" y="${y + 5}">${r[0]}</text><line class="ci" x1="${x(r[2])}" y1="${y}" x2="${x(r[3])}" y2="${y}"/><rect class="pt" x="${x(r[1]) - 6}" y="${y - 6}" width="12" height="12"/>`;
+  });
+  $('forest').innerHTML = s;
+}
+function drawOR(m, cc) {
+  $('orrr').hidden = cc;
+  const rr = m.rr, p0 = m.r0; if (!isFinite(rr) || rr <= 0) { $('orplot').innerHTML = ''; return; }
+  const pmax = rr > 1 ? Math.min(0.6, 2 / (3 * rr - 1)) : 0.6, pts = [];
+  const orOf = p => rr * (1 - p) / (1 - rr * p);
+  let ymax = Math.max(rr, orOf(pmax)) * 1.1, ymin = Math.min(rr, orOf(pmax), 1) * (rr < 1 ? 0.9 : 0);
+  const X = p => 50 + p / pmax * 390, Y = v => 180 - (v - ymin) / (ymax - ymin) * 165;
+  for (let i = 0; i <= 60; i++) { const p = pmax * i / 60; pts.push(X(p).toFixed(1) + ',' + Y(orOf(p)).toFixed(1)); }
+  let s = `<line class="axis" x1="50" y1="180" x2="440" y2="180"/><line class="axis" x1="50" y1="15" x2="50" y2="180"/>`;
+  s += `<line class="ln2" x1="50" y1="${Y(rr)}" x2="440" y2="${Y(rr)}"/><text class="tk" x="438" y="${Y(rr) - 6}" text-anchor="end">RR ${fmt(rr)}</text>`;
+  s += `<polyline class="ln" points="${pts.join(' ')}"/>`;
+  [0, pmax / 2, pmax].forEach(p => { s += `<text class="tk" x="${X(p)}" y="198" text-anchor="middle">${(p * 100).toFixed(0)}%</text>`; });
+  s += `<text class="tk" x="245" y="216" text-anchor="middle">risk in the unexposed</text><text class="tk" x="44" y="${Y(ymax / 1.1)}" text-anchor="end">${fmt(ymax / 1.1, 1)}</text><text class="lb" x="58" y="26">odds ratio</text>`;
+  if (p0 <= pmax) s += `<circle class="pt" cx="${X(p0)}" cy="${Y(orOf(p0))}" r="6"/>`;
+  $('orplot').innerHTML = s;
+}
+$('presets').innerHTML = Object.entries(PRESETS).map(([k, p]) => `<button type="button" class="chip" data-k="${k}">${p.name}</button>`).join('');
+document.querySelectorAll('#presets .chip').forEach(b => b.addEventListener('click', () => load(b.dataset.k)));
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { design = b.dataset.d; drawTable(); update(); }));
+load(PRESETS[qs.get('preset')] ? qs.get('preset') : 'snow');
+</script>
+</body>
+</html>

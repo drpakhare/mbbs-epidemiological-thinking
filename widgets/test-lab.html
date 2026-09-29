@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Screening Test Lab</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="widget.css">
+<script src="theme.js"></script>
+<style>
+  .sl { display: grid; gap: 4px; }
+  .sl .top { display: flex; justify-content: space-between; gap: 12px; }
+  .sl output { font: 600 18px var(--font-head); font-variant-numeric: tabular-nums; }
+  .key { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; }
+  .key span { display: inline-flex; align-items: center; gap: 6px; }
+  table.dx td.v { font: 600 20px var(--font-head); text-align: right; background: var(--wash); }
+</style>
+</head>
+<body>
+<header class="band"><div>
+  <p class="kicker"><a href="../index.html">Epidemiological thinking</a> · Lab 2</p>
+  <h1>Screening Test Lab</h1>
+  <p>1,000 people are tested. Change how common the disease is and how good the test is. Watch what a positive result means.</p>
+</div></header>
+<main>
+  <section class="panel">
+    <div class="row"><span class="label">Example</span><div class="row" id="presets" role="group" aria-label="Example"></div></div>
+    <div class="two">
+      <label class="sl"><span class="top"><span>Prevalence: how common is the disease?</span><output id="pv"></output></span><input type="range" id="prev" min="0.1" max="50" step="0.1"></label>
+      <label class="sl"><span class="top"><span>Sensitivity: positive if diseased</span><output id="sv"></output></span><input type="range" id="sens" min="50" max="100" step="0.5"></label>
+      <label class="sl"><span class="top"><span>Specificity: negative if healthy</span><output id="spv"></output></span><input type="range" id="spec" min="50" max="100" step="0.5"></label>
+    </div>
+  </section>
+
+  <section class="stats" aria-live="polite">
+    <div class="stat"><div class="n" id="ppv"></div><div class="l">PPV: of those who test positive, have the disease</div></div>
+    <div class="stat good"><div class="n" id="npv"></div><div class="l">NPV: of those who test negative, are disease-free</div></div>
+    <div class="stat warn"><div class="n" id="fpn"></div><div class="l">false alarms for every true case found</div></div>
+  </section>
+
+  <section class="two">
+    <div class="panel">
+      <h2>1,000 people</h2>
+      <svg id="waf" viewBox="0 0 450 188" style="width:100%;max-width:560px" role="img" aria-label="Waffle of 1,000 people by disease and test result"></svg>
+      <div class="key">
+        <span><svg width="14" height="14"><circle class="tp" cx="7" cy="7" r="6"/></svg>disease, test + (true positive)</span>
+        <span><svg width="14" height="14"><circle class="fn" cx="7" cy="7" r="5"/></svg>disease, test − (missed)</span>
+        <span><svg width="14" height="14"><circle class="fp" cx="7" cy="7" r="6"/></svg>healthy, test + (false alarm)</span>
+        <span><svg width="14" height="14"><circle class="tn" cx="7" cy="7" r="6"/></svg>healthy, test −</span>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>The same people as a 2 by 2 table</h2>
+      <div class="scroll"><table class="dx">
+        <tr><th></th><th class="num">Disease</th><th class="num">No disease</th><th class="num">Total</th></tr>
+        <tr><th>Test +</th><td class="v" id="a"></td><td class="v" id="b"></td><td class="num" id="ab"></td></tr>
+        <tr><th>Test −</th><td class="v" id="c"></td><td class="v" id="d"></td><td class="num" id="cd"></td></tr>
+        <tr><th>Total</th><td class="num" id="ac"></td><td class="num" id="bd"></td><td class="num">1,000</td></tr>
+      </table></div>
+      <p class="note">PPV = a / (a + b). NPV = d / (c + d). Sensitivity = a / (a + c). Specificity = d / (b + d).</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>PPV depends on prevalence, even when the test does not change</h2>
+    <svg id="curve" viewBox="0 0 560 230" style="width:100%;max-width:680px" role="img" aria-label="Positive predictive value against prevalence for this test"></svg>
+  </section>
+  <footer>Counts are rounded to whole people. The mammography example uses the figures from Gigerenzer et al. 2007; the other examples are illustrative. Built for teaching at AIIMS Bhopal.</footer>
+</main>
+<script>
+const PRE = {
+  mammo: ['Screening mammogram', 1, 90, 91],
+  clinic: ['Same test, breast clinic', 20, 90, 91],
+  better: ['More specific test', 1, 90, 99],
+  rare: ['Very rare disease', 0.1, 99, 99]
+};
+const $ = id => document.getElementById(id);
+const pc = x => !isFinite(x) ? 'n/a' : (x * 100 >= 99.95 ? '>99.9' : (x * 100).toFixed(x < 0.1 || x > 0.99 ? 1 : 0)) + '%';
+function load(k) { const p = PRE[k]; $('prev').value = p[1]; $('sens').value = p[2]; $('spec').value = p[3];
+  document.querySelectorAll('#presets .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === k)); update(); }
+function update() {
+  const pr = +$('prev').value / 100, se = +$('sens').value / 100, sp = +$('spec').value / 100;
+  $('pv').textContent = (+$('prev').value).toFixed(1) + '%'; $('sv').textContent = (+$('sens').value).toFixed(1) + '%'; $('spv').textContent = (+$('spec').value).toFixed(1) + '%';
+  // exact values for the measures; rounded people for the picture and table
+  const ppv = pr * se / (pr * se + (1 - pr) * (1 - sp)), npv = (1 - pr) * sp / ((1 - pr) * sp + pr * (1 - se));
+  const D = Math.round(1000 * pr), a = Math.round(D * se), c = D - a, H = 1000 - D, b = Math.round(H * (1 - sp)), d = H - b;
+  $('ppv').textContent = pc(ppv); $('npv').textContent = pc(npv);
+  const r = (1 - pr) * (1 - sp) / (pr * se); $('fpn').textContent = isFinite(r) ? (r >= 10 ? r.toFixed(0) : r.toFixed(1)) : 'n/a';
+  [['a', a], ['b', b], ['c', c], ['d', d], ['ab', a + b], ['cd', c + d], ['ac', D], ['bd', H]].forEach(([k, v]) => $(k).textContent = v.toLocaleString('en-IN'));
+  const cls = []; for (let i = 0; i < a; i++) cls.push('tp'); for (let i = 0; i < c; i++) cls.push('fn'); for (let i = 0; i < b; i++) cls.push('fp'); while (cls.length < 1000) cls.push('tn');
+  let h = ''; cls.forEach((k, i) => { const col = i % 50, row = Math.floor(i / 50); h += `<circle class="${k}" cx="${5 + col * 9}" cy="${5 + row * 9}" r="${k === 'fn' ? 2.9 : 3.5}"/>`; });
+  $('waf').innerHTML = h;
+  // PPV curve over prevalence 0.1% to 50% (log x)
+  const X = p => 60 + (Math.log10(p) + 3) / (Math.log10(0.5) + 3) * 480, Y = v => 195 - v * 175, pts = [];
+  for (let i = 0; i <= 80; i++) { const p = Math.pow(10, -3 + i / 80 * (Math.log10(0.5) + 3)); const v = p * se / (p * se + (1 - p) * (1 - sp)); pts.push(X(p).toFixed(1) + ',' + Y(v).toFixed(1)); }
+  let s = `<line class="axis" x1="60" y1="195" x2="540" y2="195"/><line class="axis" x1="60" y1="20" x2="60" y2="195"/>`;
+  [0, .25, .5, .75, 1].forEach(v => { s += `<line class="grid" x1="60" y1="${Y(v)}" x2="540" y2="${Y(v)}"/><text class="tk" x="52" y="${Y(v) + 4}" text-anchor="end">${v * 100}%</text>`; });
+  [0.001, 0.01, 0.05, 0.1, 0.2, 0.5].forEach(p => { s += `<text class="tk" x="${X(p)}" y="212" text-anchor="middle">${p * 100}%</text>`; });
+  s += `<text class="tk" x="300" y="228" text-anchor="middle">prevalence (log scale)</text><text class="lb" x="68" y="16">PPV</text>`;
+  s += `<polyline class="ln" points="${pts.join(' ')}"/><circle class="pt" cx="${X(Math.max(pr, 0.001))}" cy="${Y(ppv)}" r="6.5"/>`;
+  $('curve').innerHTML = s;
+}
+$('presets').innerHTML = Object.entries(PRE).map(([k, p]) => `<button type="button" class="chip" data-k="${k}">${p[0]}</button>`).join('');
+document.querySelectorAll('#presets .chip').forEach(b => b.addEventListener('click', () => load(b.dataset.k)));
+['prev', 'sens', 'spec'].forEach(id => $(id).addEventListener('input', () => { document.querySelectorAll('#presets .chip').forEach(b => b.setAttribute('aria-pressed', 'false')); update(); }));
+load('mammo');
+</script>
+</body>
+</html>
