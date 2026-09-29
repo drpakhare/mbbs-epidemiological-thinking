@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="widgets/widget.css">
 <script src="widgets/theme.js"></script>
 <style>
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
   a.card { display: grid; gap: 6px; align-content: start; background: var(--wash); border-top: 4px solid var(--band); padding: 18px; color: var(--ink); text-decoration: none; }
   a.card:hover { background: var(--rule); }
   a.card:focus-visible { outline: 3px solid var(--warn); outline-offset: 2px; }
@@ -17,6 +17,13 @@
   a.card .go { color: var(--ink); font-weight: 600; font-size: 15px; margin-top: 4px; }
   ol.steps { margin: 0; padding-left: 1.2em; max-width: 70ch; }
   ol.steps li { margin-bottom: 4px; }
+  .scan { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center; background: var(--wash); border-top: 4px solid var(--band); padding: 18px; }
+  .scan .qrbox { background: #fff; padding: 10px; border-radius: 8px; line-height: 0; }
+  .scan svg.qr { width: 180px; height: 180px; display: block; }
+  .scan h2 { margin: 0 0 6px; }
+  .scan p { margin: 0 0 6px; color: var(--dim); }
+  .scan code { font-size: 15px; color: var(--ink); word-break: break-all; }
+  @media (max-width: 520px) { .scan { grid-template-columns: 1fr; justify-items: start; } }
 </style>
 </head>
 <body>
@@ -26,6 +33,15 @@
   <p>Count, divide, compare. From newspaper headlines to Snow, Semmelweis and Doll and Hill, and the 2 by 2 table that ties them together.</p>
 </div></header>
 <main>
+  <section class="scan" aria-label="Open this site on your phone">
+    <div class="qrbox"><svg viewBox="0 0 37 37" role="img" aria-label="QR code for https://drpakhare.github.io/mbbs-epidemiological-thinking/" class="qr" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"  class="segno"><path fill="#fff" d="M0 0h37v37h-37z"/><path class="qrline" stroke="#000" d="M2 2.5h7m1 0h2m2 0h3m3 0h1m3 0h1m3 0h7m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h3m1 0h2m1 0h2m5 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m2 0h3m2 0h4m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m4 0h4m2 0h2m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h1m2 0h2m1 0h2m6 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m2 0h2m2 0h1m1 0h4m1 0h1m1 0h2m2 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h1m3 0h4m1 0h3m2 0h1m-24 1h1m2 0h9m2 0h1m1 0h2m2 0h1m3 0h2m2 0h1m1 0h3m-33 1h1m1 0h3m6 0h5m1 0h1m1 0h1m2 0h2m4 0h3m-31 1h2m2 0h1m1 0h2m3 0h1m1 0h1m1 0h2m1 0h1m4 0h1m1 0h1m2 0h5m-33 1h1m1 0h1m1 0h1m3 0h2m2 0h2m1 0h1m1 0h1m5 0h3m1 0h1m2 0h2m-29 1h1m2 0h2m2 0h4m2 0h1m3 0h1m2 0h2m1 0h2m-27 1h1m1 0h3m3 0h1m1 0h1m2 0h1m3 0h1m4 0h1m1 0h1m1 0h1m1 0h2m-27 1h3m1 0h1m1 0h3m1 0h3m2 0h1m1 0h2m3 0h1m1 0h3m-31 1h1m4 0h1m1 0h2m1 0h1m1 0h1m3 0h1m3 0h1m2 0h1m1 0h1m1 0h4m1 0h1m-33 1h3m1 0h1m1 0h1m4 0h5m3 0h2m1 0h1m1 0h5m-29 1h3m2 0h1m1 0h4m1 0h2m1 0h2m1 0h3m5 0h1m1 0h1m1 0h1m1 0h1m-33 1h1m1 0h3m1 0h2m5 0h1m1 0h1m1 0h3m1 0h5m1 0h1m1 0h4m-31 1h1m4 0h4m3 0h3m5 0h1m1 0h1m1 0h1m1 0h3m-31 1h1m2 0h1m1 0h2m1 0h1m1 0h1m5 0h2m1 0h1m4 0h1m2 0h1m1 0h1m1 0h1m-32 1h1m3 0h2m1 0h1m1 0h1m1 0h2m3 0h1m1 0h2m2 0h2m3 0h2m1 0h1m-31 1h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m1 0h3m1 0h1m1 0h1m2 0h5m1 0h4m-33 1h1m1 0h1m2 0h1m2 0h8m1 0h2m1 0h1m1 0h2m3 0h2m1 0h1m1 0h1m-33 1h5m1 0h1m2 0h1m1 0h3m2 0h1m1 0h3m3 0h6m1 0h1m-24 1h1m1 0h1m1 0h1m2 0h4m2 0h1m1 0h2m3 0h1m1 0h1m-31 1h7m1 0h4m2 0h2m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h2m1 0h1m4 0h1m1 0h2m2 0h3m3 0h3m-31 1h1m1 0h3m1 0h1m1 0h2m3 0h2m4 0h1m3 0h6m3 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m1 0h2m1 0h1m1 0h1m1 0h1m1 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m3 0h1m1 0h1m1 0h2m2 0h2m1 0h3m-33 1h1m5 0h1m3 0h1m1 0h1m1 0h3m1 0h2m2 0h1m4 0h6m-33 1h7m1 0h2m1 0h3m1 0h3m4 0h3m1 0h3"/></svg></div>
+    <div>
+      <h2>Scan to open on your phone</h2>
+      <p>Point your phone camera at the code. The slides and all four labs work on a phone.</p>
+      <code>drpakhare.github.io/mbbs-epidemiological-thinking/</code>
+    </div>
+  </section>
+
   <section class="cards" aria-label="Session materials">
     <a class="card" href="slides/epidemiological-thinking.html">
       <span class="label">Slides</span>
