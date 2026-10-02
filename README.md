@@ -27,6 +27,15 @@ By the end of the lecture, students will be able to:
 7. Match the levels of prevention to the stages of natural history.
 8. Discuss how natural history has been learned, including the ethical lessons of the Oslo and Tuskegee studies.
 
-## Coming next
+## Lecture 3: Dynamics of disease transmission
 
-Lecture 3: Dynamics of disease transmission.
+By the end of the lecture, students will be able to:
+
+1. Describe the epidemiological triad and the six links of the chain of infection, and name control measures for each link.
+2. Describe the modes of transmission, including transmission through the air as described by WHO in 2024.
+3. Calculate and interpret the attack rate and the secondary attack rate.
+4. Define R0 and effective R, explain R0 = β × c × D, and explain why R0 varies between populations.
+5. Calculate the herd immunity threshold and explain the conditions under which herd immunity fails.
+6. Explain superspreading and the dispersion parameter k, and what they mean for control.
+7. Explain ring vaccination using smallpox eradication and the 2015 Ebola vaccine trial.
+8. Distinguish sporadic, endemic, hyperendemic, epidemic and pandemic occurrence, list why epidemics start, and recognise the main shapes of epidemic curves.

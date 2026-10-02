@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Epidemic Curve Lab</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="widget.css">
+<script src="theme.js"></script>
+<style>
+  svg .bar { fill: var(--mark); } svg .g1, svg .g3, svg .g5 { fill: var(--mark); } svg .g2, svg .g4 { fill: var(--warn); }
+  svg .exp { fill: var(--good); opacity: .18; } svg .expl { font-size: 13px; font-weight: 600; fill: var(--good); }
+  svg .brk { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+  label.sl { display: grid; gap: 4px; } label.sl .top { display: flex; justify-content: space-between; gap: 10px; }
+  label.sl output { font: 600 17px var(--font-head); font-variant-numeric: tabular-nums; }
+  .ctr { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px 24px; align-items: end; }
+  @media (max-width: 760px) { .ctr { grid-template-columns: 1fr; } }
+  .btn { font: 600 15px var(--font-body); background: var(--band); color: var(--band-ink); border: 0; border-radius: 8px; padding: 8px 16px; cursor: pointer; }
+  .btn:focus-visible { outline: 3px solid var(--warn); outline-offset: 2px; }
+  html.embed .note.src { display: none; }
+  html.embed #curve { max-height: 300px; }
+</style>
+</head>
+<body>
+<header class="band"><div>
+  <p class="kicker"><a href="../index.html">Epidemiological Thinking series</a> · Lab 10</p>
+  <h1>Epidemic Curve Lab</h1>
+  <p>The shape of an epidemic curve tells you how people were exposed. Pick a pattern and an incubation period, and read the shape.</p>
+</div></header>
+<main>
+  <section class="panel">
+    <div class="row"><span class="label">Pattern</span><div class="seg" role="group" aria-label="Pattern" id="pat">
+      <button type="button" data-p="point">Point source</button><button type="button" data-p="cont">Continuous source</button><button type="button" data-p="inter">Intermittent source</button><button type="button" data-p="prop">Propagated, person to person</button></div></div>
+    <div class="ctr">
+      <label class="sl"><span class="top"><span>Incubation period, median</span><output id="iv"></output></span><input type="range" id="inc" min="0.25" max="30" step="0.25" aria-label="Median incubation period in days"></label>
+      <label class="sl" id="rbox"><span class="top"><span>R, new cases per case</span><output id="rv"></output></span><input type="range" id="r" min="0.5" max="4" step="0.1" aria-label="R"></label>
+      <button type="button" class="btn" id="again">Draw again</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <svg id="curve" viewBox="0 0 900 330" style="width:100%" role="img" aria-label="Epidemic curve: cases by day of onset"></svg>
+  </section>
+  <p class="claim" id="msg"></p>
+  <p class="note src">Simulated cases, illustrative. Incubation periods follow a log-normal distribution around the chosen median. In the propagated pattern, the time from one case's infection to the next generation's infection is set equal to the incubation period, and colours alternate between successive generations.</p>
+  <footer>Built for teaching at AIIMS Bhopal. The same shapes appear in real outbreaks; reading them is the first step of every outbreak investigation.</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id), qs = new URLSearchParams(location.search);
+let pat = ['point', 'cont', 'inter', 'prop'].includes(qs.get('p')) ? qs.get('p') : 'point', seed = 3;
+const rnd = () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return (seed + 0.5) / 4294967296; };
+const norm = () => Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd());
+const pois = l => { let L = Math.exp(-l), k = 0, p = 1; do { k++; p *= rnd(); } while (p > L); return k - 1; };
+const incub = m => m * Math.exp(0.35 * norm());
+const DEF = { point: 2, cont: 2, inter: 2, prop: 12 };
+function sim() {
+  const m = +$('inc').value, R = +$('r').value, out = []; let exp = [];
+  if (pat === 'point') { exp = [[0, 0.05 * m + 0.1]]; for (let i = 0; i < 120; i++) out.push({ t: rnd() * exp[0][1] + incub(m), g: 1 }); }
+  if (pat === 'cont') { const D = Math.max(6, 4 * m); exp = [[0, D]]; for (let i = 0; i < 160; i++) out.push({ t: rnd() * D + incub(m), g: 1 }); }
+  if (pat === 'inter') { const gap = Math.max(5, 3.5 * m); exp = [[0, .1 * m + .2], [gap, gap + .1 * m + .2], [2 * gap, 2 * gap + .1 * m + .2]]; exp.forEach(([a, b]) => { for (let i = 0; i < 50; i++) out.push({ t: a + rnd() * (b - a) + incub(m), g: 1 }); }); }
+  if (pat === 'prop') {
+    exp = [[0, .05 * m + .1]]; let gen = [{ inf: 0 }]; out.push({ t: incub(m), g: 1 });
+    for (let g = 2; g <= 5 && gen.length; g++) {
+      const next = []; gen.forEach(c => { const n = pois(R); for (let j = 0; j < n && out.length < 400; j++) { const inf = c.inf + incub(m); next.push({ inf }); out.push({ t: inf + incub(m), g }); } });
+      gen = next;
+    }
+  }
+  return { out, exp, m };
+}
+function draw() {
+  document.querySelectorAll('#pat button').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === pat));
+  const m = +$('inc').value; $('iv').textContent = m < 1 ? Math.round(m * 24) + ' hours' : (m % 1 ? m.toFixed(1) : m) + ' days';
+  $('rv').textContent = (+$('r').value).toFixed(1); $('rbox').style.visibility = pat === 'prop' ? 'visible' : 'hidden';
+  const { out, exp } = sim();
+  const bin = m < 1 ? 0.25 : m < 3 ? 0.5 : Math.max(1, Math.round(m / 5));
+  const tmax = Math.max(...out.map(c => c.t), ...exp.map(e => e[1])) * 1.05 + bin;
+  const nb = Math.ceil(tmax / bin), counts = Array.from({ length: nb }, () => [0, 0, 0, 0, 0, 0]);
+  out.forEach(c => { const b = Math.min(nb - 1, Math.floor(c.t / bin)); counts[b][c.g]++; });
+  const max = Math.max(4, ...counts.map(c => c.reduce((a, b) => a + b, 0)));
+  const X = t => 50 + t / tmax * 830, Y = v => 280 - v / max * 240, bw = 830 / nb;
+  let s = '';
+  exp.forEach(([a, b], i) => { s += `<rect class="exp" x="${X(a)}" y="30" width="${Math.max(3, X(b) - X(a))}" height="250"/>`; if (i === 0) s += `<text class="expl" x="${X(a) + 4}" y="24">exposure</text>`; });
+  [0, Math.round(max / 2), max].forEach(v => { s += `<line class="grid" x1="50" y1="${Y(v)}" x2="880" y2="${Y(v)}"/><text class="tk" x="44" y="${Y(v) + 4}" text-anchor="end">${v}</text>`; });
+  counts.forEach((c, i) => { let y0 = 280; for (let g = 1; g <= 5; g++) { if (!c[g]) continue; const h = c[g] / max * 240; s += `<rect class="${pat === 'prop' ? 'g' + g : 'bar'}" x="${(50 + i * bw + 0.5).toFixed(1)}" y="${(y0 - h).toFixed(1)}" width="${Math.max(1, bw - 1.5).toFixed(1)}" height="${h.toFixed(1)}"/>`; y0 -= h; } });
+  const raw = tmax / 8, nice = [0.25, 0.5, 1, 2, 5, 10, 20, 50], step = nice.find(n => n >= raw) || 50;
+  for (let t = 0; t <= tmax; t += step) s += `<text class="tk" x="${X(t)}" y="298" text-anchor="middle">${t % 1 ? (t * 24) + 'h' : t}</text>`;
+  s += `<text class="tk" x="465" y="318" text-anchor="middle">days since exposure began (onset of illness)</text><text class="lb" x="54" y="18" style="visibility:hidden">.</text>`;
+  if (pat === 'point') { const ts = out.map(c => c.t).sort((a, b) => a - b), a = ts[Math.floor(ts.length * .05)], b = ts[Math.floor(ts.length * .95)]; s += `<path class="brk" d="M${X(a)},44 L${X(a)},36 L${X(b)},36 L${X(b)},44"/><text class="tk" x="${(X(a) + X(b)) / 2}" y="30" text-anchor="middle" style="font-weight:600;fill:var(--ink)">most cases within about one incubation period</text>`; }
+  $('curve').innerHTML = s;
+  const msgs = {
+    point: 'One sharp peak with a steep rise and a slower tail: everyone was exposed at about the same time, from one source, such as one meal. All cases fall within roughly one incubation period of the exposure. Count back one median incubation period from the peak to find when the exposure happened.',
+    cont: 'A plateau that lasts as long as the source does: a contaminated water supply or a food served for days. Cases stop about one incubation period after the source is removed.',
+    inter: 'Separate peaks with no steady rise between them: a source that is contaminated on and off, such as a water supply that fails after heavy rain.',
+    prop: 'Waves that grow, each about one incubation period apart, as cases infect others. Raise R and the waves merge into a rising epidemic; drop R below 1 and the chain fades out. Controlling the source no longer works; you must break person-to-person spread.'
+  };
+  $('msg').textContent = msgs[pat];
+}
+document.querySelectorAll('#pat button').forEach(b => b.addEventListener('click', () => { pat = b.dataset.p; $('inc').value = DEF[pat]; seed = 3; draw(); }));
+['inc', 'r'].forEach(id => $(id).addEventListener('input', () => { seed = 3; draw(); }));
+$('again').addEventListener('click', () => { seed = (seed + 104729 + Date.now()) % 4294967296; draw(); });
+$('inc').value = qs.get('inc') || DEF[pat]; $('r').value = qs.get('r') || 2.2;
+draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Superspreading Lab</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="widget.css">
+<script src="theme.js"></script>
+<style>
+  svg .b80 { fill: var(--warn); } svg .brest { fill: var(--mark); } svg .zero { fill: var(--mark2); opacity: 1; }
+  svg .cum { fill: none; stroke: var(--ink); stroke-width: 2.5; } svg .m80 { stroke: var(--warn); stroke-width: 2; stroke-dasharray: 6 5; }
+  label.sl { display: grid; gap: 4px; } label.sl .top { display: flex; justify-content: space-between; gap: 10px; }
+  label.sl output { font: 600 17px var(--font-head); font-variant-numeric: tabular-nums; }
+  .ctr { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px 24px; align-items: end; }
+  @media (max-width: 760px) { .ctr { grid-template-columns: 1fr; } }
+  .btn { font: 600 15px var(--font-body); background: var(--band); color: var(--band-ink); border: 0; border-radius: 8px; padding: 8px 16px; cursor: pointer; }
+  .btn:focus-visible { outline: 3px solid var(--warn); outline-offset: 2px; }
+  .key { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 14px; color: var(--dim); }
+  .key i { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; }
+  html.embed .note.src { display: none; }
+  html.embed .stat .n { font-size: 24px; }
+  html.embed #bars { max-height: 250px; }
+</style>
+</head>
+<body>
+<header class="band"><div>
+  <p class="kicker"><a href="../index.html">Epidemiological Thinking series</a> · Lab 9</p>
+  <h1>Superspreading Lab</h1>
+  <p>R is an average. Two infections with the same R can spread very differently. The dispersion k measures how unevenly transmission is shared between cases.</p>
+</div></header>
+<main>
+  <section class="panel">
+    <div class="row"><span class="label">Infection</span><div class="row" id="presets" role="group" aria-label="Infection"></div></div>
+    <div class="ctr">
+      <label class="sl"><span class="top"><span>R, average new cases per case</span><output id="rv"></output></span><input type="range" id="r" min="0.5" max="5" step="0.1" aria-label="R"></label>
+      <label class="sl"><span class="top"><span>Dispersion k (small = a few superspreaders)</span><output id="kv"></output></span><input type="range" id="k" min="-1.3" max="2" step="0.05" aria-label="Dispersion k, log scale"></label>
+      <button type="button" class="btn" id="again">New 100 cases</button>
+    </div>
+  </section>
+
+  <section class="stats" id="stats" aria-live="polite"></section>
+
+  <section class="panel">
+    <h2 style="margin:0">100 cases, sorted by how many people each one infected</h2>
+    <svg id="bars" viewBox="0 0 900 300" style="width:100%" role="img" aria-label="Secondary cases caused by each of 100 cases, sorted"></svg>
+    <div class="key"><span><i style="background:var(--warn)"></i>the few cases that together caused 80% of transmission</span><span><i style="background:var(--mark)"></i>other cases that infected someone</span><span><i style="background:var(--mark2)"></i>infected nobody</span><span><i style="border-top:2.5px solid var(--ink);height:0;width:16px"></i>cumulative share of all transmission</span></div>
+  </section>
+  <p class="claim" id="msg"></p>
+  <p class="note src" id="src"></p>
+  <footer>Each case's number of new infections is drawn from a negative binomial distribution with mean R and dispersion k, the standard model since Lloyd-Smith et al. Nature 2005. Large k means everyone transmits about equally; k below 1 means most cases infect nobody and a few infect many. Built for teaching at AIIMS Bhopal.</footer>
+</main>
+<script>
+const P = {
+  covid: { name: 'COVID-19', r: 2.5, k: 0.1, src: 'Endo A et al. Wellcome Open Res 2020;5:67: k about 0.1 (95% CrI 0.05 to 0.2) at R0 2.5; about 10% of cases caused 80% of transmission. In Hong Kong, 19% of cases seeded 80% of transmission (Adam DC et al. Nat Med 2020).' },
+  sars: { name: 'SARS, Singapore 2003', r: 1.6, k: 0.16, src: 'Lloyd-Smith JO et al. Nature 2005;438:355-9: k = 0.16 (90% CI 0.11 to 0.64) for SARS in Singapore. R shown is illustrative.' },
+  even: { name: 'Everyone spreads equally', r: 2.5, k: 100, src: 'A Poisson process: every case has the same chance of infecting others. Shown for comparison.' }
+};
+const $ = id => document.getElementById(id), qs = new URLSearchParams(location.search);
+let key = P[qs.get('preset')] ? qs.get('preset') : 'covid', seed = 11, cases = [];
+const rnd = () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return (seed + 0.5) / 4294967296; };
+const norm = () => { const u = rnd(), v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+function gamma(a) { if (a < 1) return gamma(a + 1) * Math.pow(rnd(), 1 / a); const d = a - 1 / 3, c = 1 / Math.sqrt(9 * d); for (;;) { let x, v; do { x = norm(); v = 1 + c * x; } while (v <= 0); v = v * v * v; const u = rnd(); if (u < 1 - 0.0331 * x ** 4 || Math.log(u) < 0.5 * x * x + d * (1 - v + Math.log(v))) return d * v; } }
+const pois = l => { if (l > 30) return Math.max(0, Math.round(l + Math.sqrt(l) * norm())); let L = Math.exp(-l), k = 0, p = 1; do { k++; p *= rnd(); } while (p > L); return k - 1; };
+const kVal = () => Math.pow(10, +$('k').value);
+function draw() {
+  const R = +$('r').value, k = kVal();
+  $('rv').textContent = R.toFixed(1); $('kv').textContent = k >= 50 ? 'very large' : k >= 10 ? k.toFixed(0) : k >= 1 ? k.toFixed(1) : k.toFixed(2);
+  cases = Array.from({ length: 100 }, () => pois(gamma(k) * R / k)).sort((a, b) => b - a);
+  const tot = cases.reduce((s, x) => s + x, 0);
+  let cum = 0, n80 = 0; for (const x of cases) { if (cum >= 0.8 * tot) break; cum += x; n80++; }
+  const zero = cases.filter(x => x === 0).length;
+  let q = 0; for (let i = 0; i < 500; i++) q = Math.pow(1 + (R / k) * (1 - q), -k);
+  const stat = (n, l, c = '') => `<div class="stat ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  $('stats').innerHTML = stat(tot ? n80 : 'n/a', 'of 100 cases caused 80% of all new infections', 'warn') + stat(zero, 'of 100 cases infected nobody') + stat(cases[0], 'infected by the single biggest spreader') + stat(R <= 1 ? '100%' : Math.round(q * 100) + '%', 'chance one imported case causes no lasting outbreak', 'good');
+  // bars
+  const max = Math.max(5, cases[0]), W = 8, X = i => 50 + i * W, Y = v => 260 - v / max * 230;
+  let s = '';
+  [0, Math.round(max / 2), max].forEach(v => { s += `<line class="grid" x1="50" y1="${Y(v)}" x2="852" y2="${Y(v)}"/><text class="tk" x="44" y="${Y(v) + 4}" text-anchor="end">${v}</text>`; });
+  cases.forEach((x, i) => { const cl = x === 0 ? 'zero' : i < n80 ? 'b80' : 'brest'; const h = x === 0 ? 3 : 260 - Y(x); s += `<rect class="${cl}" x="${X(i)}" y="${260 - h}" width="${W - 1.5}" height="${h}"/>`; });
+  // cumulative line on right axis 0-100%
+  let c2 = 0; const pts = cases.map((x, i) => { c2 += x; return `${(X(i) + W / 2).toFixed(1)},${(260 - (tot ? c2 / tot : 0) * 230).toFixed(1)}`; });
+  s += `<polyline class="cum" points="${X(0)},260 ${pts.join(' ')}"/>`;
+  s += `<line class="m80" x1="50" y1="${260 - 0.8 * 230}" x2="852" y2="${260 - 0.8 * 230}"/><text class="tk" x="856" y="${260 - 0.8 * 230 + 4}" style="fill:var(--warn);font-weight:600">80%</text><text class="tk" x="856" y="34">100%</text>`;
+  s += `<text class="tk" x="450" y="284" text-anchor="middle">each bar is one case, from the biggest spreader to those who infected nobody</text><text class="lb" x="54" y="18">new infections caused</text>`;
+  $('bars').innerHTML = s;
+  $('msg').textContent = k < 0.5
+    ? `With k = ${$('kv').textContent}, transmission is concentrated: ${zero} of 100 cases infected nobody, while ${n80} caused 80% of new infections. Most chains die out by themselves, but a crowded indoor event with one of the few spreaders can seed a large cluster. Control focuses on preventing such events and on tracing backwards to find the cluster each case came from.`
+    : k > 10
+      ? `With little variation, almost every case infects someone and most chains keep going. Average-based thinking works well here.`
+      : `Moderate variation: some cases infect many, many infect none. Try lowering k with the same R and watch the bars.`;
+  $('msg').className = 'claim ' + (k < 0.5 ? 'warn' : '');
+}
+function load(k) { key = k; const p = P[k]; document.querySelectorAll('#presets .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === k)); $('r').value = p.r; $('k').value = Math.log10(p.k); $('src').textContent = 'Source: ' + p.src; seed = 11; draw(); }
+$('presets').innerHTML = Object.entries(P).map(([k, p]) => `<button type="button" class="chip" data-k="${k}">${p.name}</button>`).join('');
+document.querySelectorAll('#presets .chip').forEach(b => b.addEventListener('click', () => load(b.dataset.k)));
+['r', 'k'].forEach(id => $(id).addEventListener('input', () => { document.querySelectorAll('#presets .chip').forEach(b => b.setAttribute('aria-pressed', 'false')); seed = 11; draw(); }));
+$('again').addEventListener('click', () => { seed = (seed + 7919 + Date.now()) % 4294967296; draw(); });
+load(key);
+</script>
+</body>
+</html>

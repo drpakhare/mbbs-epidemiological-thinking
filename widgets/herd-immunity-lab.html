@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Herd Immunity Lab</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="widget.css">
+<script src="theme.js"></script>
+<style>
+  :root { --imm: #c3c9da; --sus: #ffffff; --susb: #8a91a1; --inf: #a86400; --rec: #b3261e; --ok: rgba(30,125,79,.12); }
+  :root[data-theme="dark"] { --imm: #3c4459; --sus: #121726; --susb: #7f879a; --inf: #e3a64a; --rec: #f08a80; --ok: rgba(92,194,143,.16); }
+  svg .imm { fill: var(--imm); } svg .sus { fill: var(--sus); stroke: var(--susb); stroke-width: 1.4; }
+  svg .inf { fill: var(--inf); } svg .rec { fill: var(--rec); }
+  svg .okz { fill: var(--ok); } svg .curve { fill: none; stroke: var(--mark); stroke-width: 3; }
+  svg .pt { fill: var(--mark); stroke: var(--paper); stroke-width: 2; }
+  svg .cov { stroke: var(--good); stroke-width: 2.5; stroke-dasharray: 6 5; }
+  label.sl { display: grid; gap: 4px; } label.sl .top { display: flex; justify-content: space-between; gap: 10px; }
+  label.sl output { font: 600 17px var(--font-head); font-variant-numeric: tabular-nums; }
+  .ctr { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 24px; }
+  @media (max-width: 760px) { .ctr { grid-template-columns: 1fr; } }
+  .side2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 760px) { .side2 { grid-template-columns: 1fr; } }
+  .btn { font: 600 15px var(--font-body); background: var(--band); color: var(--band-ink); border: 0; border-radius: 8px; padding: 8px 16px; cursor: pointer; }
+  .btn:focus-visible { outline: 3px solid var(--warn); outline-offset: 2px; }
+  .key { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 14px; color: var(--dim); }
+  html.embed .note.src { display: none; }
+  html.embed .stat .n { font-size: 22px; }
+  html.embed .stat { padding: 8px 12px; }
+  html.embed .stat .l { font-size: 13px; }
+  html.embed #town { max-height: 250px; }
+  html.embed #hit { max-height: 240px; }
+  html.embed main { gap: 12px; }
+</style>
+</head>
+<body>
+<header class="band"><div>
+  <p class="kicker"><a href="../index.html">Epidemiological Thinking series</a> · Lab 8</p>
+  <h1>Herd Immunity Lab</h1>
+  <p>How many people must be immune before one case stops starting an epidemic? Set R0, vaccine coverage and vaccine efficacy, then release one case.</p>
+</div></header>
+<main>
+  <section class="panel">
+    <div class="row"><span class="label">Infection</span><div class="row" id="presets" role="group" aria-label="Infection"></div></div>
+    <div class="ctr">
+      <label class="sl"><span class="top"><span>R0, in a fully susceptible population</span><output id="r0v"></output></span><input type="range" id="r0" min="1" max="20" step="0.5" aria-label="R0"></label>
+      <label class="sl"><span class="top"><span>Vaccine coverage</span><output id="cv"></output></span><input type="range" id="cov" min="0" max="100" step="1" aria-label="Vaccine coverage"></label>
+      <label class="sl"><span class="top"><span>Vaccine efficacy</span><output id="ev"></output></span><input type="range" id="eff" min="50" max="100" step="1" aria-label="Vaccine efficacy"></label>
+    </div>
+  </section>
+
+  <section class="stats" id="stats" aria-live="polite"></section>
+
+  <section class="side2">
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">400 people, one case arrives</h2>
+        <div class="row"><label class="check"><input type="checkbox" id="clu"> Unvaccinated live together</label><button type="button" class="btn" id="run">Release one case</button></div>
+      </div>
+      <svg id="town" viewBox="0 0 400 400" style="width:100%;max-width:440px" role="img" aria-label="Simulated town of 400 people"></svg>
+      <div class="key"><span><svg width="12" height="12"><circle cx="6" cy="6" r="5" class="imm"/></svg> immune</span><span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" class="sus"/></svg> susceptible</span><span><svg width="12" height="12"><circle cx="6" cy="6" r="5" class="inf"/></svg> infectious now</span><span><svg width="12" height="12"><circle cx="6" cy="6" r="5" class="rec"/></svg> was infected</span></div>
+      <p class="note" id="simmsg"></p>
+    </div>
+    <div class="panel">
+      <h2 style="margin:0">How much immunity is enough?</h2>
+      <svg id="hit" viewBox="0 0 440 300" style="width:100%" role="img" aria-label="Herd immunity threshold against R0"></svg>
+      <p class="claim" id="msg"></p>
+    </div>
+  </section>
+  <p class="note src" id="src"></p>
+  <footer>Herd immunity threshold = 1 minus 1/R0. Effective R = R0 x share still susceptible. The town is a simulation: each infectious person makes on average R0 infecting contacts, mostly with near neighbours; results vary by chance from run to run. Built for teaching at AIIMS Bhopal.</footer>
+</main>
+<script>
+const P = {
+  measles: { name: 'Measles', r0: 15, eff: 97, cov: 90, src: 'R0 classically 12 to 18 (estimates in a 2017 systematic review range far wider, Guerra FM et al. Lancet Infect Dis 2017). Two doses of measles vaccine are about 97% effective (CDC Pink Book).' },
+  polio: { name: 'Polio', r0: 6, eff: 90, cov: 85, src: 'R0 classically 5 to 7 (Fine PE. Epidemiol Rev 1993). Efficacy shown is illustrative.' },
+  covid: { name: 'COVID-19, 2020', r0: 3, eff: 90, cov: 50, src: 'R0 for the original strain: median 2.79 across 12 studies (Liu Y et al. J Travel Med 2020); later variants were higher (Delta about 5, Omicron about 9.5). Efficacy against infection fell with later variants; 90% is illustrative.' },
+  flu: { name: 'Pandemic influenza', r0: 2, eff: 60, cov: 50, src: 'R for the 1918 pandemic: median 1.8; 2009: 1.46; seasonal influenza: 1.28 (Biggerstaff M et al. BMC Infect Dis 2014). Vaccine efficacy of 60% is illustrative.' },
+  own: { name: 'Your own', r0: 4, eff: 90, cov: 60, src: 'Set any values.' }
+};
+const $ = id => document.getElementById(id), qs = new URLSearchParams(location.search);
+let key = P[qs.get('preset')] ? qs.get('preset') : 'measles';
+// seeded random
+let seed = 7; const rnd = () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; };
+const pois = l => { let L = Math.exp(-l), k = 0, p = 1; do { k++; p *= rnd(); } while (p > L); return k - 1; };
+let state = [], timer = null;
+function vals() { return { r0: +$('r0').value, cov: +$('cov').value / 100, eff: +$('eff').value / 100 }; }
+function finalSize(R, s) { if (R * s <= 1) return 0; let z = s; for (let i = 0; i < 200; i++) z = s * (1 - Math.exp(-R * z)); return z; }
+function load(k) {
+  key = k; const p = P[k];
+  document.querySelectorAll('#presets .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === k));
+  $('r0').value = p.r0; $('cov').value = p.cov; $('eff').value = p.eff; $('src').textContent = 'Source: ' + p.src;
+  update();
+}
+function update() {
+  const { r0, cov, eff } = vals();
+  $('r0v').textContent = r0; $('cv').textContent = Math.round(cov * 100) + '%'; $('ev').textContent = Math.round(eff * 100) + '%';
+  const imm = cov * eff, s = 1 - imm, re = r0 * s, hit = 1 - 1 / r0, need = hit / eff;
+  const stat = (n, l, c = '') => `<div class="stat ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  $('stats').innerHTML = stat(Math.round(imm * 100) + '%', 'of people immune (coverage x efficacy)') +
+    stat(re.toFixed(1), 'effective R: new cases per case now', re < 1 ? 'good' : 'bad') +
+    stat(Math.round(hit * 100) + '%', 'herd immunity threshold, 1 minus 1/R0') +
+    stat(need > 1 ? 'over 100%' : Math.round(need * 100) + '%', 'vaccine coverage needed with this efficacy', need > 1 ? 'warn' : '');
+  const fs = finalSize(r0, s);
+  $('msg').textContent = re < 1
+    ? `Effective R is ${re.toFixed(1)}: each case causes fewer than one new case, so chains die out. The unvaccinated are protected by the immune people around them.`
+    : need > 1
+      ? `Even 100% coverage cannot reach the threshold with a vaccine this effective. Effective R is ${re.toFixed(1)}; if a case arrives, roughly ${Math.round(fs * 100)}% of the population could eventually be infected.`
+      : `Effective R is ${re.toFixed(1)}. A single case can start an epidemic that could infect roughly ${Math.round(fs * 100)}% of the population. Coverage must reach ${Math.round(need * 100)}% to stop it.`;
+  $('msg').className = 'claim ' + (re < 1 ? 'good' : 'warn');
+  drawHIT(r0, imm); reset();
+}
+function drawHIT(r0, imm) {
+  const X = r => 50 + (r - 1) / 19 * 370, Y = v => 260 - v * 230; let s = '';
+  // protected zone: above curve
+  const pts = []; for (let r = 1; r <= 20.001; r += 0.25) pts.push(`${X(r).toFixed(1)},${Y(1 - 1 / r).toFixed(1)}`);
+  s += `<polygon class="okz" points="${X(1)},${Y(1)} ${pts.join(' ')} ${X(20)},${Y(1)}"/>`;
+  [0, .25, .5, .75, 1].forEach(v => { s += `<line class="grid" x1="50" y1="${Y(v)}" x2="420" y2="${Y(v)}"/><text class="tk" x="44" y="${Y(v) + 4}" text-anchor="end">${v * 100}%</text>`; });
+  [1, 5, 10, 15, 20].forEach(r => { s += `<text class="tk" x="${X(r)}" y="278" text-anchor="middle">${r}</text>`; });
+  s += `<text class="tk" x="235" y="296" text-anchor="middle">R0</text><text class="lb" x="56" y="18">share of people who must be immune</text>`;
+  s += `<polyline class="curve" points="${pts.join(' ')}"/>`;
+  s += `<line class="cov" x1="50" y1="${Y(imm)}" x2="420" y2="${Y(imm)}"/><text class="tk" x="56" y="${imm > 0.5 ? Y(imm) + 18 : Y(imm) - 6}" style="fill:var(--good);font-weight:600;paint-order:stroke;stroke:var(--paper);stroke-width:4px">immune now ${Math.round(imm * 100)}%</text>`;
+  s += `<circle class="pt" cx="${X(r0)}" cy="${Y(1 - 1 / r0)}" r="7"/>`;
+  s += `<text class="tk" x="${X(19.5)}" y="${Y(0.45)}" text-anchor="end" style="fill:var(--dim)">below the curve: an epidemic can take off</text><text class="tk" x="${X(3)}" y="${Y(1) + 14}" style="fill:var(--good);font-weight:600">protected: above the curve</text>`;
+  $('hit').innerHTML = s;
+}
+// ---------- simulation
+function reset() {
+  if (timer) { clearInterval(timer); timer = null; }
+  const { cov, eff } = vals(), N = 400, nVac = Math.round(cov * N);
+  seed = 7 + Math.round(cov * 1000) + Math.round(eff * 100);
+  let order = [...Array(N).keys()];
+  if ($('clu').checked) {
+    // unvaccinated cluster in one corner: order by distance from (4,4)
+    order.sort((a, b) => { const da = (a % 20 - 4) ** 2 + (Math.floor(a / 20) - 4) ** 2, db = (b % 20 - 4) ** 2 + (Math.floor(b / 20) - 4) ** 2; return db - da; });
+  } else { for (let i = N - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; } }
+  state = Array(N).fill('sus');
+  order.slice(0, nVac).forEach(i => { state[i] = rnd() < eff ? 'imm' : 'sus'; });
+  drawTown(); $('simmsg').textContent = 'Press "Release one case" to start.';
+}
+function drawTown() {
+  let s = ''; state.forEach((c, i) => { s += `<circle class="${c}" cx="${10 + (i % 20) * 19.5}" cy="${10 + Math.floor(i / 20) * 19.5}" r="${c === 'sus' ? 6.3 : 7.5}"/>`; });
+  $('town').innerHTML = s;
+}
+function run() {
+  reset(); const { r0 } = vals(); seed = (seed + Date.now()) % 4294967296;
+  const sus = state.map((c, i) => c === 'sus' ? i : -1).filter(i => i >= 0);
+  let cur = [ $('clu').checked ? (sus.find(i => (i % 20) < 8 && Math.floor(i / 20) < 8) ?? sus[0]) : sus[Math.floor(rnd() * sus.length)] ];
+  if (cur[0] === undefined) { $('simmsg').textContent = 'Everyone is immune. Nothing can happen.'; return; }
+  state[cur[0]] = 'inf'; drawTown(); let gen = 0, total = 1;
+  timer = setInterval(() => {
+    const next = [];
+    cur.forEach(i => {
+      const n = pois(r0), x = i % 20, y = Math.floor(i / 20);
+      for (let k = 0; k < n; k++) {
+        let t;
+        if (rnd() < 0.75) { const dx = Math.floor(rnd() * 7) - 3, dy = Math.floor(rnd() * 7) - 3, nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx > 19 || ny > 19) continue; t = ny * 20 + nx; }
+        else t = Math.floor(rnd() * 400);
+        if (state[t] === 'sus') { state[t] = 'inf'; next.push(t); }
+      }
+      state[i] = 'rec';
+    });
+    total += next.length; gen++; cur = next; drawTown();
+    $('simmsg').textContent = `Generation ${gen}: ${total} infected so far.`;
+    if (!cur.length) { clearInterval(timer); timer = null; const sl = state.filter(c => c === 'sus').length; $('simmsg').textContent = `Over after ${gen} generations: ${total} of 400 infected. ${sl} susceptible people escaped. Run again: chance plays a large part.`; }
+  }, 450);
+}
+$('presets').innerHTML = Object.entries(P).map(([k, p]) => `<button type="button" class="chip" data-k="${k}">${p.name}</button>`).join('');
+document.querySelectorAll('#presets .chip').forEach(b => b.addEventListener('click', () => load(b.dataset.k)));
+['r0', 'cov', 'eff'].forEach(id => $(id).addEventListener('input', () => { document.querySelectorAll('#presets .chip').forEach(b => b.setAttribute('aria-pressed', 'false')); update(); }));
+$('clu').addEventListener('change', reset); $('run').addEventListener('click', run);
+if (qs.get('cluster') === '1') $('clu').checked = true;
+load(key);
+if (qs.get('cov')) { $('cov').value = qs.get('cov'); update(); }
+</script>
+</body>
+</html>

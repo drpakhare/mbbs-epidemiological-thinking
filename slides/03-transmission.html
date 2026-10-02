@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Dynamics of disease transmission</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../vendor/reveal.js/dist/reveal.css">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/slides.css">
+<style>
+  /* per-deck: diagrams, embedded labs, question slides */
+  iframe.lab { display: block; width: 1152px; height: 536px; margin: 0 64px; border: 1px solid var(--rule); background: var(--paper); }
+  .labnote { margin-top: 8px !important; }
+  .reveal .labnote a { color: var(--band); }
+  .q { font-family: var(--font-head); font-size: 44px; line-height: 1.2; color: var(--band); margin-top: 40px !important; }
+  .dg { display: block; width: 1152px; height: auto; margin: 0 64px; }
+  .dg text { font-family: var(--font-body); }
+  .dg .t { font-size: 20px; fill: var(--ink); }
+  .dg .tb { font-size: 21px; font-weight: 700; fill: var(--ink); }
+  .dg .tw { font-size: 21px; font-weight: 700; fill: #fff; }
+  .dg .td { font-size: 19px; fill: var(--dim); }
+  .dg .link { fill: var(--wash); stroke: var(--band); stroke-width: 3; }
+  .dg .arr { stroke: var(--band); stroke-width: 3; fill: none; marker-end: url(#ar3); }
+  .dg .n1 { fill: var(--band); } .dg .n2 { fill: #8f9cc8; } .dg .n0 { fill: #c3c9da; }
+  .dg .e { stroke: var(--dim); stroke-width: 2; }
+  table.wide { font-size: 22px; }
+  table.wide td, table.wide th { padding: 7px 12px; }
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- 1 -->
+<section class="cover">
+  <p class="kicker">Epidemiological Thinking · Lecture 3</p>
+  <h1>Samoa, 2019: 83 people died of measles, a disease with a vaccine since 1963. How does a country lose its protection?</h1>
+  <p class="lede dim">Dynamics of disease transmission: how infections move between people, and how we stop them</p>
+  <p class="small faint">AIIMS Bhopal · 60 minutes</p>
+  <aside class="notes">Last lecture we followed a disease inside one person: its natural history. Today we follow it between people. How does an infection get from one person to the next, how fast can it spread, and why does it sometimes stop on its own? We will start and end with a small island nation in the Pacific, Samoa, where in late 2019 measles killed 83 people, most of them small children. The measles vaccine has existed since 1963. By the end of the hour you will be able to explain, with one simple formula, how this happened.</aside>
+</section>
+
+<!-- 2 -->
+<section>
+  <h2>A preventable epidemic in four months</h2>
+  <div class="cards c3">
+    <div class="stat"><span class="n">5,707</span><span class="l">measles cases in a population of about 200,000</span></div>
+    <div class="stat"><span class="n">83</span><span class="l">deaths, about 87% of them children under 5</span></div>
+    <div class="stat"><span class="n">31%</span><span class="l">of infants had received a first dose of measles vaccine in 2018</span></div>
+  </div>
+  <p class="lede" style="margin-top:26px">In July 2018 two infants died after nurses wrongly prepared the vaccine. Vaccination was suspended for months and trust collapsed.</p>
+  <p class="q" style="font-size:34px">The vaccine still worked. What actually changed in the population?</p>
+  <p class="cite">WHO Disease Outbreak News, Measles: Samoa (DON217), December 2019. WHO and UNICEF Samoa measles situation report 11, January 2020.</p>
+  <aside class="notes">Here is what happened. In 2018 a tragic error, two infants died after the vaccine was wrongly prepared, led to vaccination being suspended. Coverage, already falling, dropped to about 31 percent for the first dose. In late 2019 measles arrived. Over four months there were 5,707 cases and 83 deaths, mostly in children under five. A mass vaccination campaign from late November finally stopped it. Ask the room: the vaccine did not stop working. What changed? Hold the answer; we need a few tools first.</aside>
+</section>
+
+<!-- 3 -->
+<section>
+  <h2>Transmission happens where agent, host and environment meet</h2>
+  <div class="cards c3">
+    <div class="card"><h3>Agent</h3><p class="small">How infectious it is, how long it survives outside the body, how it leaves and enters.</p></div>
+    <div class="card"><h3>Host</h3><p class="small">Immunity from infection or vaccine, age, nutrition, behaviour, contacts.</p></div>
+    <div class="card"><h3>Environment</h3><p class="small">Crowding, ventilation, water and sanitation, vectors, climate, health services.</p></div>
+  </div>
+  <p class="claim">Change any one of the three and transmission changes. In Samoa, only the host changed.</p>
+  <p class="cite">Gordis Epidemiology, 6th ed., chapter 2.</p>
+  <aside class="notes">The classic triad. Disease spreads where an agent, a susceptible host and a suitable environment meet. Each corner gives us something to work on. The agent: how infectious, how hardy, how it travels. The host: immunity, age, nutrition, and how many people they meet. The environment: crowding, ventilation, water, vectors, and the health system itself. In Samoa the virus was the same measles virus as always, and the environment was much the same. What changed was the host: there were far more susceptible children.</aside>
+</section>
+
+<!-- 4 -->
+<section>
+  <h2>The chain of infection has six links. Break any one</h2>
+  <svg class="dg" viewBox="0 0 1152 300" role="img" aria-label="Chain of infection: agent, reservoir, portal of exit, mode of transmission, portal of entry, susceptible host">
+    <defs><marker id="ar3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--band)"/></marker></defs>
+    <rect class="link" x="0" y="40" width="170" height="110" rx="10"/><text class="tb" x="14" y="80">Agent</text><text class="td" x="14" y="110">measles virus</text><text class="td" x="14" y="136">Vibrio cholerae</text>
+    <path class="arr" d="M172,95 L192,95"/>
+    <rect class="link" x="196" y="40" width="170" height="110" rx="10"/><text class="tb" x="210" y="80">Reservoir</text><text class="td" x="210" y="110">infected people</text><text class="td" x="210" y="136">water, animals</text>
+    <path class="arr" d="M368,95 L388,95"/>
+    <rect class="link" x="392" y="40" width="170" height="110" rx="10"/><text class="tb" x="406" y="80">Portal of exit</text><text class="td" x="406" y="110">breath, cough</text><text class="td" x="406" y="136">faeces, blood</text>
+    <path class="arr" d="M564,95 L584,95"/>
+    <rect class="link" x="588" y="40" width="170" height="110" rx="10"/><text class="tb" x="602" y="80">Mode</text><text class="td" x="602" y="110">through the air</text><text class="td" x="602" y="136">water, vectors</text>
+    <path class="arr" d="M760,95 L780,95"/>
+    <rect class="link" x="784" y="40" width="170" height="110" rx="10"/><text class="tb" x="798" y="80">Portal of entry</text><text class="td" x="798" y="110">airways</text><text class="td" x="798" y="136">mouth, skin</text>
+    <path class="arr" d="M956,95 L976,95"/>
+    <rect class="link" x="980" y="40" width="170" height="110" rx="10"/><text class="tb" x="994" y="80">Susceptible</text><text class="tb" x="994" y="104">host</text><text class="td" x="994" y="136">not immune</text>
+    <text class="t" x="0" y="210">Measles in Samoa: the virus, infected children, coughing, air in crowded homes, the airways, unvaccinated infants.</text>
+    <text class="t" x="0" y="246">Cholera: Vibrio, contaminated water, faeces, drinking water, the mouth, anyone without immunity.</text>
+  </svg>
+  <p class="cite">Adapted from CDC. Principles of Epidemiology in Public Health Practice, 3rd ed., Lesson 1.</p>
+  <aside class="notes">Here is the chain of infection, the core picture of this lecture. Six links: the agent; the reservoir where it normally lives and multiplies; the portal through which it leaves the reservoir; the mode by which it travels; the portal through which it enters a new person; and a susceptible host. Walk through both examples. Measles: the virus lives in infected people, leaves in coughs and breath, travels through the air, enters through the airways, and needs a non-immune child. Cholera: the bacterium lives in people and contaminated water, leaves in faeces, travels in drinking water, enters through the mouth. The public health message: you do not need to break every link. Breaking one is enough.</aside>
+</section>
+
+<!-- 5 -->
+<section>
+  <h2>How infections travel from one person to the next</h2>
+  <table class="wide">
+    <tr><th>Mode</th><th>How</th><th>Examples</th></tr>
+    <tr><td>Direct contact</td><td>Touch, sexual contact, bites</td><td>Scabies, syphilis, HIV, rabies</td></tr>
+    <tr><td>Through the air: direct deposition</td><td>Particles land on eyes, nose or mouth at close range</td><td>Influenza, pertussis</td></tr>
+    <tr><td>Through the air: inhalation</td><td>Particles breathed in, at short or long range</td><td>Measles, TB, chickenpox, COVID-19</td></tr>
+    <tr><td>Vehicle</td><td>Food, water, blood, objects</td><td>Cholera, typhoid, hepatitis A and B</td></tr>
+    <tr><td>Vector</td><td>Insects carry the agent</td><td>Malaria, dengue, Japanese encephalitis</td></tr>
+    <tr><td>Vertical</td><td>Mother to baby</td><td>Rubella, syphilis, HIV, hepatitis B</td></tr>
+  </table>
+  <p class="cite">WHO. Global technical consultation report on proposed terminology for pathogens that transmit through the air, April 2024.</p>
+  <aside class="notes">The ways infections travel. Direct contact. Then two rows that replace the old droplet versus airborne split. After COVID-19, WHO brought experts together and in April 2024 proposed new terms. Infected people breathe out infectious respiratory particles of all sizes. Transmission "through the air" has two forms: direct deposition, when particles land on someone's eyes, nose or mouth at close range, and inhalation, when they are breathed in, either close by or across a room. The old idea that only tiny aerosols travel far, and big droplets fall within a metre or two, was too simple. Then vehicles, vectors, and mother to baby. Many infections use more than one route.</aside>
+</section>
+
+<!-- 6 -->
+<section>
+  <h2>Every link has its own control measures</h2>
+  <div class="cards c3">
+    <div class="card"><h3>Agent and reservoir</h3><p class="small">Treat the infected, find carriers, control animal reservoirs, disinfect.</p></div>
+    <div class="card"><h3>Portal of exit</h3><p class="small">Cover coughs, masks on the sick, safe disposal of faeces and sharps.</p></div>
+    <div class="card"><h3>Mode</h3><p class="small">Safe water and food, ventilation and filtration, vector control, hand hygiene.</p></div>
+    <div class="card"><h3>Portal of entry</h3><p class="small">Masks and respirators, bed nets, repellents, condoms, gloves.</p></div>
+    <div class="card good"><h3>Susceptible host</h3><p class="small">Vaccines, prophylactic drugs, nutrition, protecting the vulnerable.</p></div>
+    <div class="card"><h3>Contacts</h3><p class="small">Isolation of the sick, quarantine of the exposed, contact tracing.</p></div>
+  </div>
+  <aside class="notes">Every link suggests interventions. Treat infected people and control reservoirs. Cover the portal of exit: cough etiquette, masks on sick people, sanitation. Block the mode: clean water and food, good ventilation, mosquito control, hand hygiene. Protect the portal of entry: masks, bed nets, condoms. Strengthen the host: vaccines and prophylaxis. And manage contacts: isolation and quarantine, which we discussed last time. Ask students for one Indian programme for each card: the National Vector Borne Disease Control Programme, Swachh Bharat, Universal Immunisation Programme.</aside>
+</section>
+
+<!-- 7 -->
+<section>
+  <h2>One choir practice. One singer with a cough</h2>
+  <p class="lede">Washington State, 10 March 2020. 61 people meet for a two-and-a-half-hour choir rehearsal. One of them has mild symptoms of COVID-19.</p>
+  <p class="q">Of the other 60, how many will fall ill?</p>
+  <aside class="notes">A real event. In March 2020, before anyone in that town was taking COVID-19 seriously, a community choir in Skagit County, Washington, met for a long rehearsal. One person had cold-like symptoms. They sang together, sat close, shared snacks. Ask the room to guess: of the 60 others, how many became ill? Most will guess a handful.</aside>
+</section>
+
+<!-- 8 -->
+<section>
+  <h2>52 of 60 fell ill: the secondary attack rate</h2>
+  <div class="eq"><span>Secondary attack rate =</span><span class="frac"><span class="n">new cases among exposed contacts</span><span class="d">susceptible people exposed</span></span><span class="op">=</span><span class="frac"><span class="n">52</span><span class="d">60</span></span><span class="op">=</span><span><b>87%</b></span></div>
+  <div class="cards c2">
+    <div class="card"><h3>Attack rate</h3><p class="small">Proportion of an exposed group who become ill during an outbreak: for example, everyone who ate at a wedding.</p></div>
+    <div class="card"><h3>Secondary attack rate</h3><p class="small">Proportion of susceptible contacts of a case who become ill: a household, a ward, a choir. It measures person-to-person spread.</p></div>
+  </div>
+  <p class="small dim">32 confirmed and 20 probable secondary cases. Three were admitted to hospital and two died.</p>
+  <p class="cite">Hamner L et al. High SARS-CoV-2 attack rate following exposure at a choir practice. MMWR 2020;69:606-10.</p>
+  <aside class="notes">52 of the 60 fell ill, 32 confirmed by test and 20 probable. Three were admitted and two died. That is a secondary attack rate of 87 percent. Define the two terms. The attack rate is the proportion of an exposed group who become ill during an outbreak, typically for a single exposure like a meal. The secondary attack rate is the proportion of susceptible contacts of a case who become ill; it measures how easily the infection spreads from person to person. Notice it is a proportion, not a rate, despite the name. And notice the setting: indoors, crowded, for hours, singing loudly. Keep this choir in mind; it will come back when we talk about superspreading.</aside>
+</section>
+
+<!-- 9 -->
+<section>
+  <h2>Kerala, 2018: Nipah spread inside hospitals</h2>
+  <div class="cards c3">
+    <div class="stat"><span class="n">23</span><span class="l">cases, 18 confirmed in the laboratory</span></div>
+    <div class="stat"><span class="n">91%</span><span class="l">of cases died</span></div>
+    <div class="stat"><span class="n">2,642</span><span class="l">contacts traced and watched</span></div>
+  </div>
+  <p class="lede" style="margin-top:24px">Most secondary cases had been in the same hospitals as the first patient, before anyone knew it was Nipah.</p>
+  <p class="claim warn">Hospitals can amplify an outbreak. The secondary attack rate is highest where the sick and the vulnerable gather.</p>
+  <p class="cite">Arunkumar G et al. Outbreak investigation of Nipah virus disease in Kerala, India, 2018. J Infect Dis 2019;219:1867-78.</p>
+  <aside class="notes">An Indian example. In May 2018 in Kozhikode district, Kerala, the first patient was taken to hospitals while ill. Nipah virus had never been seen in South India. Most of the people who caught it had been in the same wards, waiting areas or ambulances as him, before the diagnosis. The study counted 23 cases, 18 confirmed; 91 percent died. Over 2,600 contacts were traced and monitored for the incubation period, and the outbreak was contained. Two lessons. Hospitals can amplify outbreaks, which is why infection control matters on every ward. And contact tracing for the length of the incubation period, our quarantine logic from last lecture, works when the infection is not spreading silently.</aside>
+</section>
+
+<!-- 10 -->
+<section>
+  <h2>R0: how many people does one case infect?</h2>
+  <svg class="dg" viewBox="0 0 1152 300" role="img" aria-label="With R0 of 3, one case leads to 3, then 9 cases. With R below 1, chains shrink and die out.">
+    <text class="tb" x="0" y="28">R0 = 3: one case, then 3, then 9</text>
+    <circle class="n1" cx="60" cy="160" r="16"/>
+    <line class="e" x1="76" y1="160" x2="214" y2="80"/><line class="e" x1="76" y1="160" x2="214" y2="160"/><line class="e" x1="76" y1="160" x2="214" y2="240"/>
+    <circle class="n1" cx="230" cy="80" r="14"/><circle class="n1" cx="230" cy="160" r="14"/><circle class="n1" cx="230" cy="240" r="14"/>
+    <g class="e"><line x1="244" y1="80" x2="386" y2="56"/><line x1="244" y1="80" x2="386" y2="80"/><line x1="244" y1="80" x2="386" y2="104"/><line x1="244" y1="160" x2="386" y2="136"/><line x1="244" y1="160" x2="386" y2="160"/><line x1="244" y1="160" x2="386" y2="184"/><line x1="244" y1="240" x2="386" y2="216"/><line x1="244" y1="240" x2="386" y2="240"/><line x1="244" y1="240" x2="386" y2="264"/></g>
+    <g class="n2"><circle cx="396" cy="56" r="10"/><circle cx="396" cy="80" r="10"/><circle cx="396" cy="104" r="10"/><circle cx="396" cy="136" r="10"/><circle cx="396" cy="160" r="10"/><circle cx="396" cy="184" r="10"/><circle cx="396" cy="216" r="10"/><circle cx="396" cy="240" r="10"/><circle cx="396" cy="264" r="10"/></g>
+    <text class="td" x="430" y="166">27, 81, 243 ...</text>
+    <text class="tb" x="640" y="28">R below 1: chains shrink and stop</text>
+    <circle class="n1" cx="700" cy="160" r="16"/><line class="e" x1="716" y1="160" x2="854" y2="160"/><circle class="n1" cx="870" cy="160" r="14"/>
+    <line class="e" x1="884" y1="160" x2="1000" y2="160" style="stroke-dasharray:6 6"/><circle class="n0" cx="1014" cy="160" r="12"/>
+    <text class="td" x="900" y="210">and then no one</text>
+  </svg>
+  <div class="cards c3">
+    <div class="card bad"><h3>R0 above 1</h3><p class="small">Each generation is bigger: an epidemic.</p></div>
+    <div class="card"><h3>R equal to 1</h3><p class="small">Each case replaces itself: steady, endemic.</p></div>
+    <div class="card good"><h3>R below 1</h3><p class="small">Each generation is smaller: it dies out.</p></div>
+  </div>
+  <aside class="notes">The most important number in infectious disease epidemiology. R nought, the basic reproduction number, is the average number of people one case infects in a population where everyone is susceptible. If R0 is 3, one case becomes 3, then 9, 27, 81: exponential growth. If R is exactly 1, each case replaces itself and the infection ticks along at a steady level: endemic. If R is below 1, each generation is smaller and the infection dies out, even if some people are still susceptible. All of infection control can be read as trying to push R below 1.</aside>
+</section>
+
+<!-- 11 -->
+<section>
+  <h2>R0 is the product of three things you can change</h2>
+  <div class="eq"><span>R0 =</span><span>β</span><span class="op">×</span><span>c</span><span class="op">×</span><span>D</span></div>
+  <div class="cards c3">
+    <div class="card"><h3>β: chance per contact</h3><p class="small">Masks, condoms, hand hygiene, ventilation, sterile instruments.</p></div>
+    <div class="card"><h3>c: contacts per day</h3><p class="small">Avoiding crowds, closing schools, quarantine, work from home.</p></div>
+    <div class="card"><h3>D: days infectious</h3><p class="small">Early diagnosis and treatment, isolation of the sick.</p></div>
+  </div>
+  <p class="claim">Every intervention you have heard of works by cutting β, c or D.</p>
+  <p class="cite">Anderson RM, May RM. Infectious Diseases of Humans: Dynamics and Control. Oxford University Press; 1991.</p>
+  <aside class="notes">For infections passed directly from person to person, R0 can be broken into three parts. Beta, the probability that a contact between an infectious and a susceptible person leads to infection. c, the number of such contacts per unit of time. And D, the duration of infectiousness. Multiply them and you get R0. The power of this formula is that every control measure fits into one of the three. Masks, condoms and handwashing cut beta. Distancing and quarantine cut contacts. Early treatment and isolation cut the infectious duration. TB treatment is a good example of cutting D: a person on effective treatment stops being infectious within weeks.</aside>
+</section>
+
+<!-- 12 -->
+<section>
+  <h2>R0 is not a constant of nature</h2>
+  <table class="wide">
+    <tr><th>Infection</th><th class="num">Typical R0</th><th>Note</th></tr>
+    <tr><td>Measles</td><td class="num">12 to 18</td><td>Published estimates range from about 4 to over 200</td></tr>
+    <tr><td>COVID-19, Omicron</td><td class="num">about 9.5</td><td>Estimates 5.5 to 24</td></tr>
+    <tr><td>Polio</td><td class="num">5 to 7</td><td></td></tr>
+    <tr><td>COVID-19, Delta / original</td><td class="num">about 5 / 2.8</td><td>The same virus, evolving</td></tr>
+    <tr><td>Ebola, West Africa 2014</td><td class="num">1.7 to 2.0</td><td>Mostly through caring for the sick and burials</td></tr>
+    <tr><td>Influenza, 1918 / seasonal</td><td class="num">1.8 / 1.3</td><td></td></tr>
+  </table>
+  <p class="claim">R0 depends on the agent, but also on how people live, mix and care for each other.</p>
+  <p class="cite">Guerra FM et al. Lancet Infect Dis 2017;17:e420-8. Liu Y, Rocklöv J. J Travel Med 2021;28:taab124; 2022;29:taac037. WHO Ebola Response Team. N Engl J Med 2014;371:1481-95. Biggerstaff M et al. BMC Infect Dis 2014;14:480.</p>
+  <aside class="notes">Typical values. Measles is the most contagious infection we know, with a textbook R0 of 12 to 18. But a 2017 review found published estimates from about 4 to over 200, because R0 depends on how densely people live and how they mix. COVID-19 is a lesson in evolution: the original strain about 2.8, Delta about 5, Omicron around 9 or more. Ebola in West Africa was below 2, spread mainly by caring for the sick and at funerals. Influenza is low, 1.3 for seasonal flu. The point: R0 is not a fixed property of a microbe. It is a property of the microbe in a particular population. That is good news, because it means behaviour and environment can change it.</aside>
+</section>
+
+<!-- 13 -->
+<section>
+  <h2>Immunity lowers R. Past a threshold, chains die out</h2>
+  <div class="eq sm"><span>Effective R = R0 × share still susceptible</span></div>
+  <div class="eq"><span>Herd immunity threshold = 1 −</span><span class="frac"><span class="n">1</span><span class="d">R0</span></span></div>
+  <div class="cards c3">
+    <div class="stat"><span class="n">92 to 94%</span><span class="l">measles, R0 12 to 18</span></div>
+    <div class="stat"><span class="n">80 to 86%</span><span class="l">polio, R0 5 to 7</span></div>
+    <div class="stat"><span class="n">about 64%</span><span class="l">original COVID-19 strain, R0 about 2.8</span></div>
+  </div>
+  <aside class="notes">Now immunity. If some people are immune, each case meets fewer susceptible people, so the effective reproduction number is R0 times the share still susceptible. When effective R falls below 1, chains die out, and even the people who are not immune are protected. That indirect protection is herd immunity. Setting effective R equal to 1 gives the threshold: 1 minus 1 over R0. For measles, about 92 to 94 percent of people must be immune; this is why we aim for 95 percent coverage with two doses. For polio about 80 to 86 percent. Notice that the more contagious the infection, the higher the bar.</aside>
+</section>
+
+<!-- 14 -->
+<section>
+  <h2>Try it: release one case into a town of 400</h2>
+  <iframe class="lab" src="../widgets/herd-immunity-lab.html?embed=1&amp;preset=measles" title="Herd Immunity Lab" loading="lazy"></iframe>
+  <p class="small dim labnote">Measles at 90% coverage, then 31% as in Samoa. Then tick "Unvaccinated live together". <a href="../widgets/herd-immunity-lab.html" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">This town has 400 people. Grey dots are immune, white are susceptible. Press "Release one case" and watch generations of infection. Start with measles at 90 percent coverage: effective R is still about 2, just above 1, so outbreaks happen but stay small and patchy. Now drop coverage to 31 percent, as in Samoa, and release a case: it sweeps through the town. Then go back to 90 percent and tick "Unvaccinated live together": the same average coverage, but the unvaccinated are clustered in one neighbourhood, and the outbreak burns through that cluster. Average coverage hides pockets. Run each a few times: chance matters, especially early on.</aside>
+</section>
+
+<!-- 15 -->
+<section>
+  <h2>Back to Samoa: the vaccine worked, the population did not have it</h2>
+  <div class="cards c2">
+    <div class="card bad"><h3>What happened</h3><p class="small">With first-dose coverage near 31%, thousands of young children were susceptible. For measles, effective R far above 1. One imported case was enough.</p></div>
+    <div class="card good"><h3>What stopped it</h3><p class="small">A mass vaccination campaign from 20 November 2019, door to door, pushed the share of immune people back above the threshold.</p></div>
+  </div>
+  <p class="claim warn">Herd immunity is a property of a population, not of a vaccine. It erodes silently, one missed child at a time, and fails all at once.</p>
+  <p class="cite">WHO Disease Outbreak News, Measles: Samoa (DON217), December 2019.</p>
+  <aside class="notes">Now we can answer the opening question. The measles vaccine is as good as ever. But with coverage around a third, a large pool of susceptible young children built up over a couple of years. Measles has an R0 around 15, so the threshold is about 93 percent. Samoa was nowhere near it. When an infected traveller arrived, effective R was far above 1. What stopped it was a door-to-door mass campaign from 20 November 2019 that pushed immunity back above the threshold. The message: herd immunity belongs to the population, and it can disappear quietly, through mistrust or missed vaccinations, with no warning until an outbreak.</aside>
+</section>
+
+<!-- 16 -->
+<section>
+  <h2>Herd immunity needs conditions that are not always met</h2>
+  <div class="cards c2">
+    <div class="card"><h3>It works best when</h3><p class="small">One host species, spread directly person to person, no reservoir outside humans, solid lasting immunity, people mixing fairly evenly.</p></div>
+    <div class="card bad"><h3>It fails when</h3><p class="small">The unvaccinated cluster together: a community, a school, a slum. Immunity wanes, as with pertussis. Or the agent lives outside people.</p></div>
+  </div>
+  <p class="claim">Tetanus spores live in soil. It is infectious but not contagious, so every person must be vaccinated for their own protection.</p>
+  <p class="cite">Gordis Epidemiology, chapter 2. CDC Pink Book, tetanus chapter.</p>
+  <aside class="notes">Herd immunity has conditions. It works when the infection has a single host species, spreads directly between people, has no reservoir outside humans, gives lasting immunity, and people mix more or less at random. Real life breaks these. Unvaccinated people cluster: a religious community, a migrant settlement, one school. Immunity can wane, as it does after pertussis vaccination. And some agents live outside people. Tetanus is the clearest case: the spores live in soil and animal faeces, and tetanus does not spread from person to person. Your neighbour's vaccine cannot protect you. That is why every pregnant woman and every child needs their own tetanus vaccine.</aside>
+</section>
+
+<!-- 17 -->
+<section>
+  <h2>If R is 3, does every case infect 3 people?</h2>
+  <p class="q">Think of the choir: 1 person, 52 infections.</p>
+  <p class="lede" style="margin-top:30px">If one person infected 52, and the average is about 3, what are most people doing?</p>
+  <aside class="notes">R is an average. Ask the room: does every case infect three people? Remember the choir: one person infected 52. If the average is around 3, then most cases must be infecting very few, often none. The next slides show how uneven this can be.</aside>
+</section>
+
+<!-- 18 -->
+<section>
+  <h2>Most cases infect no one. A few infect many</h2>
+  <div class="cards c3">
+    <div class="stat"><span class="n">0.16</span><span class="l">dispersion k for SARS, Singapore 2003</span></div>
+    <div class="stat"><span class="n">about 10%</span><span class="l">of COVID-19 cases caused 80% of transmission (k about 0.1)</span></div>
+    <div class="stat"><span class="n">19%</span><span class="l">of cases seeded 80% of transmission in Hong Kong, 2020</span></div>
+  </div>
+  <p class="lede" style="margin-top:20px">Superspreading needs a setting: indoors, crowded, close, for a long time. Japan told people to avoid the "3Cs": closed spaces, crowded places, close-contact settings, and traced backwards to find the event each cluster came from.</p>
+  <p class="claim">Small k: most chains die out on their own, but a single event can seed a big outbreak.</p>
+  <p class="cite">Lloyd-Smith JO et al. Nature 2005;438:355-9. Endo A et al. Wellcome Open Res 2020;5:67. Adam DC et al. Nat Med 2020;26:1714-9. Oshitani H et al. Jpn J Infect Dis 2020;73:491-3.</p>
+  <aside class="notes">Epidemiologists capture this with a second number, the dispersion k. When k is large, everyone transmits about equally. When k is small, transmission is concentrated in a few cases. James Lloyd-Smith showed in 2005 that SARS in Singapore had k of about 0.16. For COVID-19 early estimates put k around 0.1: about one case in ten caused 80 percent of onward transmission. In Hong Kong, 19 percent of cases seeded 80 percent. You may have heard the 20 slash 80 rule; that comes from sexually transmitted infections, and Lloyd-Smith found no general rule. What makes a superspreading event is mostly the setting: indoors, crowded, close contact, long duration, like the choir. Japan used this: tell people to avoid the 3Cs, and when you find a case, trace backwards to the event where they caught it, because that event probably infected many others.</aside>
+</section>
+
+<!-- 19 -->
+<section>
+  <h2>Try it: same R, very different epidemics</h2>
+  <iframe class="lab" src="../widgets/superspreading-lab.html?embed=1&amp;preset=covid" title="Superspreading Lab" loading="lazy"></iframe>
+  <p class="small dim labnote">Compare COVID-19 with "Everyone spreads equally" at the same R. Press "New 100 cases" a few times. <a href="../widgets/superspreading-lab.html" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">Each bar is one case, sorted from the biggest spreader. With COVID-19 settings, R 2.5 and k 0.1, about two thirds of cases infect nobody, and around ten cases cause 80 percent of infections. Look at the last box: the chance that one imported case leads to no lasting outbreak is high, over 80 percent, even though R is 2.5. Now click "Everyone spreads equally": same R, but almost every case infects someone, and an imported case usually starts an outbreak. Press "New 100 cases" a few times to see how much chance matters. This explains why some countries had early introductions that fizzled, and others had explosions from one event.</aside>
+</section>
+
+<!-- 20 -->
+<section>
+  <h2>Know the chain, and you can aim: smallpox and Ebola</h2>
+  <div class="cards c2">
+    <div class="card"><h3>Smallpox, eastern Nigeria, late 1960s</h3><p class="small">Too little vaccine for everyone. William Foege's team found each case and vaccinated the contacts around it: surveillance and containment. The last natural case was in Somalia in October 1977; eradication was declared on 8 May 1980.</p></div>
+    <div class="card good"><h3>Ebola, Guinea, 2015</h3><p class="small">A trial vaccinated the ring of contacts around each new case, immediately or three weeks later. Immediate rings: 0 cases. Delayed rings: 16. Estimated efficacy 100% (95% CI 69 to 100).</p></div>
+  </div>
+  <p class="claim">When you know where transmission is going, you do not need to vaccinate everyone. You need to get ahead of the chain.</p>
+  <p class="cite">Foege WH, Millar JD, Henderson DA. Bull WHO 1975;52:209-22. Henao-Restrepo AM et al. Lancet 2017;389:505-18.</p>
+  <aside class="notes">Two stories about aiming. In eastern Nigeria in the late 1960s, William Foege's smallpox team had too little vaccine for mass campaigns. So they searched for every case and vaccinated the people around it, cutting each chain. Smallpox had a fairly low R0 and no silent spread, so this worked, and it became the strategy that eradicated smallpox. The last natural case was a hospital cook in Somalia in 1977, and WHO declared eradication in May 1980. In 2015, the same ring idea was used to test an Ebola vaccine in Guinea. Rings of contacts were vaccinated either immediately or three weeks later. Not a single case occurred in the immediately vaccinated rings after protection would have started, against 16 in the delayed rings. That vaccine is now used in every Ebola outbreak.</aside>
+</section>
+
+<!-- 21 -->
+<section>
+  <h2>How much disease is "normal"? Levels of occurrence</h2>
+  <table class="wide">
+    <tr><th>Term</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td>Sporadic</td><td>Occasional cases, no pattern</td><td>Tetanus in a district</td></tr>
+    <tr><td>Endemic</td><td>Constant, usual presence in an area</td><td>Malaria in parts of central India</td></tr>
+    <tr><td>Hyperendemic</td><td>Persistently high level</td><td>Dengue in many tropical cities</td></tr>
+    <tr><td>Epidemic, outbreak</td><td>Clearly more than expected for the place and time</td><td>Measles in Samoa, 2019</td></tr>
+    <tr><td>Pandemic</td><td>An epidemic across countries and continents</td><td>COVID-19, 2020; influenza, 1918</td></tr>
+  </table>
+  <p class="claim">"More than expected" needs a baseline. Surveillance tells you what is expected.</p>
+  <p class="cite">Last JM, ed. A Dictionary of Epidemiology. CDC. Principles of Epidemiology in Public Health Practice, Lesson 1.</p>
+  <aside class="notes">These words describe how much of a disease is present compared with what is usual. Sporadic: occasional cases with no pattern. Endemic: the constant usual presence, like malaria in parts of central India; note that R is about 1 here. Hyperendemic: persistently high levels. Epidemic, or outbreak for a smaller area: clearly more cases than expected for that place and time. Pandemic: an epidemic spread across countries or continents. Notice "more than expected". You cannot call something an epidemic without knowing the baseline, which is why routine surveillance matters, in India through IDSP and IHIP. And a single case of a disease that should be absent, like polio or rabies in a free area, can count as an outbreak.</aside>
+</section>
+
+<!-- 22 -->
+<section>
+  <h2>Why do epidemics start? Something changes in the chain</h2>
+  <div class="cards c3">
+    <div class="card"><h3>A new agent</h3><p class="small">SARS-CoV-2 in 2019, Nipah in Kerala in 2018: a virus jumps from animals to people.</p></div>
+    <div class="card"><h3>A new place or network</h3><p class="small">Mpox in 2022 spread through sexual networks in countries where it had never been seen.</p></div>
+    <div class="card"><h3>More susceptible hosts</h3><p class="small">Falling vaccine coverage, as in Samoa; new births; waning immunity.</p></div>
+    <div class="card"><h3>More exposure</h3><p class="small">Water stored in open containers breeding mosquitoes, a broken pipeline, crowding.</p></div>
+    <div class="card"><h3>A changed agent</h3><p class="small">New variants that spread faster, like Delta and Omicron.</p></div>
+    <div class="card"><h3>Less control</h3><p class="small">Health services disrupted by war, disaster or a pandemic.</p></div>
+  </div>
+  <p class="cite">WHO declared mpox a public health emergency of international concern in July 2022 and again in August 2024.</p>
+  <aside class="notes">Why do epidemics start? Something changes in the chain of infection. A new agent appears, often jumping from animals, like SARS-CoV-2 and Nipah. An agent reaches a new place or a new network of people, as mpox did in 2022 when it spread through sexual networks in Europe and the Americas. The number of susceptible people grows: falling coverage, new births, or immunity fading. Exposure increases: stored water breeding Aedes mosquitoes, a sewage leak into a pipeline. The agent itself changes: faster spreading variants. Or control breaks down, as routine immunisation did in many countries during COVID-19. Ask the room for an example of each from India in the last few years.</aside>
+</section>
+
+<!-- 23 -->
+<section>
+  <h2>Try it: the shape of the curve tells you how people were exposed</h2>
+  <iframe class="lab" src="../widgets/epicurve-lab.html?embed=1&amp;p=point" title="Epidemic Curve Lab" loading="lazy"></iframe>
+  <p class="small dim labnote">Point source, continuous, intermittent, propagated. Move R in the propagated pattern. <a href="../widgets/epicurve-lab.html" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">An epidemic curve is a histogram of cases by date of onset. Its shape tells you how people were exposed. Point source: one meal, one peak, all cases within about one incubation period. Continuous source: a contaminated water supply; cases continue as long as the source does. Intermittent: separate peaks when a source is contaminated on and off. Propagated: person-to-person spread, with waves one incubation period apart that grow when R is above 1 and fade when it is below. We will use these curves in detail in the outbreak investigation lecture.</aside>
+</section>
+
+<!-- 24 -->
+<section>
+  <h2>What would have prevented Samoa?</h2>
+  <div class="cards c2">
+    <div class="card"><h3>Keep the host immune</h3><p class="small">Coverage above the threshold with two doses, catch-up for every missed child, and rebuilding trust quickly after an adverse event.</p></div>
+    <div class="card"><h3>See it coming</h3><p class="small">Track coverage by village and age group, not only the national average. Watch for imported cases when nearby countries have outbreaks.</p></div>
+  </div>
+  <p class="claim">Effective R = R0 × share susceptible. R0 we cannot change for measles. The share susceptible we can.</p>
+  <aside class="notes">Close the loop. What would have prevented the Samoa epidemic? Keeping immunity above the threshold: two doses, catch-up for missed children, and acting fast to rebuild trust after the 2018 tragedy. And seeing it coming: coverage tracked by village and age, not only as a national figure, and alertness to imported cases when neighbouring countries had outbreaks in 2019. One formula holds the whole story: effective R is R0 times the share susceptible. For measles we cannot change R0 much. The share susceptible is entirely in our hands.</aside>
+</section>
+
+<!-- 25 -->
+<section>
+  <h2>Three things to carry out of this room</h2>
+  <p class="claim">Infection travels along a chain of six links. Breaking any one link stops it.</p>
+  <p class="claim">R above 1 grows, below 1 dies out. Every control measure cuts β, c or D, or the share susceptible.</p>
+  <p class="claim good">Herd immunity protects those who cannot be vaccinated, but only if coverage stays above 1 − 1/R0, everywhere, not just on average.</p>
+  <aside class="notes">Three things to take away. First, the chain of infection: six links, and breaking any one is enough. Second, R: above 1 an infection grows, below 1 it dies out, and every intervention works by reducing the chance per contact, the number of contacts, the time infectious, or the share of people susceptible. Third, herd immunity: it protects infants, the immunocompromised and others who cannot be vaccinated, but only when coverage is above the threshold everywhere, not just on average. Questions?</aside>
+</section>
+
+<!-- 26 -->
+<section>
+  <h2>Sources and further reading</h2>
+  <ol class="sources two">
+    <li>Celentano DD, Szklo M. Gordis Epidemiology, 6th ed. Elsevier; 2019. Chapter 2.</li>
+    <li>CDC. Principles of Epidemiology in Public Health Practice, 3rd ed. Lesson 1.</li>
+    <li>WHO. Disease Outbreak News: Measles, Samoa (DON217), 2019. WHO/UNICEF situation report 11, 2020.</li>
+    <li>WHO. Proposed terminology for pathogens that transmit through the air. April 2024.</li>
+    <li>Hamner L et al. MMWR 2020;69:606-10.</li>
+    <li>Arunkumar G et al. J Infect Dis 2019;219:1867-78.</li>
+    <li>Anderson RM, May RM. Infectious Diseases of Humans: Dynamics and Control. 1991.</li>
+    <li>Guerra FM et al. Lancet Infect Dis 2017;17:e420-8. Liu Y et al. J Travel Med 2020;27:taaa021.</li>
+    <li>Biggerstaff M et al. BMC Infect Dis 2014;14:480. WHO Ebola Response Team. N Engl J Med 2014;371:1481-95.</li>
+    <li>Lloyd-Smith JO et al. Nature 2005;438:355-9. Endo A et al. Wellcome Open Res 2020;5:67. Adam DC et al. Nat Med 2020;26:1714-9.</li>
+    <li>Foege WH et al. Bull WHO 1975;52:209-22. Henao-Restrepo AM et al. Lancet 2017;389:505-18.</li>
+    <li>CDC. Pink Book: measles, tetanus.</li>
+  </ol>
+  <p class="small faint">Prepared at AIIMS Bhopal with Claude (Anthropic) as drafting and coding assistant.</p>
+  <aside class="notes">Sources. The CDC Principles of Epidemiology course, Lesson 1, is free online and covers the chain of infection and levels of disease well. For R0 and herd immunity, Anderson and May is the classic. The Lloyd-Smith paper on superspreading is short and readable.</aside>
+</section>
+
+</div></div>
+<script src="../vendor/reveal.js/dist/reveal.js"></script>
+<script src="../vendor/reveal.js/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280, height: 720, margin: 0, center: false, transition: 'fade',
+    hash: true, slideNumber: 'c/t', plugins: [RevealNotes]
+  });
+</script>
+</body>
+</html>
