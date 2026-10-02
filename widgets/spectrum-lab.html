@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Iceberg Lab</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="widget.css">
+<script src="theme.js"></script>
+<style>
+  :root { --sea: #dbe6f3; --k0: #c3c9da; --k1: #8f9cc8; --k2: #4a5d9e; --k3: #a86400; --k4: #b3261e; }
+  :root[data-theme="dark"] { --sea: #1a2a40; --k0: #3c4459; --k1: #5f6f9f; --k2: #8fa6ec; --k3: #e3a64a; --k4: #f08a80; }
+  svg .k0 { fill: var(--k0); } svg .k1 { fill: var(--k1); } svg .k2 { fill: var(--k2); } svg .k3 { fill: var(--k3); } svg .k4 { fill: var(--k4); }
+  svg .sea { fill: var(--sea); } svg .wl { stroke: var(--mark); stroke-width: 2; stroke-dasharray: 7 5; }
+  svg .wlt { font-size: 13px; font-weight: 600; fill: var(--mark); }
+  .side2 { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 760px) { .side2 { grid-template-columns: 1fr; } }
+  table.lad td.n { font: 600 17px var(--font-head); text-align: right; font-variant-numeric: tabular-nums; }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+  html.embed .note.src { display: none; }
+  html.embed #ice { max-height: 300px; }
+  html.embed .claim { font-size: 16px; }
+  html.embed .stat .n { font-size: 24px; }
+  #covidage[hidden] { display: none; }
+  label.sl { display: grid; gap: 4px; max-width: 420px; } label.sl .row { justify-content: space-between; }
+</style>
+</head>
+<body>
+<header class="band"><div>
+  <p class="kicker"><a href="../index.html">Epidemiological Thinking series</a> · Lab 5</p>
+  <h1>Iceberg Lab</h1>
+  <p>1,000 people are infected. How many ever fall ill, how many become severely ill, and how many die? Most of the iceberg is under water.</p>
+</div></header>
+<main>
+  <section class="panel">
+    <div class="row"><span class="label">Infection</span><div class="row" id="presets" role="group" aria-label="Infection"></div></div>
+    <label class="sl" id="covidage" hidden><span class="row"><span>Age of the people infected</span><output id="agev" style="font:600 18px var(--font-head)"></output></span><input type="range" id="age" min="0" max="4" step="1" value="2" aria-label="Age group"></label>
+  </section>
+
+  <section class="side2">
+    <div class="panel">
+      <svg id="ice" viewBox="0 0 420 330" style="width:100%" role="img" aria-label="1,000 infected people, coloured by outcome"></svg>
+      <div class="key" id="key" style="display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px"></div>
+    </div>
+    <div class="panel">
+      <div class="stats" id="stats" style="grid-template-columns:1fr 1fr"></div>
+      <div class="scroll"><table class="lad" id="lad"></table></div>
+      <p class="claim" id="msg"></p>
+    </div>
+  </section>
+  <p class="note src" id="src"></p>
+  <footer>Pathogenicity = clinical cases / infected. Case fatality = deaths / clinical cases. Infectivity, the share of exposed susceptible people who get infected, needs a count of the exposed, so it is taught separately. Built for teaching at AIIMS Bhopal.</footer>
+</main>
+<script>
+// Each preset: counts per 1,000 infected. clin = clinically apparent (any symptoms); sev = severe; dead = deaths.
+// "inapparent" = 1000 - clin. Labels name the layers in each disease's own words.
+const P = {
+  polio: { name: 'Polio', clin: 300, mod: 60, sev: 5, dead: 0.2, labels: ['No symptoms', 'Minor illness', 'Aseptic meningitis', 'Paralysis', 'Death'],
+    msg: 'About 7 in 10 infections cause no symptoms and fewer than 1 in 100 cause paralysis. For every child you see paralysed, more than a hundred others were infected and spreading the virus. That is why polio is tracked by surveillance of acute flaccid paralysis and of sewage.',
+    src: 'CDC Pink Book, poliomyelitis chapter: about 70% asymptomatic, 24% minor illness, 1 to 5% aseptic meningitis, under 1% paralytic; case fatality 2 to 5% of paralytic cases in children. Shown here: 24% minor illness, 5.5% aseptic meningitis, 0.5% paralysis, and 4% of paralytic cases die.' },
+  je: { name: 'Japanese encephalitis', clin: null, sev: 5, dead: 1.25, labels: ['No symptoms or mild fever', '', '', 'Encephalitis', 'Death'],
+    msg: 'Fewer than 1 in 100 infections reach the brain, but when they do, about a quarter die and a third to a half of survivors are left disabled. A rare severe outcome of a very common infection.',
+    src: 'CDC Yellow Book: under 1% of infections cause neurological disease; case fatality 20 to 30% among encephalitis cases; 30 to 50% of survivors have lasting sequelae. Shown here: 0.5% encephalitis, 25% of those die. The split between no symptoms and mild fever is not well measured, so it is not drawn.' },
+  dengue: { name: 'Dengue', clin: 250, sev: 12.5, dead: null, labels: ['No symptoms', 'Dengue fever', '', 'Severe dengue', ''],
+    msg: 'Three in four infections cause no symptoms. One in twenty people with symptoms develops severe dengue. Deaths depend heavily on the quality of care, so they are not drawn here.',
+    src: 'CDC dengue clinical overview: about 1 in 4 infections symptomatic; about 1 in 20 symptomatic people develop severe dengue.' },
+  hepAkid: { name: 'Hepatitis A, child under 6', clin: 300, labels: ['No symptoms', 'Symptoms', '', '', ''],
+    msg: 'In young children, 7 in 10 infections are silent. These children still shed virus in stool and infect older people, who are far more likely to become jaundiced.',
+    src: 'CDC Pink Book, hepatitis A chapter: about 70% of infections in children under 6 are asymptomatic; in older children and adults, jaundice occurs in more than 70%.' },
+  hepAadult: { name: 'Hepatitis A, adult', clin: 700, labels: ['No jaundice', 'Jaundice', '', '', ''],
+    msg: 'Same virus, older host: now more than 7 in 10 become jaundiced. Pathogenicity is a property of the agent and the host together.',
+    src: 'CDC Pink Book, hepatitis A chapter: jaundice in more than 70% of infected older children and adults. Shown here: 70%.' },
+  measles: { name: 'Measles, high-income setting', clin: 1000, dead: 2, labels: ['', 'Measles illness', '', '', 'Death'],
+    msg: 'Almost nobody infected with measles escapes illness, so the iceberg is all above water. In high-income settings about 1 to 3 in 1,000 cases die.',
+    src: 'CDC Pink Book, measles chapter: nearly all non-immune people infected develop disease; 1 to 3 deaths per 1,000 cases in the United States. Shown here: 2 per 1,000.' },
+  measlesLMIC: { name: 'Measles, low- and middle-income community', clin: 1000, dead: 13, labels: ['', 'Measles illness', '', '', 'Death'],
+    msg: 'The same virus kills about six times more often in community settings of low- and middle-income countries, and more in infants and in hospital. Virulence depends on nutrition, age and access to care, not only on the virus.',
+    src: 'Sbarra AN et al. Lancet Glob Health 2023: community case fatality 1.32% (ages 0 to 34, 2019); 3.03% under age 1; 5.35% in hospital settings.' },
+  covid: { name: 'COVID-19, before vaccines', clin: 650, dead: null, labels: ['No symptoms ever', 'Symptoms', '', '', 'Death'],
+    msg: '', src: 'Asymptomatic share: Sah P et al. PNAS 2021, 35% of infections never developed symptoms (more in children, fewer in older adults). Deaths: infection fatality ratio by age, Levin AT et al. Eur J Epidemiol 2020, pre-vaccine data to September 2020.' },
+  tb: { name: 'Tuberculosis infection', clin: 75, labels: ['Latent infection, never ill', 'TB disease in a lifetime', '', '', ''],
+    msg: 'About a quarter of the world carries TB infection. Most never fall ill: the lifetime risk of TB disease is 5 to 10%, highest in the first two years and in people with HIV, diabetes or malnutrition.',
+    src: 'WHO tuberculosis fact sheet: lifetime risk of TB disease 5 to 10% among the infected. Houben RM, Dodd PJ. PLoS Med 2016: 23% of the world population infected in 2014. Shown here: 7.5%.' }
+};
+const AGES = [['10 years', 0.00002, 0.53], ['25 years', 0.0001, 0.40], ['55 years', 0.004, 0.33], ['75 years', 0.046, 0.20], ['85 years', 0.15, 0.20]];
+const $ = id => document.getElementById(id), qs = new URLSearchParams(location.search);
+let key = P[qs.get('preset')] ? qs.get('preset') : 'polio';
+const fmt = v => v == null ? 'n/a' : v >= 10 ? Math.round(v).toLocaleString('en-IN') : v >= 1 ? (+v.toFixed(1)).toString() : v > 0 ? (+v.toPrecision(1)).toString() : '0';
+const pct = v => v == null ? 'n/a' : (v * 100 >= 10 ? Math.round(v * 100) : +(v * 100).toPrecision(2)) + '%';
+function get() {
+  const p = { ...P[key] };
+  if (key === 'covid') {
+    const a = AGES[+$('age').value]; $('agev').textContent = a[0];
+    p.clin = Math.round(1000 * (1 - a[2])); p.dead = 1000 * a[1];
+    p.msg = `At ${a[0]}, about ${Math.round(a[2] * 100)} in 100 infections never caused symptoms and ${fmt(p.dead)} in 1,000 infected people died. Same virus, a thousandfold difference in fatality by age. The silent infections in the young kept the epidemic going.`;
+  }
+  return p;
+}
+function draw() {
+  document.querySelectorAll('#presets .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === key));
+  $('covidage').hidden = key !== 'covid';
+  const p = get();
+  const clin = p.clin == null ? Math.round(p.sev || 0) : p.clin;
+  const dead = p.dead || 0, sev = p.sev || 0, mod = p.mod || 0;
+  // dot classes in order from the top of the iceberg
+  const nD = Math.round(dead), nS = Math.max(0, Math.round(sev) - nD), nM = Math.max(0, Math.round(mod) - Math.round(sev)), nC = Math.max(0, clin - nM - nS - nD);
+  const cls = [].concat(Array(nD).fill('k4'), Array(nS).fill('k3'), Array(nM).fill('k2'), Array(nC).fill('k1'));
+  const above = cls.length; while (cls.length < 1000) cls.push('k0');
+  const cols = 40, rowsAbove = Math.ceil(above / cols), gap = 18, dy = 10.5;
+  let s = '', y0 = 8;
+  const waterY = y0 + rowsAbove * dy + gap / 2 - 2;
+  s += `<rect class="sea" x="0" y="${waterY}" width="420" height="${330 - waterY}"/>`;
+  cls.forEach((c, i) => { const r = Math.floor(i / cols), col = i % cols; const y = y0 + r * dy + (r >= rowsAbove ? gap : 0) + 4; s += `<circle class="${c}" cx="${10 + col * 10.2}" cy="${y.toFixed(1)}" r="3.8"/>`; });
+  s += `<line class="wl" x1="0" y1="${waterY}" x2="420" y2="${waterY}"/><text class="wlt" x="414" y="${waterY + 15}" text-anchor="end" style="paint-order:stroke;stroke:var(--sea);stroke-width:5px">clinical horizon</text>`;
+  if (above === 0) s += `<text class="wlt" x="10" y="${waterY - 5}">nothing visible above the line at this scale</text>`;
+  $('ice').innerHTML = s;
+  const L = p.labels, parts = [['k4', L[4], dead], ['k3', L[3], sev - dead], ['k2', L[2], mod - sev], ['k1', L[1], clin - mod - (mod ? 0 : sev)], ['k0', L[0], 1000 - clin]];
+  $('key').innerHTML = parts.filter(x => x[1] && x[2] > 0).map(x => `<span><span class="sw ${x[0]}" style="background:var(--${x[0]})"></span>${x[1]}</span>`).join('');
+  const path = p.clin == null ? null : clin / 1000, cfr = p.dead == null || !clin ? null : dead / clin;
+  const stat = (n, l, c = '') => `<div class="stat ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  $('stats').innerHTML = stat(pct(path), 'pathogenicity: infected people who become clinically ill') + stat(p.dead == null ? 'n/a' : pct(cfr), 'case fatality: clinically ill who die', 'warn');
+  let t = '<tr><th>Of 1,000 infected</th><th class="num">Number</th></tr>';
+  parts.slice().reverse().forEach(x => { if (x[1] && x[2] > 0) t += `<tr><td><span class="sw" style="background:var(--${x[0]})"></span>${x[1]}</td><td class="n">${fmt(x[2])}</td></tr>`; });
+  $('lad').innerHTML = t;
+  $('msg').textContent = p.msg; $('src').textContent = 'Source: ' + p.src;
+}
+$('presets').innerHTML = Object.entries(P).map(([k, p]) => `<button type="button" class="chip" data-k="${k}">${p.name}</button>`).join('');
+document.querySelectorAll('#presets .chip').forEach(b => b.addEventListener('click', () => { key = b.dataset.k; draw(); }));
+$('age').addEventListener('input', draw);
+if (qs.get('age')) $('age').value = qs.get('age');
+draw();
+</script>
+</body>
+</html>

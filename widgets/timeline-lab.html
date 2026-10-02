@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Timeline Lab</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="widget.css">
+<script src="theme.js"></script>
+<style>
+  :root { --lat: #c3c9da; --inf: #a86400; --sym: #162a6c; }
+  :root[data-theme="dark"] { --lat: #3c4459; --inf: #e3a64a; --sym: #8fa6ec; }
+  svg .lat { fill: var(--lat); } svg .inf { fill: var(--inf); } svg .sym { fill: var(--sym); }
+  svg .blk { fill: var(--paper); opacity: .72; }
+  svg .inc { fill: none; stroke: var(--sym); stroke-width: 2; }
+  svg .iso { stroke: var(--good); stroke-width: 3; stroke-dasharray: 7 5; } svg .isot { font-size: 13px; font-weight: 600; fill: var(--good); }
+  svg .tx { stroke: var(--ink); stroke-width: 1.8; marker-end: url(#arr); fill: none; }
+  svg .br { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+  svg .lbl2 { font-size: 13px; fill: var(--ink); } svg .who { font-size: 14px; font-weight: 700; fill: var(--ink); }
+  label.sl { display: grid; gap: 4px; } label.sl .top { display: flex; justify-content: space-between; gap: 10px; }
+  label.sl output { font: 600 17px var(--font-head); font-variant-numeric: tabular-nums; }
+  .ctr { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
+  @media (max-width: 640px) { .ctr { grid-template-columns: 1fr; } }
+  .key { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: var(--dim); }
+  .key i { display: inline-block; width: 14px; height: 10px; margin-right: 6px; vertical-align: 0; }
+  html.embed .note.src { display: none; }
+  html.embed #tl { max-height: 235px; }
+  html.embed .stat .n { font-size: 24px; }
+</style>
+</head>
+<body>
+<header class="band"><div>
+  <p class="kicker"><a href="../index.html">Epidemiological Thinking series</a> · Lab 6</p>
+  <h1>Timeline Lab</h1>
+  <p>When does a person become infectious, and when do they feel ill? The gap between the two decides whether isolating the sick can stop an epidemic.</p>
+</div></header>
+<main>
+  <section class="panel">
+    <div class="row"><span class="label">Disease</span><div class="row" id="presets" role="group" aria-label="Disease"></div></div>
+    <div class="ctr">
+      <label class="sl"><span class="top"><span>Isolate person A this many days after symptoms start</span><output id="dv"></output></span><input type="range" id="delay" min="0" max="5" step="0.5" aria-label="Days from symptom onset to isolation"></label>
+      <label class="sl"><span class="top"><span>Person A infects person B on day</span><output id="tv"></output></span><input type="range" id="tx" step="0.5" aria-label="Day of transmission to person B"></label>
+    </div>
+  </section>
+
+  <section class="panel">
+    <svg id="tl" viewBox="0 0 900 250" style="width:100%" role="img" aria-label="Timeline of infection, infectiousness and symptoms for two people">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+      <g id="tlg"></g>
+    </svg>
+    <div class="key"><span><i style="background:var(--lat)"></i>Latent: infected, not yet infectious</span><span><i style="background:var(--inf)"></i>Infectious</span><span><i style="background:var(--sym);height:4px;vertical-align:3px"></i>Has symptoms</span><span><i style="border:2px solid var(--sym);height:8px;width:12px;background:none"></i>Incubation period</span></div>
+  </section>
+
+  <section class="stats" id="stats" aria-live="polite"></section>
+  <p class="claim" id="msg"></p>
+  <p class="note src" id="src"></p>
+  <footer>Simplification: infectiousness is drawn as equal on every infectious day. In reality it rises and falls, peaking around symptom onset for COVID-19 and several days later for SARS. Built for teaching at AIIMS Bhopal.</footer>
+</main>
+<script>
+// inc = incubation period (days, infection to symptom onset); s, e = start and end of infectiousness relative to symptom onset (days).
+const P = {
+  sars: { name: 'SARS, 2003', inc: 5, s: 0, e: 14, sym: 'fever', theta: ['under 11%', 'Fraser et al. 2004'],
+    msg: 'Infectiousness starts only after symptoms, and peaks days later. Isolate people when they fall ill and nearly all transmission is blocked. This is how SARS was contained in 2003, without a vaccine.',
+    src: 'Incubation about 4 to 6 days (Donnelly CA et al. Lancet 2003; Fraser C et al. PNAS 2004). No evidence of transmission before symptoms; shedding peaks 5 to 10 days after onset (Fraser 2004). Infectious window shown as 14 days.' },
+  covid: { name: 'COVID-19, 2020', inc: 5, s: -2.3, e: 10, sym: 'symptoms', theta: ['44%', 'He et al. 2020'],
+    msg: 'Infectiousness starts about two days before symptoms and peaks around onset. Isolating the sick comes too late for a large share of spread. Quarantine of contacts, masks and testing people without symptoms were needed.',
+    src: 'Incubation median 5.1 days (Lauer SA et al. Ann Intern Med 2020). Infectious from about 2.3 days before onset; 44% of transmission before symptoms (He X et al. Nat Med 2020). Culturable virus up to about 10 days after onset (Singanayagam A et al. Euro Surveill 2020).' },
+  flu: { name: 'Influenza', inc: 2, s: -1, e: 6, sym: 'symptoms', theta: ['30 to 50%', 'pandemic influenza, Fraser et al. 2004'],
+    msg: 'Short incubation and spread from the day before symptoms. By the time a case is isolated, the next generation is often already infected. Influenza epidemics move fast and are controlled mainly by vaccines and by reducing contacts.',
+    src: 'CDC: symptoms about 2 days after infection (1 to 4); infectious from 1 day before symptoms to 5 to 7 days after. Proportion of transmission before symptoms: Fraser C et al. PNAS 2004.' },
+  measles: { name: 'Measles', inc: 14, s: -4, e: 4, sym: 'rash', theta: null,
+    msg: 'Measles is infectious for four days before the rash. Fever, cough and runny eyes start in those days, but they look like any cold. By the time the rash makes the diagnosis obvious, half the infectious period is over.',
+    src: 'CDC Pink Book, measles: rash about 14 days after exposure (7 to 21); infectious from 4 days before to 4 days after rash onset. "Symptoms" here means the rash.' },
+  varicella: { name: 'Chickenpox', inc: 15, s: -2, e: 5, sym: 'rash', theta: null,
+    msg: 'One to two days of spread before the rash, then infectious until every lesion has crusted. Excluding a child from school until the lesions crust blocks most, but not all, spread.',
+    src: 'CDC Pink Book, varicella: incubation 14 to 16 days (10 to 21); infectious 1 to 2 days before rash until all lesions have crusted, shown here as 5 days after.' },
+  hepA: { name: 'Hepatitis A', inc: 28, s: -14, e: 7, sym: 'illness', theta: null,
+    msg: 'Most infectious one to two weeks before anyone feels ill. By the time jaundice appears, the household has already been exposed. Control relies on sanitation, vaccination and protecting contacts, not on isolating the jaundiced.',
+    src: 'CDC Pink Book, hepatitis A: incubation about 28 days (15 to 50); most infectious 1 to 2 weeks before onset of illness. End of infectiousness shown as 7 days after onset (approximate; shedding declines after jaundice).' },
+  ebola: { name: 'Ebola', inc: 10, s: 0, e: 10, sym: 'symptoms', theta: null,
+    msg: 'No spread before symptoms. Isolating the sick, safe burial and tracing contacts for the full 21-day incubation period ended the 2014 to 2016 West African epidemic.',
+    src: 'WHO Ebola fact sheet: incubation 2 to 21 days; people cannot spread the disease until they have symptoms, and remain infectious while their blood contains virus. Incubation drawn as 10 days and infectious window as 10 days, for illustration.' }
+};
+const $ = id => document.getElementById(id), qs = new URLSearchParams(location.search);
+let key = P[qs.get('preset')] ? qs.get('preset') : 'covid';
+const d1 = v => (Math.round(v * 10) / 10).toString();
+function load(k) {
+  key = k; const p = P[k];
+  document.querySelectorAll('#presets .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === k));
+  $('delay').value = 1;
+  const t = $('tx'); t.min = p.inc + p.s; t.max = p.inc + p.e; t.value = Math.min(p.inc + p.e, Math.max(p.inc + p.s, p.inc + p.s + 1));
+  draw();
+}
+function draw() {
+  const p = P[key], delay = +$('delay').value, T = +$('tx').value;
+  $('dv').textContent = d1(delay) + ' days'; $('tv').textContent = 'day ' + d1(T);
+  const i0 = p.inc + p.s, i1 = p.inc + p.e, onA = p.inc, iso = p.inc + delay;
+  const onB = T + p.inc, maxD = Math.max(i1, T + p.inc + p.e) + 2;
+  const X = d => 90 + d / maxD * 790;
+  let s = '';
+  // day axis
+  const step = maxD > 40 ? 7 : maxD > 20 ? 5 : 2;
+  for (let d = 0; d <= maxD; d += step) s += `<line class="grid" x1="${X(d)}" y1="20" x2="${X(d)}" y2="214"/><text class="tk" x="${X(d)}" y="232" text-anchor="middle">${d}</text>`;
+  s += `<text class="tk" x="${X(maxD / 2)}" y="248" text-anchor="middle">days since person A was infected</text>`;
+  const row = (y, start, on, a0, a1, who, blocked) => {
+    let r = `<text class="who" x="0" y="${y + 18}">${who}</text>`;
+    r += `<rect class="lat" x="${X(start)}" y="${y}" width="${X(a0) - X(start)}" height="26"/>`;
+    r += `<rect class="inf" x="${X(a0)}" y="${y}" width="${X(a1) - X(a0)}" height="26"/>`;
+    if (blocked != null && blocked < a1) r += `<rect class="blk" x="${X(Math.max(blocked, a0))}" y="${y}" width="${X(a1) - X(Math.max(blocked, a0))}" height="26"/>`;
+    r += `<rect class="sym" x="${X(on)}" y="${y + 30}" width="${X(Math.min(a1, on + Math.max(p.e, 5))) - X(on)}" height="5"/>`;
+    r += `<rect class="inc" x="${X(start)}" y="${y - 6}" width="${X(on) - X(start)}" height="44" rx="3"/>`;
+    r += `<text class="lbl2" x="${X(start) + 4}" y="${y - 10}">incubation ${d1(on - start)} d</text>`;
+    r += `<text class="lbl2" x="${X(on) + 4}" y="${y + 50}">${p.sym} start</text>`;
+    return r;
+  };
+  s += row(36, 0, onA, i0, i1, 'Person A', iso);
+  s += row(140, T, onB, T + p.inc + p.s, T + p.inc + p.e, 'Person B', null);
+  s += `<line class="iso" x1="${X(iso)}" y1="24" x2="${X(iso)}" y2="96"/><text class="isot" x="${X(iso) + 5}" y="22">A isolated</text>`;
+  s += `<path class="tx" style="color:var(--ink)" d="M${X(T)},64 C${X(T)},110 ${X(T)},110 ${X(T)},130"/>`;
+  $('tlg').innerHTML = s;
+  // stats
+  const win = i1 - i0, before = Math.max(0, Math.min(iso, i1) - i0), pre = Math.max(0, Math.min(onA, i1) - i0);
+  const share = win > 0 ? before / win : 0, si = onB - onA;
+  const stat = (n, l, c = '') => `<div class="stat ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  $('stats').innerHTML =
+    stat(d1(pre) + ' d', 'infectious before any ' + p.sym, pre > 0 ? 'warn' : 'good') +
+    stat(Math.round(100 * share) + '%', `of A's infectious days happen before isolation`, share > 0.3 ? 'warn' : 'good') +
+    stat(d1(si) + ' d', `serial interval in this example (incubation is ${d1(p.inc)} d)`) +
+    (p.theta ? stat(p.theta[0], 'of transmission happens before symptoms: published estimate, ' + p.theta[1]) : '');
+  let m = p.msg;
+  if (si < p.inc) m += ` Here B falls ill ${d1(si)} days after A: the serial interval is shorter than the incubation period, a sign of spread before symptoms.`;
+  $('msg').textContent = m; $('msg').className = 'claim ' + (pre > 0 ? 'warn' : 'good');
+  $('src').textContent = 'Source: ' + p.src;
+}
+$('presets').innerHTML = Object.entries(P).map(([k, p]) => `<button type="button" class="chip" data-k="${k}">${p.name}</button>`).join('');
+document.querySelectorAll('#presets .chip').forEach(b => b.addEventListener('click', () => load(b.dataset.k)));
+['delay', 'tx'].forEach(id => $(id).addEventListener('input', draw));
+load(key);
+</script>
+</body>
+</html>

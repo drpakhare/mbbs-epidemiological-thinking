@@ -80,3 +80,32 @@ svg .ln { fill: none; stroke: var(--mark); stroke-width: 2.5; } svg .ln2 { fill:
 svg .bar { fill: var(--mark); } svg .bar2 { fill: var(--mark2); }
 table.t2 td.cellw { background: var(--wash); }
 .muted { opacity: .45; }
+
+/* Series home and lecture pages */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+  a.card { display: grid; gap: 6px; align-content: start; background: var(--wash); border-top: 4px solid var(--band); padding: 18px; color: var(--ink); text-decoration: none; }
+  a.card:hover { background: var(--rule); }
+  a.card:focus-visible { outline: 3px solid var(--warn); outline-offset: 2px; }
+  a.card h2 { margin: 0; }
+  a.card p { margin: 0; color: var(--dim); font-size: 15px; }
+  a.card .go { color: var(--ink); font-weight: 600; font-size: 15px; margin-top: 4px; }
+  ol.steps { margin: 0; padding-left: 1.2em; max-width: 70ch; }
+  ol.steps li { margin-bottom: 4px; }
+  .scan { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center; background: var(--wash); border-top: 4px solid var(--band); padding: 18px; }
+  .scan .qrbox { background: #fff; padding: 10px; border-radius: 8px; line-height: 0; }
+  .scan svg.qr { width: 180px; height: 180px; display: block; }
+  .scan h2 { margin: 0 0 6px; }
+  .scan p { margin: 0 0 6px; color: var(--dim); }
+  .scan code { font-size: 15px; color: var(--ink); word-break: break-all; }
+  @media (max-width: 520px) { .scan { grid-template-columns: 1fr; justify-items: start; } }
+  .lect { display: grid; gap: 12px; }
+  .lect a.row2, .lect div.row2 { display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center; background: var(--wash); border-left: 5px solid var(--band); padding: 14px 16px; color: var(--ink); text-decoration: none; }
+  .lect a.row2:hover { background: var(--rule); }
+  .lect a.row2:focus-visible { outline: 3px solid var(--warn); outline-offset: 2px; }
+  .lect .num { font: 600 34px/1 var(--font-head); color: var(--band); }
+  :root[data-theme="dark"] .lect .num { color: var(--mark); }
+  .lect h2 { margin: 0 0 2px; }
+  .lect p { margin: 0; color: var(--dim); font-size: 15px; }
+  .lect .soon { border-left-color: var(--rule); opacity: .8; }
+  ul.plan { margin: 0; padding-left: 1.2em; columns: 2; column-gap: 32px; color: var(--dim); }
+  @media (max-width: 600px) { ul.plan { columns: 1; } .lect a.row2, .lect div.row2 { grid-template-columns: 44px 1fr; } .lect .pill { grid-column: 2; justify-self: start; } }

@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Epidemiological thinking</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../vendor/reveal.js/dist/reveal.css">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/slides.css">
+<style>
+  /* per-deck: 2 by 2 tables, charts, headline wall, embedded labs */
+  .hl { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .hl .card { padding: 12px 14px 10px; }
+  .hl .card p { margin: 0; font-family: var(--font-head); font-size: 22px; line-height: 1.25; color: var(--ink); }
+  .hl .card span { display: block; margin-top: 6px; font-size: var(--fs-min); color: var(--faint); }
+  table.tt { font-size: 24px; margin-left: 64px; }
+  table.tt th, table.tt td { padding: 10px 22px; text-align: center; }
+  table.tt th.rh { text-align: left; }
+  table.tt td.cell { background: var(--wash); font-family: var(--font-head); font-size: 30px; color: var(--band); border: 2px solid var(--paper); }
+  table.tt td.cell.a { background: var(--band); color: #fff; }
+  table.tt td.m { color: var(--dim); }
+  table.tt td.cell small { display: block; font-family: var(--font-body); font-size: var(--fs-min); color: var(--dim); }
+  table.tt td.cell.a small { color: #d3d9ee; }
+  .side { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; }
+  .side > * { margin: 0; }
+  .ch { display: block; width: 1152px; height: auto; margin: 0 64px; }
+  .ch .bar { fill: var(--band); } .ch .bar2 { fill: #b9c0d3; }
+  .ch .axis { stroke: var(--ink); stroke-width: 2; }
+  .ch .grid { stroke: var(--rule); stroke-width: 1; }
+  .ch .tick { font: 19px var(--font-body); fill: var(--dim); }
+  .ch .lbl { font: 600 21px var(--font-body); fill: var(--ink); }
+  .ch .big { font: 600 30px var(--font-head); fill: var(--band); }
+  .ch .l1 { fill: none; stroke: var(--band); stroke-width: 4; }
+  .ch .l2 { fill: none; stroke: #8a91a1; stroke-width: 4; }
+  .ch .d1 { fill: var(--band); } .ch .d2 { fill: #8a91a1; }
+  .ch .ev { stroke: var(--good); stroke-width: 3; stroke-dasharray: 8 6; }
+  .ch .evt { font: 600 20px var(--font-body); fill: var(--good); }
+  .ch .tp { fill: var(--band); } .ch .fn { fill: var(--paper); stroke: var(--band); stroke-width: 2; }
+  .ch .fp { fill: var(--warn); } .ch .tn { fill: #dde1ea; }
+  iframe.lab { display: block; width: 1152px; height: 536px; margin: 0 64px; border: 1px solid var(--rule); background: var(--paper); }
+  .labnote { margin-top: 8px !important; }
+  .reveal .labnote a { color: var(--band); }
+  .q { font-family: var(--font-head); font-size: 44px; line-height: 1.2; color: var(--band); margin-top: 40px !important; }
+  ol.five { font-size: 27px; }
+  ol.five li { margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- 1 -->
+<section class="cover">
+  <p class="kicker">Epidemiological Thinking · Lecture 1</p>
+  <h1>One newspaper says lauki juice cures. Another says it kills. How would a doctor decide?</h1>
+  <p class="lede dim">Epidemiological thinking: counting, dividing and comparing, told through stories</p>
+  <p class="small faint">AIIMS Bhopal · 60 minutes</p>
+  <aside class="notes">Good morning. Today is not about memorising formulas. It is about a way of thinking that you will use every day as a doctor, whenever someone says "this causes that" or "this cures that". We will start with newspaper headlines, then go back in time to a few doctors who worked this out before microbes were known. Along the way we will build one simple tool, the 2 by 2 table, and learn to read the numbers that come out of it. There will be questions for you on many slides. Please answer them before I show the next slide.</aside>
+</section>
+
+<!-- 2 -->
+<section>
+  <h2>You read these headlines almost every day</h2>
+  <div class="hl">
+    <div class="card"><p>Health benefits of lauki or bottle gourd</p><span>Weight-loss website, 2013</span></div>
+    <div class="card"><p>Toxin in lauki kills diabetic city scientist</p><span>India Today, 2011</span></div>
+    <div class="card"><p>Study suggests cancer benefit in multivitamins</p><span>Oncology news site, 2012</span></div>
+    <div class="card"><p>Laptop can reduce your sperm count</p><span>Times of India, 2013</span></div>
+    <div class="card"><p>Coffee consumption cuts liver cancer risk</p><span>Health news site, 2013</span></div>
+    <div class="card"><p>Alcohol is good for your health, science writer claims</p><span>Mail Online, 2013</span></div>
+    <div class="card"><p>High-fat diet in puberty may up breast cancer risk</p><span>Health news site, 2013</span></div>
+    <div class="card"><p>Messy children make better learners: study</p><span>Newspaper, 2013</span></div>
+  </div>
+  <p class="claim">Which of these would you believe? What would you need to know first?</p>
+  <p class="cite">Headlines collected from Indian and UK news sites, 2011 to 2013.</p>
+  <aside class="notes">These are real headlines I collected over a few months. Hindi papers had many more like them. Take thirty seconds. Which ones do you believe? Now the harder question: what would you need to know before you believe any of them? Collect a few answers. You will hear things like "how many people were studied", "compared with whom", "who funded it". Keep these answers. By the end of the hour we will turn them into five questions you can ask of any headline.</aside>
+</section>
+
+<!-- 3 -->
+<section>
+  <h2>Same vegetable, opposite headlines. A story is not a rate</h2>
+  <div class="cards c2">
+    <div class="card good"><h3>"Lauki is good for you"</h3><p class="small">Based on tradition and testimonials. No count of people who drank it and how they fared.</p></div>
+    <div class="card bad"><h3>"Lauki juice killed a scientist"</h3><p class="small">One death in Delhi, 2011, after drinking bitter bottle gourd juice. An expert committee then advised: do not drink juice that tastes bitter.</p></div>
+  </div>
+  <p class="lede" style="margin-top:26px">One case tells you something <b>can</b> happen. It cannot tell you <b>how often</b>, or whether it happens more than without lauki.</p>
+  <p class="claim">To know how often, you need a denominator. To know "more than", you need a comparison.</p>
+  <p class="cite">Indian J Med Res 2012;135:49-55 (ICMR study of bitter bottle gourd juice toxicity).</p>
+  <aside class="notes">Both headlines are about the same vegetable. The second one was real. In 2011 a senior CSIR official in Delhi died after drinking bitter lauki juice. An ICMR committee studied the cases. The toxin is cucurbitacin, which makes the gourd bitter. Their advice was simple: if the juice tastes bitter, do not drink it. Notice what a single case gives you: it tells you the harm is possible. It does not tell you how common it is. For that you need a denominator, how many people drank it. And to say lauki is better or worse, you need a comparison group. Denominator and comparison: these two words are the whole of today's session.</aside>
+</section>
+
+<!-- 4 -->
+<section>
+  <h2>Your patients will ask you the same kind of question</h2>
+  <p class="lede">A 51-year-old man has chest tightness for two weeks, after meals and walking uphill. It settles with rest. He stopped smoking three years ago. BP 150/96. ECG normal. He lost his job six months ago.</p>
+  <div class="cards c3">
+    <div class="card"><h3>Am I sick?</h3><p class="small">How sure are you?</p></div>
+    <div class="card"><h3>What is causing it?</h3><p class="small">How will it affect me?</p></div>
+    <div class="card"><h3>What can be done?</h3><p class="small">How much will it cost?</p></div>
+  </div>
+  <p class="claim">None of these can be answered from this one patient alone.</p>
+  <p class="cite">Case adapted from Fletcher RH, Fletcher SW, Fletcher GS. Clinical Epidemiology: The Essentials, 5th ed.</p>
+  <aside class="notes">Now think like a doctor, not a newspaper reader. This man is from the Fletchers' textbook of clinical epidemiology. Listen to his questions. Am I sick? How sure are you? What is causing it? What will happen to me? What can be done, and at what cost? Every one of these is a question about groups of people like him. How often does chest pain like this turn out to be angina? How good is a stress test? How much does stopping smoking reduce his risk? You answer each of them with numbers that came from studying many patients.</aside>
+</section>
+
+<!-- 5 -->
+<section>
+  <h2>Every clinical question is an epidemiological question</h2>
+  <table>
+    <tr><th>The question</th><th>The issue</th></tr>
+    <tr><td>Is the patient sick or well?</td><td><span class="pill">Abnormality</span></td></tr>
+    <tr><td>How accurate is the test?</td><td><span class="pill">Diagnosis</span></td></tr>
+    <tr><td>How often does this disease occur?</td><td><span class="pill">Frequency</span></td></tr>
+    <tr><td>What factors increase the chance of disease?</td><td><span class="pill">Risk</span></td></tr>
+    <tr><td>What will happen to the patient?</td><td><span class="pill">Prognosis</span></td></tr>
+    <tr><td>Does treatment change the course?</td><td><span class="pill">Treatment</span></td></tr>
+    <tr><td>Does early detection or intervention keep disease away?</td><td><span class="pill">Prevention</span></td></tr>
+    <tr><td>What leads to this disease?</td><td><span class="pill">Cause</span></td></tr>
+  </table>
+  <p class="cite">Adapted from Fletcher RH et al. Clinical Epidemiology: The Essentials, 5th ed., Table 1.1.</p>
+  <aside class="notes">This table is from the same book. On the left, questions you will ask at the bedside. On the right, the name of the epidemiological issue behind each one. Frequency, risk, diagnosis, prognosis, treatment, prevention, cause. Today we touch three of them properly: risk and cause through the 2 by 2 table, and diagnosis through the same table used for tests.</aside>
+</section>
+
+<!-- 6 -->
+<section>
+  <h2>Epidemiology: who gets sick, why, and what we do about it</h2>
+  <p class="lede">The study of the <b>distribution</b> and <b>determinants</b> of health-related states or events in specified populations, and the <b>application</b> of this study to control health problems.</p>
+  <div class="cards c3">
+    <div class="card"><h3>Distribution</h3><p class="small">Time, place, person. How often: rates, ratios, proportions.</p></div>
+    <div class="card"><h3>Determinants</h3><p class="small">Exposures and risk factors: biological, behavioural, environmental, social.</p></div>
+    <div class="card good"><h3>Application</h3><p class="small">Prevent, control, treat, plan services. Knowing is not the end.</p></div>
+  </div>
+  <p class="claim">The core move is always the same: count, divide, compare.</p>
+  <p class="cite">Last JM, ed. A Dictionary of Epidemiology. Oxford University Press.</p>
+  <aside class="notes">Here is the formal definition you will write in exams. Three words matter. Distribution: who, where and when, expressed as rates and proportions. Determinants: the exposures that change the chance of disease. Application: we study this to act on it. I want you to remember a shorter version: count, divide, compare. Count the cases. Divide by the people at risk. Compare with a group that was not exposed. Our first story shows what happens when you skip the dividing.</aside>
+</section>
+
+<!-- farr -->
+<section>
+  <h2>London, 1849: the higher the district, the less cholera</h2>
+  <iframe class="lab" src="../widgets/classic-charts.html?embed=1&amp;chart=farr" title="London, 1849: the higher the district, the less cholera" loading="lazy"></iframe>
+  <p class="small dim labnote">Real data for 38 districts, from William Farr. Ask the room first, then press "Colour by water supply". <a href="../widgets/classic-charts.html?chart=farr" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">Before Snow, there was William Farr, the great medical statistician of the General Register Office. After the 1849 epidemic he plotted cholera deaths against the height of each London district above the Thames. Look at it: a smooth, strong gradient. Districts at the river had over 90 deaths per 10,000; districts above 60 feet had about 20. Farr fitted a mathematical law to it and concluded that cholera came from bad air, miasma, lying low near the river. Ask the room: is this convincing? It is strong, it is consistent, it even has a dose-response. Now press "Colour by water supply". The low districts are the ones drinking Thames water drawn in central London, full of sewage. Height and water travel together. Height was a confounder. A dose-response does not protect you from confounding. Farr himself changed his mind after the 1866 epidemic. Snow, five years later, found a way to separate water from everything else.</aside>
+</section>
+
+<!-- 7 -->
+<section>
+  <h2>London, 1854: which water company is killing people?</h2>
+  <table style="font-size:25px">
+    <tr><th>Water supply</th><th class="num">Cholera deaths</th></tr>
+    <tr><td>Southwark and Vauxhall Company</td><td class="num">1,263</td></tr>
+    <tr><td>Lambeth Company</td><td class="num">98</td></tr>
+    <tr><td>Rest of London</td><td class="num">1,422</td></tr>
+  </table>
+  <p class="q">Rest of London has the most deaths. Is its water the most dangerous?</p>
+  <p class="cite">Snow J. On the Mode of Communication of Cholera, 2nd ed. London; 1855.</p>
+  <aside class="notes">John Snow was a London anaesthetist. He even gave chloroform to Queen Victoria. He believed cholera spread through water, when most doctors believed in bad air, miasma. In 1854 two companies supplied water to the same streets of south London. Southwark and Vauxhall took water from the Thames below the sewage outlets. Lambeth had moved its intake upstream. Here are the deaths. Ask the room: the rest of London has the most deaths, so is its water the worst? Wait for someone to say "we need to know how many people each company supplied".</aside>
+</section>
+
+<!-- 8 -->
+<section>
+  <h2>Counts mislead. Divide by the number at risk</h2>
+  <table style="font-size:23px">
+    <tr><th>Water supply</th><th class="num">Deaths</th><th class="num">Houses</th><th class="num">Deaths per 10,000 houses</th></tr>
+    <tr><td>Southwark and Vauxhall</td><td class="num">1,263</td><td class="num">40,046</td><td class="num"><b>315</b></td></tr>
+    <tr><td>Lambeth</td><td class="num">98</td><td class="num">26,107</td><td class="num"><b>37</b></td></tr>
+    <tr><td>Rest of London</td><td class="num">1,422</td><td class="num">256,423</td><td class="num"><b>55</b></td></tr>
+  </table>
+  <svg class="ch" viewBox="0 0 1152 190" role="img" aria-label="Deaths per 10,000 houses: Southwark and Vauxhall 315, Lambeth 37, rest of London 55">
+    <text class="lbl" x="0" y="42">Southwark and Vauxhall</text><rect class="bar" x="270" y="18" width="788" height="36"/><text class="big" x="1068" y="48">315</text>
+    <text class="lbl" x="0" y="102">Lambeth</text><rect class="bar2" x="270" y="78" width="94" height="36"/><text class="big" x="374" y="108">37</text>
+    <text class="lbl" x="0" y="162">Rest of London</text><rect class="bar2" x="270" y="138" width="138" height="36"/><text class="big" x="418" y="168">55</text>
+  </svg>
+  <p class="claim">A rate needs a denominator. The most deaths is not the highest risk.</p>
+  <aside class="notes">Snow went door to door and found out which company supplied each house. Now divide deaths by houses. Southwark and Vauxhall: 315 deaths per 10,000 houses. Lambeth: 37. Rest of London: 55. The rest of London had the most deaths only because it had the most houses. Southwark and Vauxhall houses had about eight times the death rate of Lambeth houses. A small note: Snow's printed table gives 59 for the rest of London; these house and death counts give 55. And he used houses, not people, as the denominator, because that was what he could count. This was called the Grand Experiment: similar people on the same streets, differing mainly in their water.</aside>
+</section>
+
+<section>
+  <h2>Broad Street, 1854: put every death on a map</h2>
+  <iframe class="lab" src="../widgets/classic-charts.html?embed=1&amp;chart=snow" title="Broad Street, 1854: put every death on a map" loading="lazy"></iframe>
+  <p class="small dim labnote">Snow's 578 deaths and 13 pumps. Tick "Colour each death by its nearest pump". <a href="../widgets/classic-charts.html?chart=snow" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">The same year, a violent outbreak hit Soho, in central London. Snow marked every death on a street map. Each dot is one death, the triangles are public water pumps. Where do the dots cluster? Tick the box: the dark dots are the deaths nearer the Broad Street pump than any other, about six in ten of all deaths. Snow also found telling exceptions: workers at a brewery nearby, who drank beer and had their own well, were spared; a woman in Hampstead, far away, who had Broad Street water carried to her because she liked its taste, died. Now look at the curve on the right. The pump handle came off on 8 September, but deaths were already falling, partly because people had fled. So the handle removal did not prove anything by itself. The evidence was the map and the comparison. Be honest about this with students; the popular story oversells the handle.</aside>
+</section>
+
+<!-- 9 -->
+<section>
+  <h2>Snow's comparison fits in a 2 by 2 table</h2>
+  <div class="side">
+    <table class="tt">
+      <tr><th></th><th>Died</th><th>Did not die</th><th>Total</th></tr>
+      <tr><th class="rh">Southwark and Vauxhall</th><td class="cell a">1,263<small>a</small></td><td class="cell">38,783<small>b</small></td><td class="m">40,046</td></tr>
+      <tr><th class="rh">Lambeth</th><td class="cell">98<small>c</small></td><td class="cell">26,009<small>d</small></td><td class="m">26,107</td></tr>
+    </table>
+    <div>
+      <p class="lede">Rows: <b>exposure</b>, what people had or did.</p>
+      <p class="lede">Columns: <b>outcome</b>, what happened to them.</p>
+      <p class="small dim">Counted per house, as Snow did. Always read the table before the numbers that come out of it.</p>
+    </div>
+  </div>
+  <p class="claim">Exposed or not, by sick or not. Almost every study you read reduces to this.</p>
+  <aside class="notes">Here is the same comparison arranged as a 2 by 2 table. Exposure goes in the rows: dirty water or clean water. Outcome in the columns: died or did not die. The four cells are always called a, b, c and d, in this order. Cell a, the exposed who got the outcome, is the one people look at first. Take a minute and fill in b and d yourselves from the previous slide, total minus deaths. Almost every cohort study, case-control study and trial that you will read reduces to one or more tables like this.</aside>
+</section>
+
+<!-- 10 -->
+<section>
+  <h2>Four numbers from one table, each answering a different question</h2>
+  <table style="font-size:22px">
+    <tr><th>Measure</th><th>Formula</th><th>Question it answers</th><th class="num">Snow</th></tr>
+    <tr><td>Risk in exposed</td><td>a / (a + b)</td><td>How likely in the exposed?</td><td class="num">315 per 10,000</td></tr>
+    <tr><td>Risk in unexposed</td><td>c / (c + d)</td><td>How likely otherwise?</td><td class="num">38 per 10,000</td></tr>
+    <tr><td><b>Relative risk (RR)</b></td><td>risk exposed / risk unexposed</td><td>How many times higher?</td><td class="num"><b>8.4</b></td></tr>
+    <tr><td><b>Risk difference</b> (attributable risk)</td><td>risk exposed minus risk unexposed</td><td>How much extra, in absolute terms?</td><td class="num"><b>278 per 10,000</b></td></tr>
+    <tr><td>Attributable fraction in exposed</td><td>(RR minus 1) / RR</td><td>What share of the exposed cases is due to exposure?</td><td class="num">88%</td></tr>
+    <tr><td><b>Odds ratio (OR)</b></td><td>(a × d) / (b × c)</td><td>Ratio of odds; used when risks cannot be measured</td><td class="num">8.6</td></tr>
+  </table>
+  <p class="claim good" style="font-size:26px">With Lambeth water, about 88 of every 100 Southwark and Vauxhall deaths would not have happened.</p>
+  <aside class="notes">From this one table we get several numbers, and each answers a different question. Risk in the exposed and unexposed. Relative risk: how many times higher, here 8.4. Risk difference, which older books call attributable risk: how many extra deaths per 10,000 houses, here 278. Attributable fraction: of the deaths in the exposed houses, what share is due to the exposure, here 88 percent. And the odds ratio, 8.6, very close to the relative risk because cholera death was rare, about 3 percent. We will see soon why the odds ratio exists at all. Read the green line aloud. That is what attributable fraction means in plain words, assuming the water was the cause.</aside>
+</section>
+
+<!-- 11 -->
+<section>
+  <h2>Try it: the 2 by 2 Lab</h2>
+  <iframe class="lab" src="../widgets/two-by-two.html?embed=1&amp;preset=snow" title="2 by 2 Lab" loading="lazy"></iframe>
+  <p class="small dim labnote">Change a cell and watch every measure move. Presets: Snow, Semmelweis, Doll and Hill, the pill scare. <a href="../widgets/two-by-two.html" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">This is a live version of the table. Change any cell and all the measures update, along with the pictures. Try this with the class: make cell a smaller, what happens to the relative risk? Now double every number in the table. Relative risk does not change, but the confidence interval gets narrower. That is the effect of sample size. To move to the next slide after clicking inside the lab, click on the grey note below it first, then press the arrow key.</aside>
+</section>
+
+<!-- 12 -->
+<section>
+  <h2>Vienna, 1846: two maternity clinics, very different deaths</h2>
+  <div class="cards c2">
+    <div class="card"><h3>First Clinic</h3><p class="small">Deliveries by doctors and medical students</p><div class="stat"><span class="n">9.9%</span><span class="l">mothers died, 1841 to 1846<br>1,989 of 20,042 births</span></div></div>
+    <div class="card"><h3>Second Clinic</h3><p class="small">Deliveries by midwives</p><div class="stat"><span class="n">3.9%</span><span class="l">mothers died, 1841 to 1846<br>691 of 17,791 births</span></div></div>
+  </div>
+  <p class="q" style="margin-top:24px">Same hospital, same city, admitted on alternate days. Why?</p>
+  <p class="cite">Semmelweis IP. The Etiology, Concept and Prophylaxis of Childbed Fever. 1861. Yearly figures as tabulated by Loudon, J R Soc Med 2013.</p>
+  <aside class="notes">Ignaz Semmelweis was in charge of the First Obstetric Clinic of the Vienna General Hospital. Childbed fever, puerperal sepsis, was killing mothers. Women knew the First Clinic was dangerous; some begged not to be admitted there, and some delivered in the street to avoid it. Women were admitted to the two clinics on alternate days, so the groups were similar. Relative risk 2.6. Ask the room: why? Take their theories. At the time people blamed crowding, bad air, fear caused by the priest's bell, the delivery position, and even the embarrassment of being examined by male students.</aside>
+</section>
+
+<!-- 13 -->
+<section>
+  <h2>Semmelweis tested each idea. Hands from the autopsy room fitted</h2>
+  <div class="cards c3">
+    <div class="card bad"><h3>Ruled out</h3><p class="small">Crowding, the air, the priest's bell, delivery position. Changing them did not change deaths.</p></div>
+    <div class="card"><h3>The clue</h3><p class="small">March 1847: colleague Kolletschka cut by a student's knife during an autopsy. He died with the same findings as the mothers.</p></div>
+    <div class="card good"><h3>The test</h3><p class="small">Doctors and students came straight from the dissection room. From May 1847: wash hands in chlorinated lime.</p></div>
+  </div>
+  <p class="claim">Compare groups that differ in one thing, then change that thing and see if the outcome follows.</p>
+  <aside class="notes">Semmelweis changed things one at a time. He moved the priest. He changed the delivery position. Nothing happened. Then his friend Jakob Kolletschka, a pathologist, was cut by a student's scalpel during an autopsy and died. His autopsy looked just like the mothers'. The difference between the clinics was the doctors and students, who came straight from dissecting bodies to examining women. Midwives did not do autopsies. So in May 1847 he made everyone wash their hands in chlorinated lime. Notice: nobody knew about bacteria yet. He did not need to know the organism to prevent the disease.</aside>
+</section>
+
+<!-- 14 -->
+<section>
+  <h2>After handwashing, the First Clinic caught up with the midwives</h2>
+  <svg class="ch" viewBox="0 0 1152 400" role="img" aria-label="Maternal deaths per 100 births by year, 1841 to 1848. First Clinic between 7 and 16 until 1846, 5.0 in 1847, 1.3 in 1848. Second Clinic between 1 and 8.">
+    <g class="grid"><line x1="90" y1="340" x2="1000" y2="340"/><line x1="90" y1="260" x2="1000" y2="260"/><line x1="90" y1="180" x2="1000" y2="180"/><line x1="90" y1="100" x2="1000" y2="100"/><line x1="90" y1="20" x2="1000" y2="20"/></g>
+    <g class="tick" text-anchor="end"><text x="78" y="346">0</text><text x="78" y="266">4</text><text x="78" y="186">8</text><text x="78" y="106">12</text><text x="78" y="26">16</text></g>
+    <text class="tick" x="0" y="0" transform="translate(22 250) rotate(-90)">deaths per 100 births</text>
+    <g class="tick" text-anchor="middle"><text x="130" y="376">1841</text><text x="250" y="376">1842</text><text x="370" y="376">1843</text><text x="490" y="376">1844</text><text x="610" y="376">1845</text><text x="730" y="376">1846</text><text x="850" y="376">1847</text><text x="970" y="376">1848</text></g>
+    <line class="ev" x1="835" y1="10" x2="835" y2="340"/><text class="evt" x="845" y="34">Handwashing, May 1847</text>
+    <polyline class="l1" points="130,184 250,25 370,161 490,175 610,202 730,111 850,239 970,315"/>
+    <polyline class="l2" points="130,270 250,188 370,220 490,294 610,299 730,284 850,321 970,314"/>
+    <g class="d1"><circle cx="130" cy="184" r="6"/><circle cx="250" cy="25" r="6"/><circle cx="370" cy="161" r="6"/><circle cx="490" cy="175" r="6"/><circle cx="610" cy="202" r="6"/><circle cx="730" cy="111" r="6"/><circle cx="850" cy="239" r="6"/><circle cx="970" cy="315" r="6"/></g>
+    <g class="d2"><circle cx="130" cy="270" r="6"/><circle cx="250" cy="188" r="6"/><circle cx="370" cy="220" r="6"/><circle cx="490" cy="294" r="6"/><circle cx="610" cy="299" r="6"/><circle cx="730" cy="284" r="6"/><circle cx="850" cy="321" r="6"/><circle cx="970" cy="314" r="6"/></g>
+    <text class="lbl" x="1010" y="120" style="fill:var(--band)">First Clinic</text><text class="tick" x="1010" y="144">doctors</text>
+    <text class="lbl" x="1010" y="290" style="fill:#5a6275">Second Clinic</text><text class="tick" x="1010" y="314">midwives</text>
+  </svg>
+  <p class="small dim">First Clinic 1846: 459 of 4,010 mothers died (11.4%). 1848: 45 of 3,556 (1.3%).</p>
+  <aside class="notes">Here are the yearly death rates. The dark line is the doctors' clinic, the grey line the midwives'. Before 1847 the gap is wide every single year. The green line marks handwashing in May 1847. By 1848 the First Clinic is at 1.3 percent, the same as the midwives. This before-and-after comparison, with the midwives' clinic as a control running alongside, is strong evidence. Ask: what else could have changed in 1847? That is always the right question to ask of a before-and-after comparison.</aside>
+</section>
+
+<!-- 15 -->
+<section>
+  <h2>He was right, and he was ignored</h2>
+  <p class="lede">Senior doctors rejected the idea that their own hands killed mothers. Semmelweis did not publish for years, would not present at meetings, and insulted his critics.</p>
+  <div class="cards c3">
+    <div class="card"><h3>Evidence</h3><p class="small">Present it, in writing, where others can check it.</p></div>
+    <div class="card"><h3>Feasibility</h3><p class="small">The fix must look doable to those who must do it.</p></div>
+    <div class="card"><h3>Support</h3><p class="small">Build professional, community and political backing.</p></div>
+  </div>
+  <p class="claim warn">Hand hygiene is still the hardest infection control practice to get right in our own wards.</p>
+  <aside class="notes">This story does not end well. Semmelweis's colleagues found it offensive that gentlemen doctors could carry death on their hands. He did not publish his work for over a decade, refused to present at meetings, and wrote angry open letters calling his critics murderers. He lost his post and died in an asylum in 1865. The lesson for epidemiology: being right is not enough. You need evidence others can check, an intervention that looks feasible, and support. And ask yourselves how often you have seen hand rub used between patients on your ward.</aside>
+</section>
+
+<section>
+  <h2>Nightingale drew her numbers so no one could ignore them</h2>
+  <iframe class="lab" src="../widgets/classic-charts.html?embed=1&amp;chart=night" title="Nightingale drew her numbers so no one could ignore them" loading="lazy"></iframe>
+  <p class="small dim labnote">Her monthly Crimean War data. Switch rose and bars, and the two years. <a href="../widgets/classic-charts.html?chart=night" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">Contrast Semmelweis with Florence Nightingale. She was also fighting doctors and generals. But she counted carefully, calculated death rates per 1,000 soldiers, and drew them. In the first year of the Crimean War, about 14 soldiers died of disease for every one killed by wounds. Those are the big dark wedges. The Sanitary Commission arrived in March 1855 and cleaned the drains, the water and the ventilation. Switch to the second year: the wedges shrink. Now switch to plain bars. Same numbers, easier to read exactly. She chose the rose because it persuaded Parliament. Semmelweis had the right answer and lost; Nightingale had the right answer and presented it so it could not be ignored.</aside>
+</section>
+
+<!-- 16 -->
+<section>
+  <h2>The same logic runs through the early pioneers</h2>
+  <table style="font-size:22px">
+    <tr><th>Who, when</th><th>What they did</th><th>The thinking move</th></tr>
+    <tr><td>Hippocrates, about 400 BC</td><td>Linked disease to seasons, water, winds and way of life</td><td>Disease has natural, observable causes</td></tr>
+    <tr><td>John Graunt, 1662</td><td>Counted London's weekly Bills of Mortality</td><td>Deaths show patterns you can predict</td></tr>
+    <tr><td>James Lind, 1747</td><td>12 sailors with scurvy, 6 treatments in pairs; citrus pair recovered</td><td>Compare treatments in similar patients at the same time</td></tr>
+    <tr><td>Edward Jenner, 1796</td><td>"I can't take smallpox, I've had cowpox." Tested cowpox inoculation</td><td>An observation becomes a testable hypothesis</td></tr>
+    <tr><td>John Snow, 1854</td><td>Deaths per house by water company</td><td>Divide by the population at risk</td></tr>
+    <tr><td>Ignaz Semmelweis, 1847</td><td>Two clinics; then handwashing</td><td>Compare, intervene, watch the outcome</td></tr>
+  </table>
+  <aside class="notes">A quick tour of the pioneers from my older slides. Hippocrates told doctors to look at the seasons, the water, and how people lived. Graunt, a shopkeeper, counted deaths in London and saw regular patterns. Lind put twelve scurvy sailors on six treatments, two each, on the same ship at the same time, and the pair on oranges and lemons recovered. That is a small controlled trial. Jenner heard a dairy maid say she could not get smallpox because she had had cowpox. He turned that into a test on the boy James Phipps. Today that experiment would never pass an ethics committee. Every one of them is counting, dividing or comparing.</aside>
+</section>
+
+<!-- 17 -->
+<section>
+  <h2>Lung cancer, 1950: start from the sick, not the smokers</h2>
+  <p class="lede">Doll and Hill started with the sick. 649 men with lung cancer, and 649 men in hospital for other illnesses. Then they asked about smoking.</p>
+  <table class="tt">
+    <tr><th></th><th>Lung cancer</th><th>Controls</th></tr>
+    <tr><th class="rh">Smoked</th><td class="cell a">647<small>a</small></td><td class="cell">622<small>b</small></td></tr>
+    <tr><th class="rh">Never smoked</th><td class="cell">2<small>c</small></td><td class="cell">27<small>d</small></td></tr>
+    <tr><th class="rh">Total</th><td class="m">649</td><td class="m">649</td></tr>
+  </table>
+  <p class="q" style="font-size:34px;margin-top:18px !important">Can you calculate the risk of lung cancer in smokers from this table?</p>
+  <p class="cite">Doll R, Hill AB. Smoking and carcinoma of the lung. BMJ 1950;2:739-748.</p>
+  <aside class="notes">Snow followed exposed and unexposed houses forward to see who died. That is a cohort design. But lung cancer takes decades to develop. In 1950 Richard Doll and Austin Bradford Hill in London did it the other way round. They found men with lung cancer, cases, and men in the same hospitals with other illnesses, controls, and asked both about their smoking. Here are the men. Ask the room: what is the risk of lung cancer in smokers? Wait. Someone should notice that the investigators chose to have 649 cases. The column totals were fixed by design.</aside>
+</section>
+
+<!-- 18 -->
+<section>
+  <h2>When you pick the cases, risk is meaningless. Use the odds ratio</h2>
+  <div class="eq"><span>OR =</span><span class="frac"><span class="n">a × d</span><span class="d">b × c</span></span><span class="op">=</span><span class="frac"><span class="n">647 × 27</span><span class="d">622 × 2</span></span><span class="op">=</span><span><b>14</b></span></div>
+  <div class="cards c2">
+    <div class="card"><h3>Why not risk?</h3><p class="small">647 / (647 + 622) = 51% would be "risk" only because the study chose equal numbers of cases and controls. Choose twice the controls and it halves.</p></div>
+    <div class="card good"><h3>Why the OR works</h3><p class="small">The odds of smoking in cases vs in controls equals the odds of disease in smokers vs non-smokers. When the disease is rare, OR is close to RR.</p></div>
+  </div>
+  <p class="claim">Cohort study: risks, RR and OR. Case-control study: OR only.</p>
+  <aside class="notes">If you divide 647 by 647 plus 622 you get 51 percent. That is not the risk of lung cancer in smokers. It is 51 percent only because the investigators chose one control per case. With two controls per case it would fall to about a third. So in a case-control study we cannot calculate risk, or relative risk. What we can calculate is the odds ratio, a times d over b times c. Here it is 14. The odds ratio has a useful property: the exposure odds ratio equals the disease odds ratio. And when the disease is rare, like lung cancer, the odds ratio is close to the relative risk. So smokers had roughly fourteen times the risk. Later cohort studies, including Doll and Hill's own study of British doctors, confirmed it.</aside>
+</section>
+
+<!-- 19 -->
+<section>
+  <h2>"Doubles the risk" can mean one extra case in 7,000</h2>
+  <p class="lede">October 1995: UK regulators warn that newer contraceptive pills double the risk of blood clots in the legs and lungs.</p>
+  <div class="cards c3">
+    <div class="stat"><span class="n">100%</span><span class="l">increase in risk. The headline</span></div>
+    <div class="stat"><span class="n">1 → 2</span><span class="l">women per 7,000 per year. The absolute numbers</span></div>
+    <div class="stat"><span class="n">~13,000</span><span class="l">extra abortions the next year, in England and Wales</span></div>
+  </div>
+  <p class="claim warn">Always ask for the absolute risk. A relative risk alone can frighten, or flatter, without informing.</p>
+  <p class="cite">Furedi A. Hum Reprod Update 1999;5:621-6. Gigerenzer G et al. Psychol Sci Public Interest 2007;8:53-96.</p>
+  <aside class="notes">This is one of the most expensive misunderstandings of relative risk. In October 1995 the UK Committee on Safety of Medicines warned doctors that third-generation pills doubled the risk of venous thrombosis. The newspapers printed "100 percent increase". Many women stopped the pill abruptly. What did doubling mean? About 1 in 7,000 women a year on the older pills, 2 in 7,000 on the newer ones. One extra case per 7,000 women. The next year there were an estimated 13,000 extra abortions, and pregnancy itself carries a higher clot risk than either pill. Relative risk tells you how strong an association is. Risk difference tells you how much it matters to a patient. Give patients both.</aside>
+</section>
+
+<!-- 20 -->
+<section>
+  <h2>Chocolate and Nobel prizes: correlation 0.79</h2>
+  <p class="lede">A 2012 paper in the New England Journal of Medicine plotted chocolate eaten per person against Nobel laureates per 10 million people, for 23 countries.</p>
+  <div class="stat" style="margin:10px 64px 18px"><span class="n">r = 0.79</span><span class="l">Switzerland on top, China at the bottom</span></div>
+  <div class="cards c3">
+    <div class="card"><h3>Ecological</h3><p class="small">Countries, not people. We do not know that the laureates ate the chocolate.</p></div>
+    <div class="card"><h3>Confounded</h3><p class="small">Rich countries buy more chocolate and fund more research.</p></div>
+    <div class="card"><h3>Reversed?</h3><p class="small">The author joked that laureates might celebrate with chocolate.</p></div>
+  </div>
+  <p class="claim warn">Association is where thinking starts, not where it ends.</p>
+  <p class="cite">Messerli FH. Chocolate consumption, cognitive function, and Nobel laureates. N Engl J Med 2012;367:1562-4.</p>
+  <aside class="notes">This paper was partly tongue in cheek, but it was real and it was in the New England Journal. The correlation is strong, 0.79. Ask the class to explain it without chocolate making anyone clever. Three explanations. It is ecological: the data are about countries, not individuals. There is confounding: national wealth drives both chocolate and science funding. And there may be reverse causation. The author himself admitted he ate chocolate daily. Keep these three words: ecological, confounding, reverse causation.</aside>
+</section>
+
+<!-- 21 -->
+<section>
+  <h2>Kidney stones: treatment A wins in every group, yet loses overall</h2>
+  <table style="font-size:24px">
+    <tr><th>Success rate</th><th class="num">Open surgery (A)</th><th class="num">PCNL (B)</th><th>Better</th></tr>
+    <tr><td>Small stones</td><td class="num">81 / 87 = <b>93%</b></td><td class="num">234 / 270 = 87%</td><td><span class="pill good">A</span></td></tr>
+    <tr><td>Large stones</td><td class="num">192 / 263 = <b>73%</b></td><td class="num">55 / 80 = 69%</td><td><span class="pill good">A</span></td></tr>
+    <tr><td><b>All stones</b></td><td class="num">273 / 350 = 78%</td><td class="num">289 / 350 = <b>83%</b></td><td><span class="pill bad">B ?</span></td></tr>
+  </table>
+  <p class="q" style="font-size:34px">How can A be better for small stones and for large stones, but worse for all stones?</p>
+  <p class="cite">Charig CR et al. BMJ 1986;292:879-82. Stratified as in Julious SA, Mullee MA. BMJ 1994;309:1480-1.</p>
+  <aside class="notes">This is a real comparison of two operations for kidney stones. Open surgery, A, and percutaneous nephrolithotomy, B. Look at the small stones: A wins. Large stones: A wins again. Now add them up: B wins. This is called Simpson's paradox. Give the room a minute. The answer is on the next slide. Hint: look at where most of A's patients are.</aside>
+</section>
+
+<!-- 22 -->
+<section>
+  <h2>Doctors gave the harder cases to surgery. That is confounding</h2>
+  <div class="cards c2">
+    <div class="card"><h3>Who got A</h3><p class="small">263 of 350 had large stones, which are harder to treat whichever method you use.</p></div>
+    <div class="card"><h3>Who got B</h3><p class="small">270 of 350 had small stones, which do well whichever method you use.</p></div>
+  </div>
+  <p class="lede" style="margin-top:22px">Stone size is linked to the treatment chosen <b>and</b> to the outcome. Mixing the groups hides the true comparison.</p>
+  <p class="claim">A confounder is linked to both exposure and outcome, and is not on the path between them. Compare within its levels.</p>
+  <p class="small dim"><a href="../widgets/confounding-lab.html" target="_blank" rel="noopener" style="color:var(--band)">Confounding Lab</a>: split and merge the groups yourself, with a second example on coffee, smoking and lung cancer.</p>
+  <aside class="notes">Most patients who got open surgery had large stones. Most who got PCNL had small stones. Large stones fail more often, whatever you do. So B's overall figure looks good because B was given the easy cases. Stone size is linked to the treatment and to the outcome. That is a confounder. The fix is to compare within groups of the confounder: small with small, large with large. Randomisation solves this at the design stage, because it balances stone size between the arms, including factors we never measured. The confounding lab has this example and another: coffee drinkers seem to get more lung cancer, until you split by smoking.</aside>
+</section>
+
+<!-- 23 -->
+<section>
+  <h2>Hormone therapy: studies said protect, the trial said harm</h2>
+  <div class="cards c2">
+    <div class="card good"><h3>1980s to 1990s: observational studies</h3><p class="small">Women who chose hormone therapy after menopause had 40 to 50% less heart disease. Millions were prescribed it to prevent heart attacks.</p></div>
+    <div class="card bad"><h3>2002: Women's Health Initiative trial</h3><p class="small">16,608 women randomised. Heart disease hazard ratio 1.29, breast cancer 1.26. Stopped early for harm.</p></div>
+  </div>
+  <p class="lede" style="margin-top:22px">Women who chose hormones were healthier, richer and more careful about their health to begin with.</p>
+  <p class="claim warn">The people who choose a treatment are not like the people who do not. Randomisation removes that choice.</p>
+  <p class="cite">Writing Group for the WHI Investigators. JAMA 2002;288:321-33.</p>
+  <aside class="notes">This is confounding at the scale of millions of prescriptions. For two decades, observational studies found that women on hormone therapy had much less heart disease. Doctors prescribed it for prevention. Then the Women's Health Initiative randomised over sixteen thousand women to oestrogen plus progestin or placebo. The trial was stopped early. Heart disease was higher, not lower, hazard ratio 1.29. Breast cancer was also higher. What went wrong? The women who chose hormones were healthier to start with: more educated, more exercise, better access to care. This is sometimes called the healthy user effect. Randomisation takes the choice away from the patient and the doctor, so the groups are alike.</aside>
+</section>
+
+<section>
+  <h2>1954: the families who said no were different</h2>
+  <iframe class="lab" src="../widgets/classic-charts.html?embed=1&amp;chart=polio" title="1954: the families who said no were different" loading="lazy"></iframe>
+  <p class="small dim labnote">The Salk vaccine field trial, over 400,000 children randomised. Compare the two designs. <a href="../widgets/classic-charts.html?chart=polio" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">The biggest public health experiment of its time. In 1954 the Salk polio vaccine was tested on schoolchildren in the United States. In some areas, children whose parents consented were randomised to vaccine or a salt-water placebo. Vaccinated: 16 paralytic cases per 100,000. Placebo: 57. Relative risk 0.29, so the vaccine prevented about 71 percent of cases. Now look at the children whose parents refused: 36 per 100,000, lower than placebo. Why would unvaccinated children do better than placebo? The refusing families were poorer, and paralytic polio, oddly, hit better-off families more, probably because children in more hygienic homes met the virus later in life. So "vaccinated vs not vaccinated" would have been a confounded comparison. Now click the observed-control design, where second-graders were offered vaccine and first and third graders were the comparison. The effect looks smaller, and we cannot be sure the groups were alike. This is why we randomise.</aside>
+</section>
+
+<!-- 24 -->
+<section>
+  <h2>The planes that did not come back</h2>
+  <p class="lede">Second World War. Returning bombers are covered in bullet holes on the wings and body, few on the engines. Where should the armour go?</p>
+  <div class="cards c2">
+    <div class="card"><h3>The obvious answer</h3><p class="small">Where the holes are.</p></div>
+    <div class="card good"><h3>Abraham Wald's answer</h3><p class="small">Planes hit in the engines did not return. You are only looking at the survivors. Armour where the holes are missing.</p></div>
+  </div>
+  <p class="claim warn">Ask who is missing from the data. A hospital sees only those who reached the hospital.</p>
+  <p class="cite">Mangel M, Samaniego FJ. Abraham Wald's work on aircraft survivability. J Am Stat Assoc 1984;79:259-67. The popular story simplifies his technical memoranda.</p>
+  <aside class="notes">Ask the room first: where would you add armour? Most say on the wings, where the holes are. The statistician Abraham Wald pointed out that the sample was only planes that made it back. Planes hit in the engine were missing from the data because they were shot down. So the places without holes are where hits are fatal. Historians say the story has been polished over the years, but the idea is sound. It is called survivorship bias, a kind of selection bias. In medicine: a study done in a tertiary hospital sees patients who survived long enough and could afford to reach it. The patients who died at home are the missing planes.</aside>
+</section>
+
+<!-- 25 -->
+<section>
+  <h2>A positive mammogram. What is the chance of cancer?</h2>
+  <div class="cards c3">
+    <div class="stat"><span class="n">1%</span><span class="l">of women screened have breast cancer</span></div>
+    <div class="stat"><span class="n">90%</span><span class="l">of women with cancer test positive</span></div>
+    <div class="stat"><span class="n">9%</span><span class="l">of women without cancer also test positive</span></div>
+  </div>
+  <p class="q">Your guess: 90%? 81%? 10%? 1%?</p>
+  <p class="cite">Gigerenzer G et al. Psychol Sci Public Interest 2007;8:53-96. 160 gynaecologists were asked this.</p>
+  <aside class="notes">Now the same table, used for tests. A woman in her fifties has a positive screening mammogram. She asks you: do I have cancer? Here is what we know. One percent of women screened have cancer. The test picks up 90 percent of them. It is also positive in 9 percent of women who do not have cancer. Take a vote: 90, 81, 10 or 1 percent. When Gerd Gigerenzer asked 160 practising gynaecologists this question, only about one in five chose the right answer. Most chose 90 or 81.</aside>
+</section>
+
+<!-- 26 -->
+<section>
+  <h2>Count 1,000 women and the answer is about 1 in 10</h2>
+  <div class="side" style="grid-template-columns: 560px 1fr; gap: 30px;">
+    <svg class="ch" id="waffle" viewBox="0 0 560 300" style="width:560px;margin:0" role="img" aria-label="1,000 women: 9 true positives, 1 missed cancer, 89 false positives, 901 true negatives"></svg>
+    <div>
+      <p class="small" style="margin-bottom:8px"><svg width="20" height="20"><circle cx="10" cy="10" r="8" style="fill:var(--band)"/></svg> <b>9</b> cancer, test positive</p>
+      <p class="small" style="margin-bottom:8px"><svg width="20" height="20"><circle cx="10" cy="10" r="7" style="fill:#fff;stroke:var(--band);stroke-width:2"/></svg> <b>1</b> cancer, test negative (missed)</p>
+      <p class="small" style="margin-bottom:8px"><svg width="20" height="20"><circle cx="10" cy="10" r="8" style="fill:var(--warn)"/></svg> <b>89</b> no cancer, test positive (false alarm)</p>
+      <p class="small" style="margin-bottom:18px"><svg width="20" height="20"><circle cx="10" cy="10" r="8" style="fill:#dde1ea"/></svg> <b>901</b> no cancer, test negative</p>
+      <div class="eq sm" style="margin:0;justify-content:flex-start"><span>PPV =</span><span class="frac"><span class="n">9</span><span class="d">9 + 89</span></span><span class="op">=</span><span><b>9%</b></span></div>
+    </div>
+  </div>
+  <p class="claim">When the disease is rare, most positives are false, even with a good test.</p>
+  <aside class="notes">Turn percentages into people. Take 1,000 women. 1 percent, 10 women, have cancer. The test catches 90 percent of them: 9 test positive, 1 is missed. 990 do not have cancer. 9 percent of them, about 89, also test positive. So there are 98 positive tests, and only 9 of them are cancers. 9 out of 98 is about 9 percent, roughly 1 in 10. The amber dots are the false alarms, and they swamp the dark ones. Gigerenzer found that after doctors were taught to think in counts like this, called natural frequencies, most of them got it right.</aside>
+</section>
+
+<!-- 27 -->
+<section>
+  <h2>The diagnostic 2 by 2: the test vs the patient</h2>
+  <div class="side" style="grid-template-columns: 1.05fr 1fr;">
+    <table class="tt" style="margin-left:0">
+      <tr><th></th><th>Disease</th><th>No disease</th></tr>
+      <tr><th class="rh">Test +</th><td class="cell a">9<small>a, true +</small></td><td class="cell">89<small>b, false +</small></td></tr>
+      <tr><th class="rh">Test −</th><td class="cell">1<small>c, false −</small></td><td class="cell">901<small>d, true −</small></td></tr>
+    </table>
+    <table style="font-size:21px">
+      <tr><th>Measure</th><th>Formula</th><th class="num">Here</th></tr>
+      <tr><td>Sensitivity</td><td>a / (a + c)</td><td class="num">90%</td></tr>
+      <tr><td>Specificity</td><td>d / (b + d)</td><td class="num">91%</td></tr>
+      <tr><td><b>PPV</b></td><td>a / (a + b)</td><td class="num"><b>9%</b></td></tr>
+      <tr><td><b>NPV</b></td><td>d / (c + d)</td><td class="num"><b>99.9%</b></td></tr>
+    </table>
+  </div>
+  <p class="claim">Sensitivity and specificity belong to the test. Predictive values depend on who you test.</p>
+  <p class="small dim"><a href="../widgets/test-lab.html" target="_blank" rel="noopener" style="color:var(--band)">Screening Test Lab</a>: move prevalence and watch PPV change while the test stays the same.</p>
+  <aside class="notes">Here is the same information as a 2 by 2 table. Now the rows are the test result and the columns are the true disease status. Sensitivity and specificity read down the columns: among people with disease, how many test positive; among people without, how many test negative. Those are properties of the test. Predictive values read across the rows: among positives, how many have disease. That is what the patient wants to know, and it depends on how common the disease is in the people you test. The same mammogram in a breast clinic, where many women have a lump, has a much higher PPV. The next slide lets you see this.</aside>
+</section>
+
+<!-- 28 -->
+<section>
+  <h2>Try it: same test, different prevalence</h2>
+  <iframe class="lab" src="../widgets/test-lab.html?embed=1" title="Screening Test Lab" loading="lazy"></iframe>
+  <p class="small dim labnote">Move the prevalence slider from 1% to 20% and watch the positive predictive value. <a href="../widgets/test-lab.html" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">Here is the test lab. Start at 1 percent prevalence, as in screening. PPV is about 9 percent. Slide prevalence to 20 percent, a symptomatic clinic. PPV jumps to over 70 percent. The test did not change at all. Now push specificity from 91 to 99 percent at low prevalence and watch the false alarms disappear. This is why we screen high-risk groups, and why a positive screen is followed by a confirmatory test.</aside>
+</section>
+
+<!-- 29 -->
+<section>
+  <h2>Five questions to ask of the next headline</h2>
+  <ol class="five">
+    <li><b>Compared with whom?</b> No comparison group, no conclusion.</li>
+    <li><b>Out of how many?</b> A count is not a rate. Ask for the denominator.</li>
+    <li><b>How big, in absolute terms?</b> "40% lower" from what, to what?</li>
+    <li><b>What else could explain it?</b> Chance, bias, confounding, reverse causation.</li>
+    <li><b>What kind of study?</b> Anecdote, ecological, case-control, cohort or randomised trial.</li>
+  </ol>
+  <p class="claim">Try them on "Coffee cuts liver cancer risk by 40%". It came from a meta-analysis of mostly case-control and cohort studies: RR 0.60.</p>
+  <p class="cite">Bravi F et al. Clin Gastroenterol Hepatol 2013;11:1413-21.</p>
+  <aside class="notes">These are the answers the class gave on slide 2, organised. Compared with whom. Out of how many. How big in absolute terms. What else could explain it. What kind of study. Now use them on the coffee headline. The source was a meta-analysis of 16 observational studies, relative risk 0.60 for liver cell cancer. Compared with non-drinkers. Liver cancer is uncommon, so the absolute difference is small. What else? People with liver disease are often told to stop coffee, which is reverse causation, and coffee drinkers may differ in alcohol and hepatitis. And no trial. So: interesting, plausible, not proof.</aside>
+</section>
+
+<!-- 30 -->
+<section>
+  <h2>Three things to carry out of this room</h2>
+  <p class="claim">Count, divide, compare. A story or a count alone proves nothing.</p>
+  <p class="claim">From one 2 by 2 table: RR for strength, risk difference for impact, OR when you started from the cases.</p>
+  <p class="claim good">Before believing an association, rule out chance, bias and confounding. Before believing a positive test, ask how common the disease is.</p>
+  <aside class="notes">Three things to take away. First, the core habit: count, divide, compare. One case, or a big count, tells you nothing about risk. Second, the 2 by 2 table. Relative risk tells you strength, risk difference tells you how much it matters, and in a case-control study you only get the odds ratio. Third, associations can be produced by chance, bias or confounding, as with hormone therapy. And a positive test in a low-prevalence group is usually a false alarm. The labs stay online; use them to practise the calculations before your exam. Questions?</aside>
+</section>
+
+<!-- 31 -->
+<section>
+  <h2>Sources and further reading</h2>
+  <ol class="sources two">
+    <li>Fletcher GS. Clinical Epidemiology: The Essentials, 6th ed. Wolters Kluwer; 2020.</li>
+    <li>Gordis L, Celentano DD, Szklo M. Gordis Epidemiology, 6th ed. Elsevier; 2019.</li>
+    <li>Snow J. On the Mode of Communication of Cholera, 2nd ed. London: Churchill; 1855.</li>
+    <li>Loudon I. Ignaz Phillip Semmelweis' studies of death in childbirth. J R Soc Med 2013;106:461-3.</li>
+    <li>Doll R, Hill AB. Smoking and carcinoma of the lung. BMJ 1950;2:739-48.</li>
+    <li>Furedi A. The public health implications of the 1995 'pill scare'. Hum Reprod Update 1999;5:621-6.</li>
+    <li>Messerli FH. Chocolate consumption, cognitive function, and Nobel laureates. N Engl J Med 2012;367:1562-4.</li>
+    <li>Charig CR et al. BMJ 1986;292:879-82; Julious SA, Mullee MA. BMJ 1994;309:1480-1.</li>
+    <li>WHI Investigators. Risks and benefits of estrogen plus progestin. JAMA 2002;288:321-33.</li>
+    <li>Mangel M, Samaniego FJ. J Am Stat Assoc 1984;79:259-67.</li>
+    <li>Gigerenzer G et al. Helping doctors and patients make sense of health statistics. Psychol Sci Public Interest 2007;8:53-96.</li>
+    <li>Bravi F et al. Coffee reduces risk for hepatocellular carcinoma. Clin Gastroenterol Hepatol 2013;11:1413-21.</li>
+    <li>Indian J Med Res 2012;135:49-55. Bitter bottle gourd juice toxicity.</li>
+    <li>Classic datasets (Farr 1852, Snow 1855, Nightingale 1858; Francis T et al. Am J Public Health 1955;45(5 Pt 2):1-63) via the R package HistData, Friendly M et al.</li>
+  </ol>
+  <p class="small faint">Prepared at AIIMS Bhopal with Claude (Anthropic) as drafting and coding assistant.</p>
+  <aside class="notes">These are the sources. The Fletchers' book and Gordis are the best next reads. Gigerenzer's paper on health statistics is free online and is excellent on risk communication and natural frequencies. The coffee and confounding lab example on the lab page is invented for teaching; everything on the slides comes from these sources.</aside>
+</section>
+
+</div></div>
+<script src="../vendor/reveal.js/dist/reveal.js"></script>
+<script src="../vendor/reveal.js/plugin/notes/notes.js"></script>
+<script>
+  // Waffle of 1,000 women for the mammography slide: 9 TP, 1 FN, 89 FP, 901 TN
+  (function () {
+    var s = document.getElementById('waffle'), ns = 'http://www.w3.org/2000/svg', html = '';
+    var cls = [];
+    for (var i = 0; i < 1000; i++) cls.push(i < 9 ? 'tp' : i < 10 ? 'fn' : i < 99 ? 'fp' : 'tn');
+    for (var j = 0; j < 1000; j++) {
+      var col = j % 50, row = Math.floor(j / 50);
+      html += '<circle class="' + cls[j] + '" cx="' + (7 + col * 11) + '" cy="' + (7 + row * 11 + (row >= 10 ? 8 : 0)) + '" r="' + (cls[j] === 'fn' ? 3.8 : 4.6) + '"/>';
+    }
+    s.innerHTML = html;
+  })();
+  Reveal.initialize({
+    width: 1280, height: 720, margin: 0, center: false, transition: 'fade',
+    hash: true, slideNumber: 'c/t', plugins: [RevealNotes]
+  });
+</script>
+</body>
+</html>

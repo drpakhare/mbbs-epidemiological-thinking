@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Lecture title</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../vendor/reveal.js/dist/reveal.css">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/slides.css">
+<style>
+  iframe.lab { display: block; width: 1152px; height: 536px; margin: 0 64px; border: 1px solid var(--rule); background: var(--paper); }
+  .labnote { margin-top: 8px !important; }
+  /* per-deck: styles this deck needs beyond slides.css (charts, special tables) */
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- 1 -->
+<section class="cover">
+  <p class="kicker">Epidemiological Thinking · Lecture N</p>
+  <h1>A question the lecture will answer</h1>
+  <p class="lede dim">Topic, in plain words</p>
+  <p class="small faint">AIIMS Bhopal · 60 minutes</p>
+  <aside class="notes">What the teacher says on this slide.</aside>
+</section>
+
+<!-- 2 -->
+<section>
+  <h2>A claim, not a topic label</h2>
+  <p class="lede">One idea per slide.</p>
+  <p class="claim">The point the room should remember.</p>
+  <p class="cite">Source of any number on the slide.</p>
+  <aside class="notes">What the teacher says on this slide.</aside>
+</section>
+
+<!-- 3 -->
+<section>
+  <h2>Try it: a lab inside a slide</h2>
+  <iframe class="lab" src="../widgets/two-by-two.html?embed=1" title="Lab" loading="lazy"></iframe>
+  <p class="small dim labnote">What to do with the lab. <a href="../widgets/two-by-two.html" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">How to use the lab with the room.</aside>
+</section>
+
+<!-- 4 -->
+<section>
+  <h2>Sources and further reading</h2>
+  <ol class="sources">
+    <li>Reference.</li>
+  </ol>
+  <p class="small faint">Prepared at AIIMS Bhopal with Claude (Anthropic) as drafting and coding assistant.</p>
+  <aside class="notes">Where to read more.</aside>
+</section>
+
+</div></div>
+<script src="../vendor/reveal.js/dist/reveal.js"></script>
+<script src="../vendor/reveal.js/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280, height: 720, margin: 0, center: false, transition: 'fade',
+    hash: true, slideNumber: 'c/t', plugins: [RevealNotes]
+  });
+</script>
+</body>
+</html>

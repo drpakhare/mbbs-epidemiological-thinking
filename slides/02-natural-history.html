@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Natural history of disease</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../vendor/reveal.js/dist/reveal.css">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/slides.css">
+<style>
+  /* per-deck: diagrams, embedded labs, question slides */
+  iframe.lab { display: block; width: 1152px; height: 536px; margin: 0 64px; border: 1px solid var(--rule); background: var(--paper); }
+  .labnote { margin-top: 8px !important; }
+  .reveal .labnote a { color: var(--band); }
+  .q { font-family: var(--font-head); font-size: 44px; line-height: 1.2; color: var(--band); margin-top: 40px !important; }
+  .dg { display: block; width: 1152px; height: auto; margin: 0 64px; }
+  .dg text { font-family: var(--font-body); }
+  .dg .t { font-size: 21px; fill: var(--ink); }
+  .dg .tb { font-size: 21px; font-weight: 700; fill: var(--ink); }
+  .dg .tw { font-size: 21px; font-weight: 700; fill: #fff; }
+  .dg .td { font-size: 19px; fill: var(--dim); }
+  .dg .th { font-size: 20px; font-weight: 700; fill: var(--bad); }
+  .dg .tg { font-size: 20px; font-weight: 700; fill: var(--good); }
+  .dg .b0 { fill: #e8ebf2; } .dg .b1 { fill: #c3c9da; } .dg .b2 { fill: #8f9cc8; } .dg .b3 { fill: #4a5d9e; } .dg .b4 { fill: var(--band); }
+  .dg .inf { fill: #a86400; } .dg .lat { fill: #c3c9da; }
+  .dg .hz { stroke: var(--bad); stroke-width: 3; stroke-dasharray: 9 6; }
+  .dg .ln { stroke: var(--ink); stroke-width: 2; fill: none; }
+  .dg .ar { stroke: var(--ink); stroke-width: 2; fill: none; marker-end: url(#ah); marker-start: url(#ah); }
+  .dg .gl { fill: var(--good-wash); stroke: var(--good); stroke-width: 2; }
+  table.wide { font-size: 22px; }
+  table.wide td, table.wide th { padding: 7px 12px; }
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- 1 -->
+<section class="cover">
+  <p class="kicker">Epidemiological Thinking · Lecture 2</p>
+  <h1>In 2003 the world stopped SARS. In 2020 it could not stop COVID-19. What was different?</h1>
+  <p class="lede dim">Natural history of disease: what a disease does when nobody intervenes, and why it decides what we can do</p>
+  <p class="small faint">AIIMS Bhopal · 60 minutes</p>
+  <aside class="notes">Last time we learned to count, divide and compare. Today we ask a different question: what does a disease do inside a person, and across time, if nobody intervenes? That is natural history. It sounds like a textbook definition, but it decided the fate of two epidemics. Keep this question in mind: SARS in 2003 and COVID-19 in 2020 were caused by closely related coronaviruses. The world stopped one in a few months, without a vaccine. It could not stop the other. By the middle of this hour, you will be able to explain why.</aside>
+</section>
+
+<!-- 2 -->
+<section>
+  <h2>Two coronaviruses, two very different epidemics</h2>
+  <div class="cards c2">
+    <div class="card good"><h3>SARS, 2002 to 2003</h3><div class="stat"><span class="n">8,096</span><span class="l">probable cases in 29 countries</span></div><p class="small" style="margin-top:12px">774 deaths. Declared contained in July 2003, with no vaccine and no specific drug.</p></div>
+    <div class="card bad"><h3>COVID-19, from 2020</h3><div class="stat"><span class="n">Every</span><span class="l">country affected</span></div><p class="small" style="margin-top:12px">Never contained. It became an endemic infection that we now live with.</p></div>
+  </div>
+  <p class="q" style="font-size:36px">Both were controlled with the same old tools: find the sick and isolate them. Why did it work only once?</p>
+  <p class="cite">WHO. Summary of probable SARS cases with onset of illness from 1 November 2002 to 31 July 2003.</p>
+  <aside class="notes">Here are the two epidemics. SARS infected about 8,000 people and killed 774. It was declared contained in July 2003. There was no vaccine and no antiviral drug. Public health teams did it by finding sick people quickly, isolating them, and following their contacts. Seventeen years later, the same tools were used against COVID-19 and they could not stop it. Ask the room for theories. You will hear: it spread more easily, it was milder so people kept working, there was more travel. All partly true. Hold your theories; the answer is in the natural history of the infection, and we will see it in the timeline lab.</aside>
+</section>
+
+<!-- 3 -->
+<section>
+  <h2>Natural history: the course a disease takes when nobody intervenes</h2>
+  <p class="lede">From the first exposure to its end: recovery, disability, a carrier state or death. Without treatment, screening or prevention.</p>
+  <div class="cards c3">
+    <div class="card"><h3>For the clinician</h3><p class="small">What to expect, when to test, what the prognosis is.</p></div>
+    <div class="card"><h3>For control</h3><p class="small">When a person can infect others, and for how long.</p></div>
+    <div class="card good"><h3>For prevention</h3><p class="small">Where on the timeline we can step in, and what that can achieve.</p></div>
+  </div>
+  <p class="claim">You cannot judge a treatment or a screening test until you know what happens without it.</p>
+  <p class="cite">Gordis Epidemiology, 6th ed. Fletcher GS. Clinical Epidemiology: The Essentials, 6th ed.</p>
+  <aside class="notes">Natural history is the course a disease would take in a person if we did nothing: no treatment, no screening, no prevention. It runs from the first exposure to the end, whether that is recovery, permanent damage, a carrier state, or death. Why should a doctor care? Three reasons. Clinically, it tells you what to expect and when tests become positive. For control of infections, it tells you when a person is infectious. For prevention, it shows where on the timeline we can intervene. And the last line is the big one: every claim that a treatment or screening test works is a comparison against natural history.</aside>
+</section>
+
+<!-- 4 -->
+<section>
+  <h2>Every disease passes through the same stages</h2>
+  <svg class="dg" viewBox="0 0 1152 330" role="img" aria-label="Stages of natural history: prepathogenesis, then susceptibility, subclinical disease below the clinical horizon, clinical disease, and outcomes">
+    <defs><marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+    <text class="td" x="0" y="26">PREPATHOGENESIS</text>
+    <text class="td" x="316" y="26">PATHOGENESIS: the disease process inside the person</text>
+    <rect class="b0" x="0" y="44" width="300" height="90"/><text class="tb" x="16" y="84">Susceptible</text><text class="t" x="16" y="114">agent, host, environment</text>
+    <rect class="b2" x="300" y="44" width="360" height="90"/><text class="tw" x="316" y="84">Subclinical disease</text><text class="tw" x="316" y="114" style="font-weight:400">changes, but no symptoms</text>
+    <rect class="b4" x="660" y="44" width="300" height="90"/><text class="tw" x="676" y="84">Clinical disease</text><text class="tw" x="676" y="114" style="font-weight:400">signs and symptoms</text>
+    <rect class="b1" x="960" y="44" width="192" height="90"/><text class="tb" x="976" y="84">Outcome</text>
+    <line class="hz" x1="660" y1="36" x2="660" y2="190"/><text class="th" x="670" y="186">clinical horizon</text>
+    <text class="t" x="976" y="176">Recovery</text><text class="t" x="976" y="206">Disability</text><text class="t" x="976" y="236">Carrier state</text><text class="t" x="976" y="266">Death</text>
+    <line class="ln" x1="0" y1="290" x2="1152" y2="290"/>
+    <text class="td" x="0" y="320">exposure</text><text class="td" x="300" y="320">disease begins</text><text class="td" x="660" y="320">first symptoms</text><text class="td" x="960" y="320">end</text>
+  </svg>
+  <p class="claim">Most of what matters happens below the clinical horizon, where doctors cannot see it.</p>
+  <p class="cite">After Leavell HR, Clark EG. Preventive Medicine for the Doctor in His Community.</p>
+  <aside class="notes">Here is the classic picture from Leavell and Clark. Before disease starts, there is prepathogenesis: the agent, the host and the environment interacting, and the person is susceptible. Then the disease process begins: pathogenesis. First the subclinical stage, when changes happen in the body but there are no symptoms. Then the red line, the clinical horizon. Above it, the disease shows itself as signs and symptoms. Finally an outcome: recovery, disability, a carrier state, or death. Remember the clinical horizon. Today we will keep finding that the important action happens below it: silent infections, people who spread disease before they feel ill, cancers that grow for years.</aside>
+</section>
+
+<!-- 5 -->
+<section>
+  <h2>To learn natural history, someone has to go untreated</h2>
+  <p class="q">How would you find out what untreated syphilis does over forty years?</p>
+  <p class="lede" style="margin-top:30px">Think about who would have to be watched, for how long, and what you would owe them.</p>
+  <aside class="notes">Here is the uncomfortable question behind the whole subject. To know what a disease does without treatment, you must watch people who are not treated, sometimes for decades. Ask the room: how would you find out what untreated syphilis does over forty years? Who would be in the study? Is it ever acceptable? Take two or three answers. Someone usually says "only if there is no treatment". Hold on to that. The next two slides are two real studies that answer this question in opposite ways.</aside>
+</section>
+
+<!-- 6 -->
+<section>
+  <h2>Oslo and Tuskegee: the same disease, very different ethics</h2>
+  <div class="cards c2">
+    <div class="card"><h3>Oslo, 1891 to 1910</h3><p class="small">Caesar Boeck believed the mercury treatment of his time did more harm than good, so about 2,000 patients were left untreated. Later follow-up of their records (1929, 1955) described what untreated syphilis does over decades.</p></div>
+    <div class="card bad"><h3>Tuskegee, Alabama, 1932 to 1972</h3><p class="small">399 poor Black men with syphilis and 201 without were watched without treatment. Penicillin was the standard cure by 1943, but was withheld for 30 more years. A news report ended the study in 1972.</p></div>
+  </div>
+  <p class="claim warn">Natural history may be observed when no good treatment exists. It must never be produced by withholding one that works.</p>
+  <p class="cite">CDC. The U.S. Public Health Service Untreated Syphilis Study at Tuskegee: timeline. Gjestland T. Acta Derm Venereol 1955;35 Suppl 34.</p>
+  <aside class="notes">The Oslo study. In the 1890s, the professor of dermatology in Oslo, Caesar Boeck, believed that mercury, the treatment of the time, was toxic and useless, so he left about 2,000 patients untreated and recorded what happened. Others later traced these patients. That gave us the classic description of syphilis over a lifetime. Now Tuskegee in Alabama. From 1932 the US Public Health Service followed 399 poor Black men with syphilis and 201 without, without treating them. They were told they were being treated for bad blood. By 1943 penicillin cured syphilis, and the men were still not treated, for another three decades, until a journalist exposed the study in 1972. It led to the rules on informed consent and ethics review that every one of you will work under. The line is clear: observe natural history when there is no good treatment; never manufacture it by withholding one.</aside>
+</section>
+
+<!-- 7 -->
+<section>
+  <h2>Untreated HIV: the same infection runs faster in older people</h2>
+  <p class="lede">Before effective treatment existed, cohorts of people with a known date of infection were followed until AIDS and death.</p>
+  <table class="wide">
+    <tr><th>Age at infection</th><th class="num">Median years to AIDS</th><th class="num">Median years to death</th></tr>
+    <tr><td>15 to 24</td><td class="num">11.0</td><td class="num">12.5</td></tr>
+    <tr><td>45 to 54</td><td class="num">7.7</td><td class="num">7.9</td></tr>
+  </table>
+  <p class="claim">Natural history belongs to the agent and the host together. The same virus gives a different story in a different person.</p>
+  <p class="cite">CASCADE Collaboration. Time from HIV-1 seroconversion to AIDS and death before widespread use of highly-active antiretroviral therapy. Lancet 2000;355:1131-7.</p>
+  <aside class="notes">A modern example, and an ethical one. Before effective antiretroviral therapy arrived in the mid-1990s, there was simply no good treatment for HIV. Researchers followed people who had a known date of infection, for example from repeated blood tests, and recorded when they developed AIDS and when they died. In young adults the median time to AIDS was about 11 years. In people infected in their late forties, under 8. The point to take away: natural history is not a fixed property of the microbe. It depends on the host as well. And notice that this study could never be done today, because treatment exists. That is the Oslo principle in action.</aside>
+</section>
+
+<!-- 8 -->
+<section>
+  <h2>For every child paralysed by polio, how many were infected?</h2>
+  <p class="q">Guess: 2? 10? 50? More than 100?</p>
+  <p class="lede" style="margin-top:30px">And what does that mean for how we search for polio?</p>
+  <aside class="notes">Take a vote. For every child we see paralysed by polio, how many children were infected with the virus? Two, ten, fifty, more than a hundred? Most students guess low, because we picture polio as a paralysing disease. The answer is on the next slide, in the iceberg lab.</aside>
+</section>
+
+<!-- 9 -->
+<section>
+  <h2>Try it: the iceberg of infection</h2>
+  <iframe class="lab" src="../widgets/spectrum-lab.html?embed=1&amp;preset=polio" title="Iceberg Lab" loading="lazy"></iframe>
+  <p class="small dim labnote">Start with polio, then measles, Japanese encephalitis and COVID-19 by age. <a href="../widgets/spectrum-lab.html" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">Each dot is one infected person, 1,000 in all. Above the dashed line, the clinical horizon, are the people who become ill. Below are those who never do. For polio, about 7 in 10 have no symptoms at all and about 5 in 1,000 are paralysed. So for each paralysed child, about 200 were infected. That is why India searched for polio through surveillance of every case of acute flaccid paralysis and by testing sewage: the visible cases are a tiny tip. Now click measles: the iceberg is entirely above water, almost every infection causes disease. Japanese encephalitis: fewer than 1 in 100 get encephalitis, but a quarter of those die. Then COVID-19 and move the age slider from 25 to 85: same virus, a thousandfold difference in death. To get back to the slides after clicking inside the lab, click the grey line below it, then press the arrow key.</aside>
+</section>
+
+<!-- 10 -->
+<section>
+  <h2>Three words for three steps down the iceberg</h2>
+  <table class="wide">
+    <tr><th>Term</th><th>Calculation</th><th>Example</th></tr>
+    <tr><td><b>Infectivity</b></td><td>infected / exposed susceptible</td><td>Measles: up to 9 in 10 non-immune close contacts get infected</td></tr>
+    <tr><td><b>Pathogenicity</b></td><td>clinical cases / infected</td><td>Polio: about 3 in 10 infected have any illness</td></tr>
+    <tr><td><b>Virulence</b></td><td>severe or fatal cases / clinical cases</td><td>Measles: about 13 deaths per 1,000 cases in low- and middle-income communities, 1 to 3 in high-income settings</td></tr>
+  </table>
+  <p class="claim">Each is a proportion with a clear denominator. Change the denominator and you change the question.</p>
+  <p class="cite">Gordis Epidemiology, chapter 2. CDC Pink Book (measles, poliomyelitis). Sbarra AN et al. Lancet Glob Health 2023.</p>
+  <aside class="notes">Gordis gives three words for three steps down the iceberg. Infectivity: of the susceptible people exposed, how many get infected. Measles is the champion: up to nine in ten unprotected close contacts. Pathogenicity: of those infected, how many become clinically ill. Polio is low, about three in ten. Virulence: of those who are ill, how many become severely ill or die. Case fatality is the commonest measure. Notice measles: the same virus kills several times more often in low- and middle-income communities, because of malnutrition, age and access to care. Point out the denominators: each measure divides by a different group. That is the habit from lecture one.</aside>
+</section>
+
+<!-- 11 -->
+<section>
+  <h2>The hidden part of the iceberg keeps infections alive</h2>
+  <div class="cards c3">
+    <div class="card"><h3>Inapparent infection</h3><p class="small">Infected, no symptoms, still infectious. Polio, hepatitis A in young children, much of COVID-19.</p></div>
+    <div class="card"><h3>Carriers</h3><p class="small">Carry and shed the agent for months or years. Typhoid, hepatitis B. Mary Mallon, a cook, was linked to at least 51 typhoid cases and 3 deaths.</p></div>
+    <div class="card"><h3>Latent infection</h3><p class="small">The agent lies dormant. About a quarter of the world carries TB infection; 5 to 10% will fall ill in their lifetime.</p></div>
+  </div>
+  <p class="claim warn">Mary Mallon was isolated on an island for about 26 years. Where is the line between protecting the public and the rights of one healthy carrier?</p>
+  <p class="cite">Gordis Epidemiology, chapter 2. Houben RM, Dodd PJ. PLoS Med 2016;13:e1002152. WHO tuberculosis fact sheet.</p>
+  <aside class="notes">The people below the clinical horizon matter for control, because many of them still spread infection. Inapparent infection: polio, hepatitis A in young children, a large share of COVID-19. Carriers: people who keep shedding the organism for months or years without being ill. The famous one is Mary Mallon, Typhoid Mary, a cook in New York in the early 1900s, linked to at least 51 cases and 3 deaths. She felt perfectly well, refused to accept she was the source, kept cooking under other names, and was forcibly isolated on North Brother Island for about 26 years in total, until her death in 1938. Latent infection: the agent lies dormant, as with TB, which about a quarter of the world carries. Ask the room the question in amber. There is no easy answer. Isolation laws, including India's during COVID-19, live on this line.</aside>
+</section>
+
+<!-- 12 -->
+<section>
+  <h2>Four clocks start at infection, and they do not run together</h2>
+  <svg class="dg" viewBox="0 0 1152 360" role="img" aria-label="Timeline: latent period from infection to start of infectiousness; incubation period from infection to symptoms; infectious period; serial interval between symptom onset in person A and in person B">
+    <defs><marker id="ah2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink)"/></marker></defs>
+    <text class="tb" x="0" y="96">Person A</text>
+    <rect class="lat" x="130" y="70" width="250" height="40"/><text class="t" x="140" y="97">latent</text>
+    <rect class="inf" x="380" y="70" width="480" height="40"/><text class="tw" x="390" y="97">infectious period</text>
+    <rect class="b4" x="510" y="114" width="480" height="8"/>
+    <path class="ln" style="marker-start:url(#ah2);marker-end:url(#ah2)" d="M130,44 L510,44"/><text class="tb" x="200" y="34">incubation period</text>
+    <line class="ln" x1="130" y1="30" x2="130" y2="300" style="stroke-dasharray:4 4"/><text class="td" x="130" y="324" text-anchor="middle">infected</text>
+    <line class="ln" x1="510" y1="30" x2="510" y2="300" style="stroke-dasharray:4 4"/><text class="td" x="510" y="324" text-anchor="middle">A's symptoms</text>
+    <text class="tb" x="0" y="226">Person B</text>
+    <rect class="lat" x="440" y="200" width="250" height="40"/>
+    <rect class="inf" x="690" y="200" width="420" height="40"/>
+    <rect class="b4" x="820" y="244" width="300" height="8"/>
+    <line class="ln" x1="820" y1="160" x2="820" y2="300" style="stroke-dasharray:4 4"/><text class="td" x="820" y="324" text-anchor="middle">B's symptoms</text>
+    <path class="ln" style="marker-start:url(#ah2);marker-end:url(#ah2)" d="M510,284 L820,284"/><text class="tb" x="560" y="276">serial interval</text>
+    <path class="ln" style="marker-end:url(#ah2)" d="M440,110 L440,196"/><text class="td" x="448" y="160">A infects B</text>
+  </svg>
+  <p class="claim">If the infectious period starts before the incubation period ends, people spread infection before they feel ill.</p>
+  <aside class="notes">Four terms, and students mix them up, so let us anchor them on one picture. The incubation period runs from infection to first symptoms. The latent period runs from infection to when the person becomes infectious; in grey. The infectious period, in amber, is when they can transmit. The serial interval is the gap between symptom onset in one person and symptom onset in the person they infected. Now look at where the amber starts: before person A's symptoms. When the latent period is shorter than the incubation period, people spread infection before they feel ill. Notice too that B falls ill sooner after A than A's own incubation period. A serial interval shorter than the incubation period is a fingerprint of spread before symptoms.</aside>
+</section>
+
+<!-- 13 -->
+<section>
+  <h2>Try it: SARS and COVID-19 on the same clock</h2>
+  <iframe class="lab" src="../widgets/timeline-lab.html?embed=1&amp;preset=covid" title="Timeline Lab" loading="lazy"></iframe>
+  <p class="small dim labnote">Start with COVID-19, then click SARS. Move the isolation delay. Then try hepatitis A and Ebola. <a href="../widgets/timeline-lab.html" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">This is the answer to our opening question. COVID-19 first. Person A becomes infectious about two days before symptoms. Even if we isolate A one day after symptoms, about a quarter of the infectious days have already happened, and they are the most infectious days. Now click SARS. Infectiousness starts with symptoms and peaks days later. Isolate on the first day of fever and almost nothing escapes. Move the isolation delay slider for both and watch the percentage. Then click hepatitis A: most infectious one to two weeks before anyone feels ill. And Ebola: nothing before symptoms, which is why isolation and following contacts for 21 days worked there.</aside>
+</section>
+
+<!-- 14 -->
+<section>
+  <h2>SARS waited for symptoms. COVID-19 did not</h2>
+  <div class="cards c2">
+    <div class="card good"><h3>SARS, 2003</h3><div class="stat"><span class="n">under 11%</span><span class="l">of transmission before symptoms</span></div><p class="small" style="margin-top:10px">Infectiousness peaked days after illness began. Isolating the sick was enough.</p></div>
+    <div class="card bad"><h3>COVID-19, 2020</h3><div class="stat"><span class="n">44%</span><span class="l">of transmission before symptoms</span></div><p class="small" style="margin-top:10px">Infectiousness peaked around symptom onset. Isolating the sick came too late.</p></div>
+  </div>
+  <p class="claim">Whether isolating the sick can control an epidemic depends on one fact of natural history: when infectiousness starts.</p>
+  <p class="cite">Fraser C et al. Factors that make an infectious disease outbreak controllable. PNAS 2004;101:6146-51. He X et al. Nat Med 2020;26:672-5.</p>
+  <aside class="notes">Here are the numbers. In 2004, Christophe Fraser and colleagues showed that whether an outbreak can be controlled by isolation and contact tracing depends mostly on one quantity: the share of transmission that happens before symptoms. For SARS it was under 11 percent. For COVID-19, a study of the first months estimated 44 percent. That single difference explains much of why the 2003 playbook failed in 2020, and why we needed quarantine of contacts, masks, testing people without symptoms, and finally vaccines. This is natural history deciding policy.</aside>
+</section>
+
+<!-- 15 -->
+<section>
+  <h2>The same question, disease by disease</h2>
+  <table class="wide">
+    <tr><th>Disease</th><th>Incubation</th><th>Infectious from</th><th>What it means</th></tr>
+    <tr><td>Influenza</td><td>about 2 days</td><td>1 day before symptoms</td><td>Spreads too fast to chase case by case</td></tr>
+    <tr><td>Measles</td><td>about 14 days to rash</td><td>4 days before rash</td><td>Vaccination, not isolation, is the main defence</td></tr>
+    <tr><td>Chickenpox</td><td>14 to 16 days</td><td>1 to 2 days before rash</td><td>Exclusion until crusting blocks most spread</td></tr>
+    <tr><td>Hepatitis A</td><td>about 28 days</td><td>1 to 2 weeks before illness</td><td>Household already exposed when jaundice appears</td></tr>
+    <tr><td>Ebola</td><td>2 to 21 days</td><td>only with symptoms</td><td>Isolate the sick, watch contacts for 21 days</td></tr>
+  </table>
+  <p class="cite">CDC Pink Book (influenza, measles, varicella, hepatitis A). WHO Ebola fact sheet.</p>
+  <aside class="notes">Run the same question across diseases you will meet. Influenza: short incubation and spread from the day before symptoms, so you cannot chase it case by case; vaccines and reducing contacts are the tools. Measles: infectious four days before the rash makes the diagnosis obvious, so vaccination is the real defence. Chickenpox: a day or two before the rash, so exclusion from school until lesions crust works fairly well. Hepatitis A: most infectious before anyone is ill; by the time of jaundice, the family has been exposed. Ebola: only after symptoms, so isolation works, and contacts are watched for 21 days, the longest incubation. Notice that 21 days: the longest incubation period sets the length of follow-up.</aside>
+</section>
+
+<!-- 16 -->
+<section>
+  <h2>Quarantine was invented around the incubation period</h2>
+  <div class="cards c2">
+    <div class="card"><h3>Isolation</h3><p class="small">Separates people who are <b>sick</b> or known to be infected.</p></div>
+    <div class="card"><h3>Quarantine</h3><p class="small">Restricts people who were <b>exposed</b> but are not yet sick, for as long as they might be incubating.</p></div>
+  </div>
+  <p class="lede" style="margin-top:22px">1377, Ragusa (now Dubrovnik): travellers from plague areas were held for 30 days before entering. Later this became 40 days, <i>quaranta giorni</i>.</p>
+  <p class="claim">The length of quarantine should match the longest likely incubation period. 21 days for Ebola, 14 for early COVID-19.</p>
+  <p class="cite">Tognotti E. Lessons from the history of quarantine, from plague to influenza A. Emerg Infect Dis 2013;19:254-9.</p>
+  <aside class="notes">Two words that are often confused. Isolation is for people who are sick or known to be infected. Quarantine is for people who were exposed but are not sick yet. The idea is six centuries old. In 1377 the port of Ragusa, today's Dubrovnik, made travellers from plague areas wait 30 days before entering the city. The period later became 40 days, quaranta giorni in Italian, which gives us the word quarantine. The logic has not changed: hold exposed people for about as long as the longest incubation period, so anyone infected falls ill while separated. That is why Ebola contacts are followed for 21 days, and why early COVID-19 quarantine was 14 days.</aside>
+</section>
+
+<!-- 17 -->
+<section>
+  <h2>Can a cancer have an incubation period?</h2>
+  <p class="q">Cervical cancer is caused by a virus. How long from infection to cancer: weeks, months or decades?</p>
+  <aside class="notes">Now switch from infections to a chronic disease, but one that starts with an infection. Cervical cancer is caused by persistent infection with high-risk types of human papillomavirus, HPV. Ask the room: how long from infection to cancer? Weeks, months, years, decades? And what would a long gap mean for prevention?</aside>
+</section>
+
+<!-- 18 -->
+<section>
+  <h2>Cervical cancer grows silently for 15 to 20 years</h2>
+  <svg class="dg" viewBox="0 0 1152 250" role="img" aria-label="HPV infection, then persistent infection, precancer within 5 to 10 years, invasive cancer after 15 to 20 years, then symptoms">
+    <rect class="b1" x="0" y="40" width="150" height="80"/><text class="tb" x="12" y="76">HPV</text><text class="t" x="12" y="104">infection</text>
+    <rect class="b2" x="150" y="40" width="250" height="80"/><text class="tw" x="162" y="76">Persistent</text><text class="tw" x="162" y="104" style="font-weight:400">infection</text>
+    <rect class="b3" x="400" y="40" width="400" height="80"/><text class="tw" x="412" y="76">Precancer (CIN3)</text><text class="tw" x="412" y="104" style="font-weight:400">within 5 to 10 years</text>
+    <rect class="b4" x="800" y="40" width="352" height="80"/><text class="tw" x="812" y="76">Invasive cancer</text><text class="tw" x="812" y="104" style="font-weight:400">after 15 to 20 years</text>
+    <line class="hz" x1="1000" y1="24" x2="1000" y2="150"/><text class="th" x="1010" y="146">symptoms</text>
+    <rect class="gl" x="150" y="170" width="850" height="44" rx="4"/><text class="tg" x="166" y="199">Screening window: detectable by a test, before symptoms</text>
+  </svg>
+  <div class="cards c3">
+    <div class="stat"><span class="n">Most</span><span class="l">new HPV infections clear within 1 to 2 years</span></div>
+    <div class="stat"><span class="n">31%</span><span class="l">of untreated precancers become invasive within 30 years</span></div>
+    <div class="stat"><span class="n">5 to 10 y</span><span class="l">from infection to cancer in women with weak immunity, such as untreated HIV</span></div>
+  </div>
+  <p class="cite">WHO cervical cancer fact sheet. Ho GY et al. N Engl J Med 1998;338:423-8. McCredie MR et al. Lancet Oncol 2008;9:425-34.</p>
+  <aside class="notes">Decades. Most HPV infections clear by themselves within a year or two. In a minority the infection persists, and over five to ten years can produce precancerous change, called CIN3. Left alone, about a third of these precancers become invasive cancer over thirty years; that number comes from a study in New Zealand where women with precancer were left untreated, another ethics scandal. In total, the journey from infection to cancer takes 15 to 20 years in a woman with a normal immune system, but only 5 to 10 in women with weak immunity, such as untreated HIV. The green band is the gift of this long natural history: years when the disease can be found by a test before it causes symptoms. That is the screening window.</aside>
+</section>
+
+<!-- 19 -->
+<section>
+  <h2>Try it: move the screening test along her life</h2>
+  <iframe class="lab" src="../widgets/natural-history-lab.html?embed=1&amp;age=35" title="Natural History Lab" loading="lazy"></iframe>
+  <p class="small dim labnote">Slide the screening age from 20 to 60. Switch to "Living with HIV". Click each level of prevention. <a href="../widgets/natural-history-lab.html" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">This lab follows one woman whose infection does not clear. Move the screening age. Too early, and there is nothing to find, or only a new infection that will probably clear, which is why screening is not started in young women. In the middle, it finds persistent infection or precancer, and treatment usually prevents cancer altogether. The green arrow is lead time: how much earlier the test finds disease than symptoms would have. Too late, and she already has symptoms. Now switch to living with HIV: the whole timeline compresses and the window shrinks, so screening must start earlier and be repeated more often. Finally click the four levels of prevention, which is our next slide.</aside>
+</section>
+
+<!-- 20 -->
+<section>
+  <h2>Natural history tells you where each level of prevention acts</h2>
+  <svg class="dg" viewBox="0 0 1152 250" role="img" aria-label="Levels of prevention mapped onto stages of natural history">
+    <rect class="b0" x="0" y="20" width="576" height="70"/><text class="tb" x="14" y="62">Before disease</text>
+    <rect class="b2" x="576" y="20" width="288" height="70"/><text class="tw" x="590" y="62">Disease, no symptoms</text>
+    <rect class="b4" x="864" y="20" width="288" height="70"/><text class="tw" x="878" y="62">Clinical disease</text>
+    <line class="hz" x1="864" y1="10" x2="864" y2="100"/>
+    <text class="tb" x="14" y="134">Primordial</text><text class="t" x="14" y="162">stop risk factors arising</text><text class="td" x="14" y="196">girls' schooling, no tobacco</text>
+    <text class="tb" x="302" y="134">Primary</text><text class="t" x="302" y="162">stop disease starting</text><text class="td" x="302" y="196">HPV vaccine</text>
+    <text class="tb" x="590" y="134">Secondary</text><text class="t" x="590" y="162">find and treat early</text><text class="td" x="590" y="196">screen, treat precancer</text>
+    <text class="tb" x="878" y="134">Tertiary</text><text class="t" x="878" y="162">limit damage</text><text class="td" x="878" y="196">surgery, radiotherapy,</text><text class="td" x="878" y="222">palliation</text>
+  </svg>
+  <p class="claim good">February 2026: India began a national HPV vaccination campaign, one dose for girls aged 14. Primary prevention, placed by natural history before infection.</p>
+  <p class="cite">Press Information Bureau, Government of India, 28 February 2026. WHO cervical cancer fact sheet.</p>
+  <aside class="notes">Here is why natural history matters for prevention. Each level of prevention acts at a stage. Primordial prevention stops risk factors from arising at all: for cervical cancer, things like girls' schooling and no tobacco. Primary prevention stops the disease starting: the HPV vaccine, given before infection. Secondary prevention finds disease below the clinical horizon and treats it early: screening and treating precancer. Tertiary prevention limits the damage once disease is clinical. India launched its national HPV vaccination campaign in February 2026, with a single dose for girls aged 14. It is a good example of natural history in policy: vaccinate before the first infection, which is why the target is young girls. You will also hear of quaternary prevention: protecting patients from too much medicine, such as overdiagnosis from screening. We return to it in the screening lecture.</aside>
+</section>
+
+<!-- 21 -->
+<section>
+  <h2>Natural history is not a fixed fact about a microbe</h2>
+  <div class="cards c2">
+    <div class="card"><h3>The host changes it</h3><p class="small">Hepatitis A is silent in 7 in 10 young children but causes jaundice in over 7 in 10 adults. COVID-19 deaths rose a thousandfold from age 10 to 85. HIV shortens cervical cancer's timeline.</p></div>
+    <div class="card"><h3>The setting changes it</h3><p class="small">Measles kills several times more children in poor, malnourished communities than in rich ones.</p></div>
+  </div>
+  <p class="claim">When you read a natural history figure, ask: in whom, and where?</p>
+  <p class="cite">CDC Pink Book (hepatitis A). Levin AT et al. Eur J Epidemiol 2020;35:1123-38. Sbarra AN et al. Lancet Glob Health 2023.</p>
+  <aside class="notes">One warning before we finish. Every natural history number you learn belongs to a particular population. Hepatitis A is mostly silent in young children and mostly jaundiced in adults. COVID-19 fatality, before vaccines, rose about a thousand times between age 10 and age 85. HIV compresses the timeline of cervical cancer. Measles kills far more children where there is malnutrition and poor access to care. So when you read that a disease has a certain incubation period or fatality, ask in whom, and where. The answer may not apply to the patient in front of you.</aside>
+</section>
+
+<!-- 22 -->
+<section>
+  <h2>Five things natural history tells a doctor</h2>
+  <ol class="five" style="font-size:27px">
+    <li><b>What to expect</b> if nothing is done: the prognosis.</li>
+    <li><b>When to test:</b> before the clinical horizon, and when a test can turn positive.</li>
+    <li><b>When a person is infectious</b>, and so when isolation helps.</li>
+    <li><b>How long to watch contacts:</b> the longest incubation period.</li>
+    <li><b>Where prevention can act</b>, and what it can achieve.</li>
+  </ol>
+  <p class="claim">Back to the start: SARS was stopped because its infectiousness waited for symptoms. COVID-19's did not.</p>
+  <aside class="notes">To pull it together, five uses of natural history. What to expect without treatment. When to test, including how long after exposure a test can turn positive. When a person is infectious, which decides whether isolation helps. How long to watch contacts, which is set by the longest incubation period. And where prevention can act. Then close the loop on the opening question: SARS was stopped because its infectiousness waited for symptoms. COVID-19 spread before people knew they were ill.</aside>
+</section>
+
+<!-- 23 -->
+<section>
+  <h2>Three things to carry out of this room</h2>
+  <p class="claim">Most of the iceberg is under water. Infectivity, pathogenicity and virulence each divide by a different group.</p>
+  <p class="claim">When infectiousness starts before symptoms, isolating the sick is not enough.</p>
+  <p class="claim good">A long silent phase is a chance: screen in the window, vaccinate before the start.</p>
+  <aside class="notes">Three things to take away. One: most infections are below the clinical horizon, and the three words, infectivity, pathogenicity and virulence, each have their own denominator. Two: compare the incubation period with the start of infectiousness; if people spread before symptoms, isolating the sick will not control the epidemic. Three: a long silent phase, as in cervical cancer, is an opportunity for screening and early vaccination. Next lecture: how infections move between people, R nought and herd immunity. Questions?</aside>
+</section>
+
+<!-- 24 -->
+<section>
+  <h2>Sources and further reading</h2>
+  <ol class="sources two">
+    <li>Celentano DD, Szklo M. Gordis Epidemiology, 6th ed. Elsevier; 2019. Chapter 2.</li>
+    <li>Leavell HR, Clark EG. Preventive Medicine for the Doctor in His Community. McGraw-Hill.</li>
+    <li>WHO. Summary of probable SARS cases, 1 Nov 2002 to 31 Jul 2003.</li>
+    <li>Fraser C et al. Factors that make an infectious disease outbreak controllable. PNAS 2004;101:6146-51.</li>
+    <li>He X et al. Temporal dynamics in viral shedding and transmissibility of COVID-19. Nat Med 2020;26:672-5.</li>
+    <li>Lauer SA et al. Incubation period of COVID-19. Ann Intern Med 2020;172:577-82.</li>
+    <li>CDC. Epidemiology and Prevention of Vaccine-Preventable Diseases (Pink Book): measles, polio, varicella, hepatitis A.</li>
+    <li>CDC. Untreated Syphilis Study at Tuskegee: timeline. Gjestland T. Acta Derm Venereol 1955;35 Suppl 34.</li>
+    <li>CASCADE Collaboration. Lancet 2000;355:1131-7.</li>
+    <li>Sbarra AN et al. Measles case fatality. Lancet Glob Health 2023. Levin AT et al. Eur J Epidemiol 2020;35:1123-38.</li>
+    <li>Houben RM, Dodd PJ. PLoS Med 2016;13:e1002152. Tognotti E. Emerg Infect Dis 2013;19:254-9.</li>
+    <li>WHO cervical cancer fact sheet. McCredie MR et al. Lancet Oncol 2008;9:425-34. Ho GY et al. N Engl J Med 1998;338:423-8.</li>
+  </ol>
+  <p class="small faint">Prepared at AIIMS Bhopal with Claude (Anthropic) as drafting and coding assistant.</p>
+  <aside class="notes">Sources. Gordis chapter 2 covers the basics. Fraser 2004 is a beautiful short paper if you want to see why some epidemics can be controlled and others cannot. The CDC Pink Book chapters are free online and give incubation and infectious periods for each vaccine-preventable disease.</aside>
+</section>
+
+</div></div>
+<script src="../vendor/reveal.js/dist/reveal.js"></script>
+<script src="../vendor/reveal.js/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280, height: 720, margin: 0, center: false, transition: 'fade',
+    hash: true, slideNumber: 'c/t', plugins: [RevealNotes]
+  });
+</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 // Deck checker. Usage (from repo root, with `python3 -m http.server 8765` running):
-//   node src/chk.mjs epidemiological-thinking
+//   node src/chk.mjs 01-epidemiological-thinking   (any deck name in slides/, without .html)
 // Reports slide count, overflow past 700 px, text under 14 pt, em dashes, JS errors.
 // Set CHROMIUM=/path/to/chrome if Chromium is not found automatically.
 import { chromium } from 'playwright-core';
