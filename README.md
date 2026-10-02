@@ -24,7 +24,7 @@ By the end of the lecture, students will be able to:
 4. Distinguish incubation period, latent period, infectious period and serial interval, and explain why transmission before symptoms defeats isolation of the sick.
 5. Explain isolation and quarantine and where they came from.
 6. Use the natural history of a chronic disease (cervical cancer) to explain the screening window and lead time.
-7. Match the levels of prevention to the stages of natural history.
+7. Define primordial, primary, secondary, tertiary and quaternary prevention, list Leavell and Clark's five modes of intervention, and classify interventions for common diseases, naming the disease and framework.
 8. Discuss how natural history has been learned, including the ethical lessons of the Oslo and Tuskegee studies.
 
 ## Lecture 3: Dynamics of disease transmission

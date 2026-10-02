@@ -31,6 +31,7 @@ const report = await page.evaluate(async () => {
     Reveal.slide(i);
     await new Promise(r => setTimeout(r, 60));
     const s = slides[i];
+    s.querySelectorAll('.fragment').forEach(f => f.classList.add('visible')); // measure every build step at once
     const top = s.getBoundingClientRect().top;
     const scale = Reveal.getScale();
     let bottom = 0, small = new Set(), culprit = '';

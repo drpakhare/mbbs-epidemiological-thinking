@@ -29,6 +29,28 @@
   .dg .ln { stroke: var(--ink); stroke-width: 2; fill: none; }
   .dg .ar { stroke: var(--ink); stroke-width: 2; fill: none; marker-end: url(#ah); marker-start: url(#ah); }
   .dg .gl { fill: var(--good-wash); stroke: var(--good); stroke-width: 2; }
+  .defs { list-style: none; margin: 6px 64px 0 !important; padding: 0; font-size: 22px; }
+  .defs li { margin-bottom: 6px; line-height: 1.3; }
+  .defs b { color: var(--band); }
+  .dg .r0 { fill: #f3f5f9; stroke: #8a91a1; stroke-width: 2; } .dg .r1 { fill: #e3e7f0; stroke: #8a91a1; stroke-width: 2; }
+  .dg .r2 { fill: #c3c9da; stroke: var(--band); stroke-width: 2; } .dg .r3 { fill: #8f9cc8; stroke: var(--band); stroke-width: 2; }
+  .dg .r4 { fill: var(--band); }
+  .dg .rat { font-size: 22px; font-weight: 700; fill: var(--band); } .dg .ratd { font-size: 19px; fill: var(--dim); }
+  .dg .brace { stroke: var(--band); stroke-width: 2.5; fill: none; }
+  .rev { margin: 0 64px 8px !important; }
+  .defcard { background: var(--wash); border-top: 4px solid var(--band); padding: 14px 18px 10px; }
+  .defcard h3 { margin-bottom: 6px; }
+  .defcard p { font-size: 21px; margin: 0 0 6px; line-height: 1.3; }
+  .defcard p b { color: var(--band); }
+  .defcard.good { border-top-color: var(--good); background: var(--good-wash); }
+  table.grid { font-size: 19px; margin-left: 64px; width: 1152px; table-layout: fixed; }
+  table.grid th, table.grid td { padding: 6px 8px; vertical-align: top; line-height: 1.25; }
+  table.grid th:first-child, table.grid td:first-child { width: 150px; font-weight: 700; color: var(--band); }
+  table.grid td.na { color: var(--faint); }
+  .traps { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; margin: 0 64px; }
+  .traps .t1 { background: var(--wash); padding: 10px 14px; border-left: 5px solid var(--band); }
+  .traps .t1 p { margin: 0; font-size: 20px; line-height: 1.3; }
+  .traps .t1 p.a { color: var(--good); margin-top: 4px; }
   table.wide { font-size: 22px; }
   table.wide td, table.wide th { padding: 7px 12px; }
 </style>
@@ -142,6 +164,23 @@
   <aside class="notes">Each dot is one infected person, 1,000 in all. Above the dashed line, the clinical horizon, are the people who become ill. Below are those who never do. For polio, about 7 in 10 have no symptoms at all and about 5 in 1,000 are paralysed. So for each paralysed child, about 200 were infected. That is why India searched for polio through surveillance of every case of acute flaccid paralysis and by testing sewage: the visible cases are a tiny tip. Now click measles: the iceberg is entirely above water, almost every infection causes disease. Japanese encephalitis: fewer than 1 in 100 get encephalitis, but a quarter of those die. Then COVID-19 and move the age slider from 25 to 85: same virus, a thousandfold difference in death. To get back to the slides after clicking inside the lab, click the grey line below it, then press the arrow key.</aside>
 </section>
 
+<!-- nested -->
+<section>
+  <h2>Each step down is a smaller box inside the last</h2>
+  <svg class="dg" viewBox="0 0 1152 470" role="img" aria-label="Nested boxes: population, susceptible, infected, diseased, severe or dead; infectivity is infected over susceptible, pathogenicity is diseased over infected, virulence is severe or dead over diseased">
+    <rect class="r0" x="0" y="0" width="620" height="460" rx="6"/><text class="tb" x="16" y="34">Population (P)</text>
+    <g class="fragment" data-fragment-index="1"><rect class="r1" x="40" y="54" width="560" height="392" rx="6"/><text class="tb" x="56" y="86">Susceptible (S): exposed, not immune</text></g>
+    <g class="fragment" data-fragment-index="2"><rect class="r2" x="80" y="106" width="500" height="326" rx="6"/><text class="tb" x="96" y="138">Infected (I)</text></g>
+    <g class="fragment" data-fragment-index="3"><rect class="r3" x="120" y="158" width="440" height="260" rx="6"/><text class="tw" x="136" y="190">Diseased (D): clinical illness</text></g>
+    <g class="fragment" data-fragment-index="4"><rect class="r4" x="160" y="210" width="380" height="194" rx="6"/><text class="tw" x="176" y="242">Severe or dead (M)</text></g>
+    <g class="fragment" data-fragment-index="2"><path class="brace" d="M650,70 L670,70 L670,150 L650,150"/><text class="rat" x="690" y="104">Infectivity = I / S</text><text class="ratd" x="690" y="132">share of the exposed susceptible who get infected</text></g>
+    <g class="fragment" data-fragment-index="3"><path class="brace" d="M650,170 L670,170 L670,250 L650,250"/><text class="rat" x="690" y="204">Pathogenicity = D / I</text><text class="ratd" x="690" y="232">share of the infected who become ill</text></g>
+    <g class="fragment" data-fragment-index="4"><path class="brace" d="M650,270 L670,270 L670,350 L650,350"/><text class="rat" x="690" y="304">Virulence = M / D</text><text class="ratd" x="690" y="332">share of the ill who become severe or die</text></g>
+    <g class="fragment" data-fragment-index="5"><text class="tb" x="650" y="400">Measles: infectivity high, pathogenicity high.</text><text class="tb" x="650" y="432">Polio: infectivity high, pathogenicity low.</text></g>
+  </svg>
+  <aside class="notes">Build this one box at a time, pressing the arrow key for each step. Start with the whole population. Next box: the susceptible, people exposed who are not immune. Next: the infected. The ratio of infected to susceptible is infectivity. Next: the diseased, those with clinical illness; diseased over infected is pathogenicity. Last: severe illness or death; that over the diseased is virulence. Point out that the boxes sit inside each other. Nobody can be diseased without being infected, and nobody infected who was not first exposed. That is why this is not a Venn diagram of overlapping circles; each measure divides the smaller box by the one just outside it. The last click compares measles, where almost every exposed non-immune person is infected and almost every infected person falls ill, with polio, which spreads just as easily but makes only about 3 in 10 infected people ill. This is Gordis's P S I D M scheme.</aside>
+</section>
+
 <!-- 10 -->
 <section>
   <h2>Three words for three steps down the iceberg</h2>
@@ -169,9 +208,31 @@
   <aside class="notes">The people below the clinical horizon matter for control, because many of them still spread infection. Inapparent infection: polio, hepatitis A in young children, a large share of COVID-19. Carriers: people who keep shedding the organism for months or years without being ill. The famous one is Mary Mallon, Typhoid Mary, a cook in New York in the early 1900s, linked to at least 51 cases and 3 deaths. She felt perfectly well, refused to accept she was the source, kept cooking under other names, and was forcibly isolated on North Brother Island for about 26 years in total, until her death in 1938. Latent infection: the agent lies dormant, as with TB, which about a quarter of the world carries. Ask the room the question in amber. There is no easy answer. Isolation laws, including India's during COVID-19, live on this line.</aside>
 </section>
 
+<!-- build -->
+<section>
+  <h2>Four periods in one infection, one at a time</h2>
+  <svg class="dg" viewBox="0 0 1152 330" role="img" aria-label="Built step by step: infection, latent period, incubation period, infectious period, serial interval">
+    <defs><marker id="ah3" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink)"/></marker></defs>
+    <text class="tb" x="0" y="96">Person A</text>
+    <line class="ln" x1="130" y1="30" x2="130" y2="300" style="stroke-dasharray:4 4"/><text class="td" x="130" y="324" text-anchor="middle">infected</text>
+    <line class="ln" x1="130" y1="90" x2="1140" y2="90" style="stroke:var(--rule)"/>
+    <g class="fragment" data-fragment-index="1"><rect class="lat" x="130" y="70" width="250" height="40"/><text class="t" x="140" y="97">latent</text></g>
+    <g class="fragment" data-fragment-index="2"><path class="ln" style="marker-start:url(#ah3);marker-end:url(#ah3)" d="M130,44 L510,44"/><text class="tb" x="200" y="34">incubation period</text><line class="ln" x1="510" y1="30" x2="510" y2="300" style="stroke-dasharray:4 4"/><text class="td" x="510" y="324" text-anchor="middle">A's symptoms</text></g>
+    <g class="fragment" data-fragment-index="3"><rect class="inf" x="380" y="70" width="480" height="40"/><text class="tw" x="390" y="97">infectious period</text><rect class="b4" x="510" y="114" width="480" height="8"/></g>
+    <g class="fragment" data-fragment-index="4"><text class="tb" x="0" y="226">Person B</text><rect class="lat" x="440" y="200" width="250" height="40"/><rect class="inf" x="690" y="200" width="420" height="40"/><rect class="b4" x="820" y="244" width="300" height="8"/><line class="ln" x1="820" y1="160" x2="820" y2="300" style="stroke-dasharray:4 4"/><text class="td" x="820" y="324" text-anchor="middle">B's symptoms</text><path class="ln" style="marker-end:url(#ah3)" d="M440,110 L440,196"/><text class="td" x="448" y="160">A infects B</text><path class="ln" style="marker-start:url(#ah3);marker-end:url(#ah3)" d="M510,284 L820,284"/><text class="tb" x="560" y="276">serial interval</text></g>
+  </svg>
+  <ul class="defs">
+    <li class="fragment" data-fragment-index="1"><b>Latent period:</b> from infection until the person becomes infectious.</li>
+    <li class="fragment" data-fragment-index="2"><b>Incubation period:</b> from infection until the first sign or symptom.</li>
+    <li class="fragment" data-fragment-index="3"><b>Infectious period:</b> the time during which the person can pass on the agent.</li>
+    <li class="fragment" data-fragment-index="4"><b>Serial interval:</b> from symptom onset in one case to symptom onset in the person they infected.</li>
+  </ul>
+  <aside class="notes">Build this slide one step at a time. Start with a single moment: person A is infected. First click: the latent period, in grey, from infection until A can infect others. Second click: the incubation period, from infection to A's first symptom. Stop and ask: which is longer here? The incubation period. Third click: the infectious period, in amber; the dark line underneath is when A has symptoms. Ask the room: is A infectious before symptoms? Yes, because the latent period ended before the incubation period did. Fourth click: A infects person B, whose own clock starts; the serial interval runs from A's symptoms to B's symptoms. Students often confuse latent with incubation, and serial interval with incubation. Write the four definitions in your notebook; they are standard viva questions. The next slide shows all four together.</aside>
+</section>
+
 <!-- 12 -->
 <section>
-  <h2>Four clocks start at infection, and they do not run together</h2>
+  <h2>All four together: the clocks do not run in step</h2>
   <svg class="dg" viewBox="0 0 1152 360" role="img" aria-label="Timeline: latent period from infection to start of infectiousness; incubation period from infection to symptoms; infectious period; serial interval between symptom onset in person A and in person B">
     <defs><marker id="ah2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink)"/></marker></defs>
     <text class="tb" x="0" y="96">Person A</text>
@@ -292,6 +353,117 @@
   <p class="claim good">February 2026: India began a national HPV vaccination campaign, one dose for girls aged 14. Primary prevention, placed by natural history before infection.</p>
   <p class="cite">Press Information Bureau, Government of India, 28 February 2026. WHO cervical cancer fact sheet.</p>
   <aside class="notes">Here is why natural history matters for prevention. Each level of prevention acts at a stage. Primordial prevention stops risk factors from arising at all: for cervical cancer, things like girls' schooling and no tobacco. Primary prevention stops the disease starting: the HPV vaccine, given before infection. Secondary prevention finds disease below the clinical horizon and treats it early: screening and treating precancer. Tertiary prevention limits the damage once disease is clinical. India launched its national HPV vaccination campaign in February 2026, with a single dose for girls aged 14. It is a good example of natural history in policy: vaccinate before the first infection, which is why the target is young girls. You will also hear of quaternary prevention: protecting patients from too much medicine, such as overdiagnosis from screening. We return to it in the screening lecture.</aside>
+</section>
+
+<!-- prev-modes -->
+<section>
+  <h2>Four levels, five modes: the Leavell and Clark scheme</h2>
+  <svg class="dg" viewBox="0 0 1152 400" role="img" aria-label="Levels and modes of prevention placed on the stages of natural history">
+    <rect class="b0" x="0" y="20" width="560" height="64"/><text class="tb" x="14" y="60">Prepathogenesis: before disease</text>
+    <rect class="b2" x="560" y="20" width="296" height="64"/><text class="tw" x="574" y="60">Disease, no symptoms</text>
+    <rect class="b4" x="856" y="20" width="296" height="64"/><text class="tw" x="870" y="60">Clinical disease</text>
+    <line class="hz" x1="856" y1="10" x2="856" y2="100"/>
+    <g class="fragment" data-fragment-index="1"><rect class="r1" x="0" y="110" width="270" height="130" rx="6"/><text class="tb" x="14" y="144">Primordial</text><text class="t" x="14" y="176">Prevent risk factors</text><text class="t" x="14" y="204">from arising</text></g>
+    <g class="fragment" data-fragment-index="2"><rect class="r1" x="282" y="110" width="270" height="130" rx="6"/><text class="tb" x="296" y="144">Primary</text><text class="t" x="296" y="176">1. Health promotion</text><text class="t" x="296" y="204">2. Specific protection</text></g>
+    <g class="fragment" data-fragment-index="3"><rect class="r1" x="564" y="110" width="284" height="130" rx="6"/><text class="tb" x="578" y="144">Secondary</text><text class="t" x="578" y="176">3. Early diagnosis and</text><text class="t" x="578" y="204">prompt treatment</text></g>
+    <g class="fragment" data-fragment-index="4"><rect class="r1" x="860" y="110" width="292" height="130" rx="6"/><text class="tb" x="874" y="144">Tertiary</text><text class="t" x="874" y="176">4. Disability limitation</text><text class="t" x="874" y="204">5. Rehabilitation</text></g>
+    <g class="fragment" data-fragment-index="5"><text class="td" x="0" y="290">Strasser, 1978: primordial added for heart disease, to stop risk factors appearing in whole populations.</text><text class="td" x="0" y="322">The five numbered items are Leavell and Clark's modes of intervention; the levels are the tiers that group them.</text><text class="td" x="0" y="354">A later addition, quaternary prevention, protects patients from too much medicine.</text></g>
+  </svg>
+  <p class="cite">Leavell HR, Clark EG. Preventive Medicine for the Doctor in His Community, 3rd ed. 1965. Strasser T. Reflections on cardiovascular diseases. Interdiscip Sci Rev 1978;3:225-30.</p>
+  <aside class="notes">This is the framework you will be asked about in every viva. Build it one level at a time. Leavell and Clark described five modes of intervention and grouped them into levels. Primordial, added later by Strasser in 1978 for heart disease, acts before risk factors even appear. Primary acts before disease starts, through health promotion, which is general, and specific protection, which targets a particular disease, like a vaccine. Secondary acts when disease has started but is not yet visible: early diagnosis and prompt treatment. Tertiary acts once disease is clinical: disability limitation and rehabilitation. Learn the five modes in order; examiners often ask for them by name. The next two slides give definitions you can quote.</aside>
+</section>
+
+<!-- prev-def1 -->
+<section>
+  <h2>Primordial and primary: stop the risk, stop the disease</h2>
+  <div class="cards c2">
+    <div class="defcard fragment"><h3>Primordial prevention</h3>
+      <p><b>Definition:</b> prevention of the emergence or development of risk factors in populations where they have not yet appeared.</p>
+      <p><b>Target:</b> the whole population, especially children.</p>
+      <p><b>How:</b> mainly through policy, education and the environment.</p>
+      <p><b>Example:</b> keeping children from starting tobacco; healthy school food.</p></div>
+    <div class="defcard fragment"><h3>Primary prevention</h3>
+      <p><b>Definition:</b> action taken before the onset of disease, which removes the possibility that the disease will ever occur.</p>
+      <p><b>Modes:</b> health promotion; specific protection.</p>
+      <p><b>Approaches:</b> population (mass) strategy and high-risk strategy.</p>
+      <p><b>Example:</b> vaccines, iodised salt, helmets, quitting tobacco.</p></div>
+  </div>
+  <p class="claim fragment">Rose's paradox: a large number of people at small risk may give rise to more cases than a small number at high risk. So shift the whole population, not only the high-risk tail.</p>
+  <p class="cite">Park K. Textbook of Preventive and Social Medicine. Rose G. Sick individuals and sick populations. Int J Epidemiol 1985;14:32-8.</p>
+  <aside class="notes">Here are definitions you can quote in a viva. Primordial prevention: preventing the emergence or development of risk factors in populations where they have not yet appeared. It targets whole populations, especially children, and works through policy and environment: keeping children from starting tobacco, healthy school food. Primary prevention: action before the disease begins that removes the possibility of the disease. Its two modes are health promotion, like nutrition and education, and specific protection, like vaccines, iodised salt and helmets. It has two approaches: the population strategy, which shifts the whole population, and the high-risk strategy, which targets people at higher risk. Geoffrey Rose showed that most cases often come from the large number of people at modest risk, which is why population strategies matter.</aside>
+</section>
+
+<!-- prev-def2 -->
+<section>
+  <h2>Secondary and tertiary: find it early, limit the damage</h2>
+  <div class="cards c2">
+    <div class="defcard fragment"><h3>Secondary prevention</h3>
+      <p><b>Definition:</b> action which halts the progress of a disease at its early stage and prevents its complications.</p>
+      <p><b>Modes:</b> early diagnosis (screening, case finding) and adequate treatment.</p>
+      <p><b>Works only</b> if the disease has a detectable stage before symptoms, and early treatment helps.</p>
+      <p><b>Example:</b> Pap smear, TB case finding, screening adults for diabetes.</p></div>
+    <div class="defcard fragment"><h3>Tertiary prevention</h3>
+      <p><b>Definition:</b> all measures to reduce or limit impairment and disability, minimise suffering, and help the patient adjust to conditions that cannot be cured.</p>
+      <p><b>Modes:</b> disability limitation; rehabilitation (medical, vocational, social, psychological).</p>
+      <p><b>Example:</b> cardiac rehabilitation, leprosy self-care and footwear, physiotherapy after polio.</p></div>
+  </div>
+  <p class="claim warn fragment">Quaternary prevention: protecting a patient from overmedicalisation and unnecessary tests or treatment (Jamoulle, 1986). Not part of Leavell and Clark.</p>
+  <p class="cite">Park K. Textbook of Preventive and Social Medicine. Jamoulle M. Int J Health Policy Manag 2015;4:61-4.</p>
+  <aside class="notes">Secondary prevention: action that halts the progress of a disease at its early stage and prevents complications. Its modes are early diagnosis, through screening or case finding, and adequate treatment. It only works when the disease has a stage that a test can detect before symptoms, and when treating early changes the outcome; that links back to cervical cancer. Tertiary prevention: all measures to limit impairment and disability, reduce suffering and help the patient adjust when the disease cannot be cured. Its modes are disability limitation and rehabilitation, which has four kinds: medical, vocational, social and psychological. Finally, quaternary prevention, proposed by the Belgian general practitioner Marc Jamoulle: protecting patients from too much medicine. It is not in Leavell and Clark, so mention it as a later addition.</aside>
+</section>
+
+<!-- prev-grid1 -->
+<section>
+  <h2>Levels of prevention, disease by disease (1 of 2)</h2>
+  <p class="small dim rev"><span class="pill warn">Revision slide</span> Can be skipped in class; students review it online.</p>
+  <table class="grid">
+    <tr><th>Disease</th><th>Primordial</th><th>Primary</th><th>Secondary</th><th>Tertiary</th></tr>
+    <tr class="fragment"><td>Coronary heart disease</td><td>Healthy school food, tobacco-free policies; trans fat capped at 2% (FSSAI 2022)</td><td>Healthy diet, activity, quit tobacco; treat high BP and lipids in high-risk people</td><td>Detect silent disease; prompt treatment of heart attack (thrombolysis, angioplasty)</td><td>Cardiac rehabilitation; drugs to prevent another attack and heart failure</td></tr>
+    <tr class="fragment"><td>Type 2 diabetes</td><td>Prevent childhood obesity: school nutrition, physical activity</td><td>Lifestyle change in prediabetes (Indian DPP: 28.5% lower risk)</td><td>Screen adults 30+ (NP-NCD); early treatment, glucose control</td><td>Foot care, retinopathy laser, dialysis, rehabilitation after amputation</td></tr>
+    <tr class="fragment"><td>Tuberculosis</td><td>Less poverty, crowding, undernutrition</td><td>BCG; TB preventive treatment for contacts and PLHIV; food for household contacts</td><td>NAAT diagnosis, active case finding, complete treatment (NTEP)</td><td>Post-TB lung disease care, pulmonary rehabilitation</td></tr>
+    <tr class="fragment"><td>Polio</td><td class="na">Not usually applied</td><td>bOPV plus IPV; safe water and sanitation</td><td>AFP surveillance with stool testing; outbreak response</td><td>Physiotherapy, calipers, corrective surgery, rehabilitation</td></tr>
+  </table>
+  <p class="cite">NP-NCD, NTEP programme documents. Ramachandran A et al. Diabetologia 2006;49:289-97. Bhargava A et al. Lancet 2023;402:627-40. FSSAI trans fat regulation 2022.</p>
+  <aside class="notes">A revision slide: the four levels for four diseases, one row per click. Coronary heart disease, type 2 diabetes, tuberculosis and polio. Notice that primordial prevention is not usually applied to polio and other infections; it was developed for risk factors of non-communicable diseases. Notice too that treating high blood pressure is primary prevention of heart disease, but secondary prevention of hypertension. The Prevention Levels Lab has all eight diseases plus cervical cancer, with notes on the contested placements.</aside>
+</section>
+
+<!-- prev-grid2 -->
+<section>
+  <h2>Levels of prevention, disease by disease (2 of 2)</h2>
+  <p class="small dim rev"><span class="pill warn">Revision slide</span> Can be skipped in class; students review it online.</p>
+  <table class="grid">
+    <tr><th>Disease</th><th>Primordial</th><th>Primary</th><th>Secondary</th><th>Tertiary</th></tr>
+    <tr class="fragment"><td>Leprosy</td><td class="na">Not usually applied</td><td>Single-dose rifampicin for contacts; health education</td><td>Early case detection; multidrug therapy</td><td>Self-care, MCR footwear, reconstructive surgery, social rehabilitation</td></tr>
+    <tr class="fragment"><td>Oral cancer</td><td>Stop youth starting tobacco: COTPA, tobacco-free schools, gutka ban</td><td>Tobacco cessation (quitline 1800-11-2356), less alcohol</td><td>Oral visual screening (NP-NCD); treat potentially malignant lesions</td><td>Surgery, radiotherapy, reconstruction, rehabilitation, palliation</td></tr>
+    <tr class="fragment"><td>Road traffic injuries</td><td>Land use and road design separating pedestrians; safe public transport</td><td>Helmets, seat belts, child seats, speed limits, drink-driving laws (MV Act 2019)</td><td>Prompt prehospital and trauma care; Good Samaritan law; cashless treatment (2025)</td><td>Rehabilitation, prosthetics, vocational rehabilitation</td></tr>
+    <tr class="fragment"><td>Suicide</td><td>Reduce poverty, harmful alcohol use, gender-based violence</td><td>Restrict hazardous pesticides; responsible media; life skills; Tele MANAS 14416</td><td>Early detection and treatment of depression and suicidal thoughts; gatekeeper training</td><td>Care and follow-up after self-harm; rehabilitation; support for bereaved families</td></tr>
+  </table>
+  <p class="cite">NLEP. Sankaranarayanan R et al. Lancet 2005;365:1927-33. Motor Vehicles (Amendment) Act 2019. WHO LIVE LIFE 2021. National Suicide Prevention Strategy 2022.</p>
+  <aside class="notes">Four more: leprosy, oral cancer, road traffic injuries and suicide. Leprosy is the classic example of tertiary prevention: self-care, protective footwear and reconstructive surgery under the programme for disability prevention and medical rehabilitation. Oral cancer is strongly tied to tobacco and areca, so primordial and primary prevention dominate. For road traffic injuries, injury scientists use the Haddon matrix, where helmets are secondary because they reduce injury during a crash; in the Leavell and Clark scheme they are specific protection, primary. Suicide: speak of it carefully and without describing methods. Restricting highly hazardous pesticides is one of the most effective measures known. If anyone in the room is struggling, Tele MANAS on 14416 is free and confidential.</aside>
+</section>
+
+<!-- prev-traps -->
+<section>
+  <h2>Viva traps: the level depends on the disease you name</h2>
+  <p class="small dim rev"><span class="pill warn">Revision slide</span> Can be skipped in class; students review it online.</p>
+  <div class="traps">
+    <div class="t1"><p>Treating high blood pressure?</p><p class="a fragment">Secondary for hypertension. Primary for stroke.</p></div>
+    <div class="t1"><p>Cardiac rehabilitation after a heart attack?</p><p class="a fragment">Tertiary in Leavell and Clark. Cardiologists call it "secondary prevention".</p></div>
+    <div class="t1"><p>A helmet law?</p><p class="a fragment">Primary: specific protection. In the Haddon matrix: secondary.</p></div>
+    <div class="t1"><p>Foot examination in a person with diabetes?</p><p class="a fragment">Tertiary for diabetes. Secondary for foot ulcer.</p></div>
+    <div class="t1"><p>TB preventive treatment for a child contact?</p><p class="a fragment">Primary: chemoprophylaxis. Strictly secondary if latent infection is present.</p></div>
+    <div class="t1"><p>Not ordering a CT for a low-risk headache?</p><p class="a fragment">Quaternary: protecting the patient from too much medicine.</p></div>
+  </div>
+  <p class="claim">Always say which disease, and which framework. A reasoned answer beats a memorised one.</p>
+  <aside class="notes">These are the questions examiners like, because the answer depends on what you are preventing. Read each question, let the room answer, then reveal. Treating hypertension is secondary prevention of hypertension but primary prevention of stroke. Cardiac rehabilitation is tertiary in Leavell and Clark, though cardiologists call it secondary prevention. Helmets are specific protection, so primary, but injury scientists using the Haddon matrix call them secondary. Foot examination in diabetes is tertiary for diabetes and secondary for foot ulcer. TB preventive treatment is taught as chemoprophylaxis, primary. Avoiding an unnecessary scan is quaternary. The safe viva answer: name the disease and the framework, then give the level.</aside>
+</section>
+
+<!-- prev-lab -->
+<section>
+  <h2>Try it: Prevention Levels Lab</h2>
+  <iframe class="lab" src="../widgets/prevention-lab.html?embed=1" title="Prevention Levels Lab" loading="lazy"></iframe>
+  <p class="small dim labnote">Explore nine diseases, then switch to "Test yourself" for viva practice. <a href="../widgets/prevention-lab.html" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">The lab has two modes. Explore by disease shows where each level acts on the natural history of nine diseases, with a viva note under each where frameworks disagree. Test yourself gives an intervention and asks for the level, with an explanation after each answer. Ask students to reach 15 out of 19 before the exam. If time is short, skip this slide in class and point students to it on their phones.</aside>
 </section>
 
 <!-- 21 -->

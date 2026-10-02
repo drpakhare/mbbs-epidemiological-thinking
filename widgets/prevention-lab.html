@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prevention Levels Lab</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="widget.css">
+<script src="theme.js"></script>
+<style>
+  :root { --z0: #e8ebf2; --z1: #8f9cc8; --z2: #162a6c; }
+  :root[data-theme="dark"] { --z0: #232a3d; --z1: #4a5d9e; --z2: #8fa6ec; }
+  .strip { display: grid; grid-template-columns: 2fr 1fr 1fr; border-radius: 8px; overflow: hidden; font-size: 14px; font-weight: 600; }
+  .strip div { padding: 8px 10px; }
+  .strip .a { background: var(--z0); color: var(--ink); } .strip .b { background: var(--z1); color: #fff; } .strip .c { background: var(--z2); color: #fff; }
+  :root[data-theme="dark"] .strip .c { color: #121726; }
+  .levels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 760px) { .levels { grid-template-columns: 1fr 1fr; } .strip { font-size: 12px; } }
+  @media (max-width: 460px) { .levels { grid-template-columns: 1fr; } }
+  .lv { background: var(--wash); border-top: 4px solid var(--band); padding: 10px 12px; }
+  .lv h3 { margin: 0 0 2px; font: 600 17px var(--font-head); color: var(--ink); }
+  .lv .mode { font-size: 13px; color: var(--dim); margin: 0 0 6px; }
+  .lv ul { margin: 0; padding-left: 1.1em; font-size: 14px; }
+  .lv li { margin-bottom: 4px; }
+  .lv.na { opacity: .6; }
+  .flag { font-size: 13px; color: var(--warn); }
+  .quiz { display: grid; gap: 12px; }
+  .qcard { background: var(--wash); border-left: 5px solid var(--band); padding: 16px 18px; font: 20px/1.35 var(--font-head); }
+  .ans { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ans button { font: 600 15px var(--font-body); background: var(--paper); color: var(--ink); border: 1.5px solid var(--rule); border-radius: 8px; padding: 9px 14px; cursor: pointer; }
+  .ans button:focus-visible, .btn:focus-visible { outline: 3px solid var(--warn); outline-offset: 2px; }
+  .ans button.right { background: var(--good-wash); border-color: var(--good); color: var(--good); }
+  .ans button.wrong { background: var(--bad-wash); border-color: var(--bad); color: var(--bad); }
+  .btn { font: 600 15px var(--font-body); background: var(--band); color: var(--band-ink); border: 0; border-radius: 8px; padding: 8px 16px; cursor: pointer; }
+  .view[hidden] { display: none; }
+  html.embed .note.src { display: none; }
+</style>
+</head>
+<body>
+<header class="band"><div>
+  <p class="kicker"><a href="../index.html">Epidemiological Thinking series</a> · Lab 11</p>
+  <h1>Prevention Levels Lab</h1>
+  <p>Pick a disease to see where each level of prevention acts on its natural history. Then test yourself: classify interventions the way an examiner will ask.</p>
+</div></header>
+<main>
+  <section class="panel">
+    <div class="seg" role="group" aria-label="Mode" id="mode"><button type="button" data-m="explore">Explore by disease</button><button type="button" data-m="quiz">Test yourself</button></div>
+  </section>
+
+  <section class="view panel" id="v-explore">
+    <div class="row" id="dis" role="group" aria-label="Disease"></div>
+    <div class="strip" aria-hidden="true"><div class="a">Before disease: prepathogenesis</div><div class="b">Disease, no symptoms</div><div class="c">Clinical disease</div></div>
+    <div class="levels" id="lv"></div>
+    <p class="note" id="dnote"></p>
+  </section>
+
+  <section class="view quiz" id="v-quiz" hidden>
+    <div class="stats"><div class="stat"><div class="n" id="score">0 / 0</div><div class="l">correct so far</div></div></div>
+    <div class="qcard" id="q"></div>
+    <div class="ans" id="ans" role="group" aria-label="Choose a level"></div>
+    <p class="claim" id="fb" hidden></p>
+    <div><button type="button" class="btn" id="next">Next question</button></div>
+  </section>
+
+  <p class="note src">Classification follows Leavell and Clark as taught in Indian community medicine textbooks. Where other frameworks differ (cardiology, injury science's Haddon matrix, suicide prevention's universal, selective and indicated levels), the note says so. Examiners usually accept a reasoned answer that names the framework and the disease it refers to.</p>
+  <footer>Built for teaching at AIIMS Bhopal. Indian programmes: NP-NCD (National Programme for Prevention and Control of Non-Communicable Diseases), NTEP (National TB Elimination Programme), NLEP (National Leprosy Eradication Programme), Tele MANAS (14416).</footer>
+</main>
+<script>
+const MODES = { primordial: 'prevent risk factors arising', primary: 'health promotion, specific protection', secondary: 'early diagnosis and prompt treatment', tertiary: 'disability limitation, rehabilitation' };
+const D = {
+  cervix: ['Cervical cancer', [['Girls’ education, delayed marriage, tobacco-free communities'], ['HPV vaccine before infection (India: one dose for girls aged 14, campaign from Feb 2026)', 'Condoms, safer sex'], ['Screening with HPV test, VIA or Pap smear, and treating precancer'], ['Surgery, radiotherapy, palliative care, rehabilitation']], ''],
+  chd: ['Coronary heart disease', [['Prevent risk factors arising in children: healthy school food, tobacco-free policies', 'Trans fat capped at 2% of oils and fats (FSSAI, 2022)'], ['Healthy diet, physical activity, quitting tobacco', 'Treating raised blood pressure and lipids in high-risk people'], ['Detecting silent disease early', 'Prompt treatment of acute myocardial infarction: thrombolysis or angioplasty'], ['Cardiac rehabilitation', 'Drugs after a heart attack to prevent another and heart failure']], 'Cardiologists call prevention after a first heart attack "secondary prevention". In the Leavell and Clark scheme it is tertiary, because the disease is already established. Screening for blood pressure or cholesterol is primary prevention of CHD (the high-risk approach).'],
+  dm: ['Type 2 diabetes', [['Preventing childhood obesity: school nutrition and physical activity'], ['Lifestyle change in people with prediabetes (Indian Diabetes Prevention Programme: 28.5% lower risk)'], ['Screening adults aged 30 and over under NP-NCD', 'Early treatment and glucose control'], ['Foot care, laser for retinopathy, dialysis', 'Rehabilitation after amputation']], 'Examining the feet of a person with diabetes is tertiary prevention of diabetes, but secondary prevention of foot ulcer. Always name the condition you are preventing.'],
+  tb: ['Tuberculosis', [['Less poverty, crowding and undernutrition'], ['BCG: protects young children against severe TB', 'TB preventive treatment for household contacts and people with HIV', 'Food support for household contacts (RATIONS trial: 39% fewer TB cases)', 'Airborne infection control'], ['Early diagnosis with molecular tests (NAAT), active case finding', 'Complete treatment under NTEP'], ['Care of post-TB lung disease', 'Pulmonary rehabilitation']], 'TB preventive treatment is taught as chemoprophylaxis (primary). Strictly, it treats latent infection, so some call it secondary.'],
+  polio: ['Polio', [[], ['Vaccination: bivalent OPV plus inactivated polio vaccine', 'Safe water and sanitation'], ['Acute flaccid paralysis surveillance with stool testing', 'Outbreak response'], ['Physiotherapy, calipers and orthoses', 'Corrective surgery, rehabilitation']], 'Primordial prevention is conventionally not applied to polio; it is framed around risk factors for non-communicable diseases.'],
+  leprosy: ['Leprosy', [[], ['Single-dose rifampicin for contacts of a patient', 'Health education'], ['Early case detection (Leprosy Case Detection Campaign)', 'Multidrug therapy'], ['Disability prevention and medical rehabilitation (DPMR): self-care, MCR footwear, reconstructive surgery', 'Social rehabilitation, fighting stigma']], 'Leprosy programmes call footwear and self-care "prevention of impairment". In the Leavell and Clark scheme they are disability limitation, which is tertiary.'],
+  oral: ['Oral cancer', [['Stopping young people starting tobacco: COTPA 2003, tobacco-free schools, ban on gutka in food (2011)'], ['Tobacco cessation (national quitline 1800-11-2356)', 'Less alcohol'], ['Oral visual examination screening under NP-NCD', 'Treating potentially malignant lesions (Kerala trial: 34% fewer deaths among tobacco or alcohol users)'], ['Surgery, radiotherapy, reconstruction', 'Speech and swallowing therapy, palliative care']], ''],
+  rti: ['Road traffic injuries', [['Land use and road design that separate pedestrians and cyclists', 'Safe public transport'], ['Helmets, seat belts, child restraints', 'Speed limits, drink-driving enforcement (Motor Vehicles Amendment Act 2019)', 'Vehicle safety standards'], ['Prompt prehospital and trauma care', 'Good Samaritan protection', 'Cashless treatment scheme for accident victims (2025)'], ['Rehabilitation, prosthetics', 'Vocational rehabilitation']], 'Injury science uses the Haddon matrix: primary prevents the crash, secondary reduces injury during the crash (helmets, seat belts), tertiary is care after the crash. In the Leavell and Clark scheme, helmets are specific protection (primary) and trauma care is prompt treatment (secondary).'],
+  suicide: ['Suicide', [['Reducing poverty, harmful alcohol use and gender-based violence'], ['Restricting access to highly hazardous pesticides', 'Responsible media reporting', 'Life-skills education for adolescents', 'Helplines: Tele MANAS 14416'], ['Early identification and treatment of depression and suicidal thoughts', 'Gatekeeper training'], ['Care and follow-up after self-harm', 'Rehabilitation, long-term mental health care', 'Support for bereaved families (postvention)']], 'Suicide prevention usually speaks of universal, selective and indicated prevention (WHO LIVE LIFE). Follow-up after an attempt is tertiary in the Leavell and Clark scheme. India’s National Suicide Prevention Strategy (2022) aims to cut suicide mortality by 10% by 2030.']
+};
+const Q = [
+  ['BCG vaccination of a newborn', 'primary', 'Specific protection before any infection.', ''],
+  ['VIA or Pap smear screening of a 35-year-old woman', 'secondary', 'Screening finds precancer or early disease before symptoms.', ''],
+  ['Physiotherapy and calipers for a child with paralytic polio', 'tertiary', 'Disability limitation and rehabilitation after clinical disease.', ''],
+  ['Tobacco-free zones around schools so children never start', 'primordial', 'Stops a risk factor from appearing in a healthy population.', 'Some texts call this primary.'],
+  ['Nicotine replacement for a smoker, with respect to oral cancer', 'primary', 'Removes a risk factor before the disease starts.', ''],
+  ['Treating raised blood pressure in a 50-year-old, with respect to hypertension', 'secondary', 'Early diagnosis and treatment of hypertension itself.', ''],
+  ['Treating raised blood pressure in a 50-year-old, with respect to stroke', 'primary', 'Prevents a stroke that has not happened. The level depends on which disease you name.', ''],
+  ['Cardiac rehabilitation after a heart attack', 'tertiary', 'Rehabilitation after clinical disease.', 'Cardiologists call this secondary prevention.'],
+  ['TB preventive treatment for a child living with a TB patient', 'primary', 'Chemoprophylaxis, specific protection.', 'Strictly secondary if the child already has latent infection.'],
+  ['Single-dose rifampicin for contacts of a leprosy patient', 'primary', 'Chemoprophylaxis for exposed people.', ''],
+  ['MCR footwear for a leprosy patient with numb feet', 'tertiary', 'Disability limitation.', 'Leprosy programmes call this prevention of impairment.'],
+  ['Active case finding for TB in an urban slum', 'secondary', 'Early case detection.', ''],
+  ['A law making helmets compulsory for two-wheeler riders', 'primary', 'Specific protection against head injury.', 'In the Haddon matrix this is secondary (reduces injury during the crash).'],
+  ['Trauma care within the first hour after a crash', 'secondary', 'Prompt treatment to limit death and damage.', 'In the Haddon matrix this is post-crash (tertiary).'],
+  ['A lifestyle programme for people with prediabetes', 'primary', 'Prevents diabetes from developing.', ''],
+  ['Regular foot examination in a person with diabetes', 'tertiary', 'Limits complications of established diabetes.', 'Secondary if you name foot ulcer as the condition.'],
+  ['Follow-up contact after a suicide attempt', 'tertiary', 'Prevents a repeat after the event.', 'Suicide prevention calls this indicated prevention.'],
+  ['Not ordering a CT scan for a low-risk headache', 'quaternary', 'Protects the patient from unnecessary tests and their harms.', 'Quaternary prevention is a later addition, not in Leavell and Clark.'],
+  ['Iodised salt for everyone', 'primary', 'Specific protection against iodine deficiency.', '']
+];
+const LV = ['primordial', 'primary', 'secondary', 'tertiary'], $ = id => document.getElementById(id), qs = new URLSearchParams(location.search);
+let dkey = D[qs.get('disease')] ? qs.get('disease') : 'chd', mode = qs.get('mode') === 'quiz' ? 'quiz' : 'explore';
+let order = Q.map((_, i) => i), qi = 0, right = 0, done = 0, answered = false;
+function cap(s) { return s[0].toUpperCase() + s.slice(1); }
+function drawExplore() {
+  document.querySelectorAll('#dis .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === dkey));
+  const d = D[dkey];
+  $('lv').innerHTML = LV.map((l, i) => `<div class="lv ${d[1][i].length ? '' : 'na'}"><h3>${cap(l)}</h3><p class="mode">${MODES[l]}</p>${d[1][i].length ? '<ul>' + d[1][i].map(x => `<li>${x}</li>`).join('') + '</ul>' : '<p class="mode">Not usually applied to this disease.</p>'}</div>`).join('');
+  $('dnote').innerHTML = d[2] ? `<span class="flag">Viva note:</span> ${d[2]}` : '';
+}
+function shuffle() { for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; } }
+function drawQ() {
+  const q = Q[order[qi % order.length]]; answered = false;
+  $('q').textContent = q[0]; $('fb').hidden = true;
+  $('ans').innerHTML = ['primordial', 'primary', 'secondary', 'tertiary', 'quaternary'].map(l => `<button type="button" data-l="${l}">${cap(l)}</button>`).join('');
+  $('ans').querySelectorAll('button').forEach(b => b.addEventListener('click', () => answer(b, q)));
+  $('score').textContent = `${right} / ${done}`;
+}
+function answer(b, q) {
+  if (answered) return; answered = true; done++;
+  const ok = b.dataset.l === q[1]; if (ok) right++;
+  $('ans').querySelectorAll('button').forEach(x => { if (x.dataset.l === q[1]) x.classList.add('right'); });
+  if (!ok) b.classList.add('wrong');
+  $('fb').hidden = false; $('fb').className = 'claim ' + (ok ? 'good' : 'warn');
+  $('fb').textContent = `${ok ? 'Right.' : 'Not quite.'} ${cap(q[1])}: ${q[2]}${q[3] ? ' Viva note: ' + q[3] : ''}`;
+  $('score').textContent = `${right} / ${done}`;
+}
+function setMode(m) { mode = m; document.querySelectorAll('#mode button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === m)); $('v-explore').hidden = m !== 'explore'; $('v-quiz').hidden = m !== 'quiz'; if (m === 'quiz') drawQ(); else drawExplore(); }
+$('dis').innerHTML = Object.entries(D).map(([k, d]) => `<button type="button" class="chip" data-k="${k}">${d[0]}</button>`).join('');
+document.querySelectorAll('#dis .chip').forEach(b => b.addEventListener('click', () => { dkey = b.dataset.k; drawExplore(); }));
+document.querySelectorAll('#mode button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.m)));
+$('next').addEventListener('click', () => { qi++; if (qi % order.length === 0) shuffle(); drawQ(); });
+shuffle(); setMode(mode);
+</script>
+</body>
+</html>
