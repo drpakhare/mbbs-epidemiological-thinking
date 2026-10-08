@@ -39,3 +39,18 @@ By the end of the lecture, students will be able to:
 6. Explain superspreading and the dispersion parameter k, and what they mean for control.
 7. Explain ring vaccination using smallpox eradication and the 2015 Ebola vaccine trial.
 8. Distinguish sporadic, endemic, hyperendemic, epidemic and pandemic occurrence, list why epidemics start, and recognise the main shapes of epidemic curves.
+
+## Topic session: Bias, confounding and interaction
+
+A 120-minute session, with a break, that can be taken at any point in the series. The same slides serve MBBS students, residents and PhD scholars; revision slides carry the more formal material. Causal diagrams are covered in a separate session.
+
+By the end of the session, students will be able to:
+
+1. List the four explanations for an observed association (chance, bias, confounding, cause) and the order in which to consider them.
+2. Distinguish random from systematic error, and explain why a larger study reduces only random error.
+3. Interpret p-values and confidence intervals correctly, explain type I and type II errors and power, and explain why multiple subgroup analyses mislead.
+4. Define selection bias and information bias, and recognise examples: inappropriate controls, the healthy worker effect, Berkson's bias, collider bias, losses to follow-up, recall, interviewer and observer bias.
+5. Distinguish non-differential from differential misclassification and predict their usual effect on an estimate, including the limits of that rule.
+6. State the three conditions for a confounder, and distinguish a confounder from a step on the causal pathway.
+7. Describe how confounding is controlled in design (randomisation, restriction, matching) and analysis (stratification, Mantel-Haenszel, standardisation, regression), and use the change-in-estimate approach.
+8. Distinguish confounding from effect modification, explain why interaction depends on the scale, and calculate RERI from joint relative risks.

@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Bias, confounding and interaction</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../vendor/reveal.js/dist/reveal.css">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/slides.css">
+<style>
+  /* per-deck: diagrams, 2 by 2 tables, embedded labs, question slides */
+  iframe.lab { display: block; width: 1152px; height: 536px; margin: 0 64px; border: 1px solid var(--rule); background: var(--paper); }
+  .labnote { margin-top: 8px !important; }
+  .reveal .labnote a { color: var(--band); }
+  .q { font-family: var(--font-head); font-size: 44px; line-height: 1.2; color: var(--band); margin-top: 40px !important; }
+  .dg { display: block; width: 1152px; height: auto; margin: 0 64px; }
+  .dg text { font-family: var(--font-body); }
+  .dg .t { font-size: 21px; fill: var(--ink); }
+  .dg .tb { font-size: 21px; font-weight: 700; fill: var(--ink); }
+  .dg .tw { font-size: 21px; font-weight: 700; fill: #fff; }
+  .dg .td { font-size: 19px; fill: var(--dim); }
+  .dg .tn { font-size: 22px; font-weight: 700; fill: var(--band); }
+  .dg .tg { font-size: 21px; font-weight: 700; fill: var(--good); }
+  .dg .tr { font-size: 21px; font-weight: 700; fill: var(--warn); }
+  .dg .ring { fill: none; stroke: #c3c9da; stroke-width: 2; } .dg .bull { fill: var(--good); }
+  .dg .shot { fill: var(--band); } .dg .shotw { fill: var(--warn); }
+  .dg .ln { stroke: var(--ink); stroke-width: 2; fill: none; }
+  .dg .grid { stroke: var(--rule); stroke-width: 1; }
+  .dg .axis { stroke: var(--ink); stroke-width: 2; }
+  .dg .truth { stroke: var(--good); stroke-width: 3; }
+  .dg .nul { stroke: var(--faint); stroke-width: 2; stroke-dasharray: 7 6; }
+  .dg .ci { stroke: var(--band); stroke-width: 4; } .dg .ciw { stroke: var(--warn); stroke-width: 4; }
+  .dg .pt { fill: var(--band); } .dg .ptw { fill: var(--warn); }
+  .dg .box { fill: var(--wash); stroke: #8a91a1; stroke-width: 2; }
+  .dg .boxn { fill: var(--band); }
+  .dg .boxw { fill: var(--warn-wash); stroke: var(--warn); stroke-width: 2; }
+  .dg .boxg { fill: var(--good-wash); stroke: var(--good); stroke-width: 2; }
+  .dg .arr { stroke: var(--ink); stroke-width: 2.5; fill: none; marker-end: url(#ah); }
+  .dg .arrw { stroke: var(--warn); stroke-width: 3; fill: none; marker-end: url(#ahw); }
+  .dg .arrd { stroke: var(--faint); stroke-width: 2.5; fill: none; stroke-dasharray: 7 6; marker-end: url(#ah); }
+  .dg .b1 { fill: #c3c9da; } .dg .b2 { fill: var(--band); } .dg .b3 { fill: var(--warn); }
+  table.tt { font-size: 22px; margin-left: 64px; }
+  table.tt th, table.tt td { padding: 7px 16px; text-align: center; }
+  table.tt th.rh, table.tt td.rh { text-align: left; }
+  table.tt td.cell { background: var(--wash); font-family: var(--font-head); font-size: 26px; color: var(--band); border: 2px solid var(--paper); }
+  table.tt td.cell.w { background: var(--warn-wash); color: var(--warn); }
+  table.tt td.cell.g { background: var(--good-wash); color: var(--good); }
+  table.tt td.cell small { display: block; font-family: var(--font-body); font-size: var(--fs-min); color: var(--dim); }
+  table.tt td.or { font-family: var(--font-head); font-size: 26px; color: var(--band); font-weight: 600; }
+  .side { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; }
+  .side > * { margin: 0; }
+  .side table.tt { margin-left: 0; }
+  .side3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin: 0 64px; }
+  .side3 h3 { font-size: 23px; }
+  .side3 table.tt { margin-left: 0; font-size: 20px; } .side3 table.tt th, .side3 table.tt td { padding: 6px 10px; }
+  .side3 table.tt td.cell { font-size: 23px; }
+  .rev { margin: 0 64px 8px !important; }
+  .defcard { background: var(--wash); border-top: 4px solid var(--band); padding: 14px 18px 10px; }
+  .defcard h3 { margin-bottom: 6px; }
+  .defcard p { font-size: 21px; margin: 0 0 6px; line-height: 1.3; }
+  .defcard p b { color: var(--band); }
+  .defcard.good { border-top-color: var(--good); background: var(--good-wash); }
+  .defcard.warn { border-top-color: var(--warn); background: var(--warn-wash); }
+  .traps { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; margin: 0 64px; }
+  .traps .t1 { background: var(--wash); padding: 10px 14px; border-left: 5px solid var(--band); }
+  .traps .t1 p { margin: 0; font-size: 20px; line-height: 1.3; }
+  .traps .t1 p.a { color: var(--good); margin-top: 4px; }
+  table.wide { font-size: 22px; }
+  table.wide td, table.wide th { padding: 7px 12px; vertical-align: top; }
+  .four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 0 64px; }
+  .four .card { padding: 14px 16px 10px; }
+  .four .card h3 { font-size: 26px; }
+  .four .card p { font-size: 21px; margin: 0; line-height: 1.3; }
+  .agenda { font-size: 25px; margin: 0 64px !important; list-style: none; padding: 0; }
+  .agenda li { display: grid; grid-template-columns: 150px 1fr 140px; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--rule); margin: 0; }
+  .agenda li b { color: var(--band); } .agenda li span.m { color: var(--dim); text-align: right; }
+  .agenda li.brk { color: var(--dim); }
+  .ans { color: var(--good); font-weight: 600; }
+  ul.tight li { margin-bottom: 6px; }
+  .break { background: var(--wash); }
+  .reveal sup, .reveal sub { font-size: 19px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1d2433"/></marker>
+  <marker id="ahw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a86400"/></marker>
+</defs></svg>
+<div class="reveal"><div class="slides">
+
+<!-- 1 -->
+<section class="cover">
+  <p class="kicker">Epidemiological Thinking · Bias, confounding and interaction</p>
+  <h1>Is it real, and is it the same for everyone?</h1>
+  <p class="lede dim">Chance, bias, confounding and effect modification</p>
+  <p class="small faint">AIIMS Bhopal · 120 minutes</p>
+  <aside class="notes">Welcome. This session is about the questions we must ask before we believe any association between an exposure and a disease. A study finds that people who do X get disease Y more often. Is that real? Could it be chance, could it be the way the study was done, could it be some third factor? And if it is real, is it the same for everyone, or does it depend on who you are? We will spend two hours on this, with a break in the middle. It is the most useful skill in epidemiology, for reading papers and for doing your own thesis.</aside>
+</section>
+
+<!-- 2 -->
+<section>
+  <h2>Harvard, 1981: coffee and cancer of the pancreas</h2>
+  <p class="lede">A case-control study in the <i>New England Journal of Medicine</i>: 369 patients with pancreatic cancer, 644 controls.</p>
+  <div style="margin-top:26px">
+    <div class="stat"><span class="n">1.8</span><span class="l">relative risk, up to 2 cups a day</span></div>
+    <div class="stat"><span class="n">2.7</span><span class="l">relative risk, 3 or more cups a day</span></div>
+    <div class="stat"><span class="n">p ≈ 0.001</span><span class="l">for the dose-response trend</span></div>
+  </div>
+  <p class="q fragment">Would you stop drinking coffee?</p>
+  <p class="cite">MacMahon B, Yen S, Trichopoulos D, Warren K, Nardi G. N Engl J Med 1981;304:630-3. Estimates adjusted for smoking.</p>
+  <aside class="notes">Start with a story. In 1981 a team at Harvard, led by Brian MacMahon, one of the most respected epidemiologists of the time, published this in the New England Journal. People with pancreatic cancer drank more coffee than controls. Up to two cups a day, the relative risk was 1.8. Three or more cups, 2.7. There was a dose-response, the p-value for trend was about one in a thousand, and they had adjusted for smoking. Big journal, big names, dose-response, highly significant. Ask the room: would you stop drinking coffee? Take a show of hands. Do not argue yet.</aside>
+</section>
+
+<!-- 3 -->
+<section>
+  <h2>Five years later, the same team looked again</h2>
+  <p class="lede">A new study by the same group, published in the same journal in 1986, did not support the earlier report.</p>
+  <p class="lede">In 2016 the International Agency for Research on Cancer concluded that coffee is unlikely to cause cancer of the pancreas.</p>
+  <p class="claim">A significant, dose-related association, in a top journal, adjusted for smoking. And probably not real. What went wrong?</p>
+  <p class="q fragment" style="font-size:36px">Hold your answer. We will come back to it in Part 2.</p>
+  <p class="cite">Hsieh CC et al. N Engl J Med 1986;315:587-9. IARC Monographs Volume 116, press release, 15 June 2016.</p>
+  <aside class="notes">The same team, to their great credit, repeated the study, and in 1986 they reported that their new findings did not support the earlier report. Decades later, in 2016, the International Agency for Research on Cancer reviewed all the evidence on coffee and concluded that it is unlikely to cause pancreatic cancer. So here is a puzzle. Everything looked right. Ask for guesses about what went wrong. Collect three or four on the board: chance, the wrong controls, people misremembering, some hidden factor. Every one of those is a topic for today. Keep the list; we will check it against the answer.</aside>
+</section>
+
+<!-- 4 -->
+<section>
+  <h2>Every association has four possible explanations</h2>
+  <div class="four">
+    <div class="card fragment"><h3>Chance</h3><p>Random variation from studying a sample. Bigger studies shrink it.</p></div>
+    <div class="card fragment" style="border-top-color:var(--warn)"><h3>Bias</h3><p>A systematic error in how people were selected or measured. Bigger studies do not fix it.</p></div>
+    <div class="card fragment" style="border-top-color:var(--warn)"><h3>Confounding</h3><p>A third factor, linked to both exposure and disease, mixes its effect with the exposure's.</p></div>
+    <div class="card good fragment"><h3>Cause</h3><p>Only after the first three are reasonably ruled out do we judge whether it is causal.</p></div>
+  </div>
+  <p class="claim fragment" style="margin-left:64px;margin-right:64px">And if it is real, a fifth question: is the effect the same for everyone? That is effect modification, or interaction.</p>
+  <aside class="notes">Here is the framework for the whole session. When a study finds an association, there are four explanations. One, chance: we studied a sample, and samples vary. Two, bias: something systematic in the way we chose people or measured them. Three, confounding: some third factor travels with the exposure and also causes the disease. Four, it is real and causal. We judge causation, using criteria like Bradford Hill's, only after we have dealt with the first three. Then there is a fifth question, which is not an error at all. Even if the effect is real, it may be bigger in some people than others. That is effect modification. So the session title is two questions: is it real, and is it the same for everyone?</aside>
+</section>
+
+<!-- 5 -->
+<section>
+  <h2>Two hours, four parts</h2>
+  <ul class="agenda">
+    <li><b>Part 1</b><span>Chance: p-values, confidence intervals, subgroups and power</span><span class="m">20 min</span></li>
+    <li><b>Part 2</b><span>Bias: choosing the wrong people, measuring the wrong way</span><span class="m">35 min</span></li>
+    <li class="brk"><b>Break</b><span></span><span class="m">10 min</span></li>
+    <li><b>Part 3</b><span>Confounding: the third factor, and how to control it</span><span class="m">30 min</span></li>
+    <li><b>Part 4</b><span>Interaction: when the effect depends on who you are</span><span class="m">20 min</span></li>
+  </ul>
+  <p class="lede" style="margin-top:22px">Three labs on your phone: Chance Lab, Bias Lab and Stratify Lab.</p>
+  <aside class="notes">The plan. Twenty minutes on chance, thirty-five on bias, a short break, thirty on confounding and twenty on interaction, then a summary. There are three labs. Ask students to open the series website on their phones now; the QR code is on the home page. Residents and PhD scholars: the same slides, but some slides are marked as revision slides with more formal material, such as the relative excess risk due to interaction. Causal diagrams are covered in detail in a separate session, so today I use only simple arrows.</aside>
+</section>
+
+<!-- 6 -->
+<section>
+  <h2>Random error scatters. Systematic error shifts.</h2>
+  <svg class="dg" viewBox="0 0 1152 400" role="img" aria-label="Four targets showing precision and bias">
+    <g class="fragment" data-fragment-index="1">
+      <circle class="ring" cx="144" cy="150" r="120"/><circle class="ring" cx="144" cy="150" r="80"/><circle class="ring" cx="144" cy="150" r="40"/><circle class="bull" cx="144" cy="150" r="8"/>
+      <circle class="shot" cx="138" cy="146" r="7"/><circle class="shot" cx="152" cy="156" r="7"/><circle class="shot" cx="146" cy="138" r="7"/><circle class="shot" cx="134" cy="160" r="7"/><circle class="shot" cx="156" cy="144" r="7"/>
+      <text class="tb" x="144" y="310" text-anchor="middle">Precise, unbiased</text><text class="td" x="144" y="338" text-anchor="middle">the goal</text>
+    </g>
+    <g class="fragment" data-fragment-index="2">
+      <circle class="ring" cx="432" cy="150" r="120"/><circle class="ring" cx="432" cy="150" r="80"/><circle class="ring" cx="432" cy="150" r="40"/><circle class="bull" cx="432" cy="150" r="8"/>
+      <circle class="shot" cx="372" cy="110" r="7"/><circle class="shot" cx="490" cy="170" r="7"/><circle class="shot" cx="420" cy="232" r="7"/><circle class="shot" cx="470" cy="80" r="7"/><circle class="shot" cx="396" cy="196" r="7"/>
+      <text class="tb" x="432" y="310" text-anchor="middle">Imprecise, unbiased</text><text class="td" x="432" y="338" text-anchor="middle">random error: small study</text>
+    </g>
+    <g class="fragment" data-fragment-index="3">
+      <circle class="ring" cx="720" cy="150" r="120"/><circle class="ring" cx="720" cy="150" r="80"/><circle class="ring" cx="720" cy="150" r="40"/><circle class="bull" cx="720" cy="150" r="8"/>
+      <circle class="shotw" cx="786" cy="82" r="7"/><circle class="shotw" cx="798" cy="92" r="7"/><circle class="shotw" cx="790" cy="70" r="7"/><circle class="shotw" cx="778" cy="94" r="7"/><circle class="shotw" cx="802" cy="78" r="7"/>
+      <text class="tb" x="720" y="310" text-anchor="middle">Precise, biased</text><text class="td" x="720" y="338" text-anchor="middle">systematic error: confidently wrong</text>
+    </g>
+    <g class="fragment" data-fragment-index="4">
+      <circle class="ring" cx="1008" cy="150" r="120"/><circle class="ring" cx="1008" cy="150" r="80"/><circle class="ring" cx="1008" cy="150" r="40"/><circle class="bull" cx="1008" cy="150" r="8"/>
+      <circle class="shotw" cx="1060" cy="60" r="7"/><circle class="shotw" cx="1100" cy="110" r="7"/><circle class="shotw" cx="1040" cy="120" r="7"/><circle class="shotw" cx="1092" cy="50" r="7"/><circle class="shotw" cx="1070" cy="140" r="7"/>
+      <text class="tb" x="1008" y="310" text-anchor="middle">Imprecise, biased</text><text class="td" x="1008" y="338" text-anchor="middle">the worst of both</text>
+    </g>
+  </svg>
+  <p class="claim fragment" data-fragment-index="5">Precision is about random error. Validity is about systematic error. You need both.</p>
+  <aside class="notes">Think of each dot as one study of the same question, and the bullseye as the truth. Click through. First target: dots tight around the centre, precise and valid. Second: dots scattered but centred on the truth. That is random error; on average the studies are right, but any one can be far off. Small studies look like this. Third: dots tight together, but in the wrong place. That is bias, systematic error. Every study agrees, and they are all wrong. Fourth: scattered and off-centre. Precision is the absence of random error; validity is the absence of systematic error. Students often think a big, precise study must be right. The third target is why that is false.</aside>
+</section>
+
+<!-- 7 -->
+<section>
+  <h2>A bigger study shrinks random error, never bias</h2>
+  <svg class="dg" viewBox="0 0 1152 420" role="img" aria-label="Estimates from studies of increasing size, unbiased and biased">
+    <line class="grid" x1="120" x2="1120" y1="70" y2="70"/><line class="grid" x1="120" x2="1120" y1="190" y2="190"/><line class="grid" x1="120" x2="1120" y1="310" y2="310"/>
+    <text class="td" x="108" y="76" text-anchor="end">4</text><text class="td" x="108" y="196" text-anchor="end">2</text><text class="td" x="108" y="316" text-anchor="end">1</text>
+    <text class="td" x="30" y="200" transform="rotate(-90 30 200)" text-anchor="middle">relative risk</text>
+    <line class="truth" x1="120" x2="1120" y1="190" y2="190"/><text class="tg" x="1120" y="180" text-anchor="end">truth: 2.0</text>
+    <line class="nul" x1="120" x2="1120" y1="310" y2="310"/>
+    <text class="td" x="230" y="370" text-anchor="middle">100 people</text><text class="td" x="470" y="370" text-anchor="middle">1,000</text><text class="td" x="710" y="370" text-anchor="middle">10,000</text><text class="td" x="950" y="370" text-anchor="middle">100,000</text>
+    <text class="td" x="590" y="404" text-anchor="middle">study size</text>
+    <g class="fragment" data-fragment-index="1">
+      <line class="ci" x1="210" x2="210" y1="20" y2="350"/><circle class="pt" cx="210" cy="180" r="8"/>
+      <line class="ci" x1="450" x2="450" y1="120" y2="270"/><circle class="pt" cx="450" cy="196" r="8"/>
+      <line class="ci" x1="690" x2="690" y1="164" y2="214"/><circle class="pt" cx="690" cy="188" r="8"/>
+      <line class="ci" x1="930" x2="930" y1="182" y2="198"/><circle class="pt" cx="930" cy="190" r="8"/>
+      <text class="tn" x="160" y="44" text-anchor="end">unbiased</text>
+    </g>
+    <g class="fragment" data-fragment-index="2">
+      <line class="ciw" x1="250" x2="250" y1="0" y2="300"/><circle class="ptw" cx="250" cy="120" r="8"/>
+      <line class="ciw" x1="490" x2="490" y1="50" y2="190"/><circle class="ptw" cx="490" cy="120" r="8"/>
+      <line class="ciw" x1="730" x2="730" y1="96" y2="144"/><circle class="ptw" cx="730" cy="120" r="8"/>
+      <line class="ciw" x1="970" x2="970" y1="112" y2="128"/><circle class="ptw" cx="970" cy="120" r="8"/>
+      <text class="tr" x="1000" y="114">biased: 3.0</text>
+    </g>
+  </svg>
+  <p class="claim warn fragment" data-fragment-index="3">A huge biased study gives a narrow confidence interval around the wrong answer.</p>
+  <p class="cite">Illustrative, constructed for teaching.</p>
+  <aside class="notes">The same idea as a chart. The true relative risk is 2. In blue, unbiased studies of 100, 1,000, 10,000 and 100,000 people. The confidence interval shrinks as the study grows, and it always sits around the truth. Now the amber studies have a bias that pushes the estimate to 3. They also get narrower as they grow. But they narrow around 3, not 2. The biggest biased study is extremely confident, and wrong. This is why big data does not solve bias. Electronic health records with millions of patients can give very narrow intervals around a biased answer.</aside>
+</section>
+
+<!-- 8 -->
+<section>
+  <h2>What a p-value is, and what it is not</h2>
+  <div class="cards c2">
+    <div class="defcard good"><h3>It is</h3>
+      <p>The probability of getting a result at least as extreme as the one observed, <b>if there were truly no effect</b> and the study had no bias.</p>
+      <p>A small p-value says: chance alone would rarely produce data like these.</p></div>
+    <div class="defcard warn"><h3>It is not</h3>
+      <p>The probability that the null hypothesis is true.</p>
+      <p>The size or importance of the effect.</p>
+      <p>Protection against bias or confounding.</p>
+      <p>A line: p = 0.049 and p = 0.051 are almost the same evidence.</p></div>
+  </div>
+  <p class="claim">A p-value only tests chance. It knows nothing about how the study was done.</p>
+  <aside class="notes">Most of you can say p less than 0.05 means significant. Fewer can say what a p-value is. It is a conditional probability: if there were really no effect, how often would we see a result at least this extreme by chance? A small p-value means chance alone would rarely do this. It is not the probability that the null hypothesis is true. It does not tell you how big the effect is; a tiny, useless effect in a huge study can have a tiny p-value. And it says nothing about bias or confounding. The coffee study had p of about 0.001. Chance was unlikely. That did not make the result true. Finally, 0.05 is a convention, not a law of nature.</aside>
+</section>
+
+<!-- 9 -->
+<section>
+  <h2>A confidence interval shows the size and the uncertainty</h2>
+  <svg class="dg" viewBox="0 0 1152 330" role="img" aria-label="Four confidence intervals">
+    <line class="nul" x1="560" x2="560" y1="20" y2="270"/>
+    <line class="axis" x1="240" x2="1000" y1="270" y2="270"/>
+    <text class="td" x="320" y="296" text-anchor="middle">0.25</text><text class="td" x="440" y="296" text-anchor="middle">0.5</text><text class="td" x="560" y="296" text-anchor="middle">1</text><text class="td" x="680" y="296" text-anchor="middle">2</text><text class="td" x="800" y="296" text-anchor="middle">4</text>
+    <text class="td" x="560" y="324" text-anchor="middle">relative risk (log scale) · 1 = no effect</text>
+    <g class="fragment"><text class="tb" x="0" y="56">A. Small benefit, clear</text><line class="ci" x1="472" x2="542" y1="50" y2="50"/><circle class="pt" cx="506" cy="50" r="8"/><text class="td" x="1010" y="56">0.75 (0.6 to 0.9)</text></g>
+    <g class="fragment"><text class="tb" x="0" y="116">B. Too small to tell</text><line class="ciw" x1="352" x2="630" y1="110" y2="110"/><circle class="ptw" cx="472" cy="110" r="8"/><text class="td" x="1010" y="116">0.6 (0.3 to 1.5)</text></g>
+    <g class="fragment"><text class="tb" x="0" y="176">C. Precise: no effect</text><line class="ci" x1="551" x2="569" y1="170" y2="170"/><circle class="pt" cx="560" cy="170" r="8"/><text class="td" x="1010" y="176">1.0 (0.95 to 1.05)</text></g>
+    <g class="fragment"><text class="tb" x="0" y="236">D. Harm, clear</text><line class="ci" x1="592" x2="752" y1="230" y2="230"/><circle class="pt" cx="666" cy="230" r="8"/><text class="td" x="1010" y="236">1.8 (1.2 to 3.0)</text></g>
+  </svg>
+  <p class="claim fragment">B and C are both "not significant". Only C shows there is no effect. Absence of evidence is not evidence of absence.</p>
+  <aside class="notes">A confidence interval is far more useful than a p-value. The point is the best estimate; the interval is the range of true values reasonably compatible with the data. Click through four results. A: a benefit, and the whole interval is below 1. B: the point estimate suggests a 40 percent benefit, but the interval runs from 0.3 to 1.5; the study is too small to tell. C: very narrow around 1; a precise finding of no important effect. D: harm, the whole interval above 1. Now the key point. B and C are both not significant at 0.05. A student who reads only p-values would call both negative studies. But B tells us nothing, while C tells us a lot. Always look at the interval.</aside>
+</section>
+
+<!-- 10 -->
+<section>
+  <h2>Think first</h2>
+  <p class="q">Twenty research teams each study a pill that truly does nothing.</p>
+  <p class="q" style="font-size:36px">How many of them will report a "statistically significant" effect?</p>
+  <p class="lede fragment ans" style="margin-top:36px">About one. That is what p &lt; 0.05 allows: one in twenty, by chance alone.</p>
+  <aside class="notes">Pose the question and let them think. Twenty teams, a useless pill. How many publish a significant finding? The answer is about one, because a 5 percent significance level means that when there is no effect, 5 percent of studies will still cross the line. Now think about what gets published and reported in the news: the one exciting study, not the nineteen dull ones. That is publication bias, and it starts with chance. Let us see it happen in the lab.</aside>
+</section>
+
+<!-- 11 -->
+<section>
+  <h2>Lab 12: run the same study again and again</h2>
+  <iframe class="lab" src="../widgets/chance-lab.html?embed=1" title="Chance Lab" loading="lazy"></iframe>
+  <p class="small dim labnote">Set the true risk ratio to 1. Run 20 studies at a time. Then set it to 1.5 and change the group size. <a href="../widgets/chance-lab.html" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">The lab simulates studies from a population where you set the truth. Start with a true risk ratio of 1, no effect, 100 people per group. Click Run 20 studies a few times. Watch the share that come out significant: it hovers around 5 percent. Watch how often the confidence interval contains the truth: about 95 percent. That is exactly what those numbers promise, no more. Now set the true risk ratio to 1.5. With 100 per group, most studies miss it. That is low power. Increase the group size to 800 or 1,600 and the share of studies detecting the effect climbs. Point out also that when a small study does reach significance, its estimate is usually exaggerated. Ask students to try it on their phones.</aside>
+</section>
+
+<!-- 12 -->
+<section>
+  <h2>ISIS-2, 1988: aspirin worked, except for Geminis and Librans?</h2>
+  <div class="cards c2">
+    <div class="card good"><h3>The whole trial: 17,187 patients</h3><p class="small">Suspected heart attack, randomised to aspirin or placebo.</p><div class="stat"><span class="n">9.4% vs 11.8%</span><span class="l">vascular deaths in 5 weeks, aspirin vs placebo</span></div></div>
+    <div class="card fragment" style="border-top-color:var(--warn);background:var(--warn-wash)"><h3>Split by star sign</h3><p class="small">Gemini or Libra: 9% (SD 13) increase in the odds of death with aspirin. Not significant.</p><p class="small">All other signs: 28% (SD 5) reduction. p &lt; 0.00001.</p></div>
+  </div>
+  <p class="claim fragment">The investigators added the star-sign analysis on purpose: to show how unreliable subgroup results can be.</p>
+  <p class="cite">ISIS-2 Collaborative Group. Lancet 1988;2:349-60 (star signs, p. 357). Sleight P. Curr Control Trials Cardiovasc Med 2000;1:25-7.</p>
+  <aside class="notes">ISIS-2 was one of the great trials of cardiology. Over 17,000 people with a suspected heart attack were randomised to aspirin or placebo. Aspirin reduced vascular deaths at five weeks from 11.8 to 9.4 percent. Then click: the authors split the results by star sign. For people born under Gemini or Libra, aspirin seemed to do nothing, even slightly harm. For everyone else, a large benefit. Of course nobody believes this. The investigators put it in on purpose, as a warning. If you cut any trial into enough subgroups, some will show no effect, or the opposite effect, by chance. Now imagine the subgroup was not star signs but women, or diabetics, or people over 70. You would be tempted to believe it. Should a Gemini with a heart attack be denied aspirin? No.</aside>
+</section>
+
+<!-- 13 -->
+<section>
+  <h2>Lab 12: one trial, twelve star signs</h2>
+  <iframe class="lab" src="../widgets/chance-lab.html?embed=1&amp;m=star" title="Chance Lab, star signs" loading="lazy"></iframe>
+  <p class="small dim labnote">Same true effect for everyone. Run it again and count the signs where aspirin "fails". <a href="../widgets/chance-lab.html?m=star" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">Here the lab runs an ISIS-2-sized trial, 8,500 per arm, 12 percent deaths on placebo, true risk ratio 0.8 for everyone. It then deals people at random into twelve star signs. Click Run the trial again several times. Every time, some signs show no significant benefit, and now and then one shows apparent harm. The whole-trial estimate, in amber, stays close to the truth. Which sign looks bad changes every time. That is the signature of chance. Ask: if a real subgroup finding were true, what would you expect when you repeat the trial? It would come back. These do not.</aside>
+</section>
+
+<!-- 14 -->
+<section>
+  <h2>Test enough subgroups and something will "work"</h2>
+  <div class="side">
+    <table class="wide">
+      <tr><th>Independent tests, no true effect</th><th class="num">Chance of at least one p &lt; 0.05</th></tr>
+      <tr><td>1</td><td class="num">5%</td></tr>
+      <tr><td>5</td><td class="num">23%</td></tr>
+      <tr><td>12 (the star signs)</td><td class="num">46%</td></tr>
+      <tr><td>20</td><td class="num">64%</td></tr>
+      <tr><td>Formula</td><td class="num">1 − 0.95<sup>k</sup></td></tr>
+    </table>
+    <div class="defcard fragment"><h3>Believe a subgroup finding only if</h3>
+      <p>It was specified before the data were seen.</p>
+      <p>It is one of a few subgroups, not many.</p>
+      <p>A formal test of interaction supports it.</p>
+      <p>It makes biological sense.</p>
+      <p>It is confirmed in another study.</p></div>
+  </div>
+  <aside class="notes">This is the problem of multiple comparisons. If you do one test when there is no effect, you have a 5 percent chance of a false positive. Do 12 independent tests and the chance that at least one is significant rises to almost a half. Twenty tests, nearly two thirds. The formula is one minus 0.95 to the power k. So when a paper reports one striking subgroup out of many, be careful. Click for the checklist. Was it planned in advance? Was it one of a few? Did they test the interaction formally, rather than just noticing that one subgroup was significant and another was not? Does it make biological sense? Has it been replicated? Most surprising subgroup findings fail these tests.</aside>
+</section>
+
+<!-- 15 -->
+<section>
+  <h2>Two ways to be wrong: a 2 by 2 for decisions</h2>
+  <table class="tt">
+    <tr><th></th><th>Truth: no effect</th><th>Truth: real effect</th></tr>
+    <tr><th class="rh">Study says "significant"</th><td class="cell w">Type I error<small>false positive, probability α (0.05)</small></td><td class="cell g">Correct<small>power = 1 − β</small></td></tr>
+    <tr><th class="rh">Study says "not significant"</th><td class="cell g">Correct<small>probability 1 − α</small></td><td class="cell w">Type II error<small>false negative, probability β</small></td></tr>
+  </table>
+  <ul class="tight" style="margin-top:14px">
+    <li class="fragment">Power depends on the size of the effect, the number of people and the number of outcome events.</li>
+    <li class="fragment">Studies are usually planned for 80% or 90% power. A small study can easily miss a real effect.</li>
+    <li class="fragment">Small studies that do reach significance tend to overestimate the effect.</li>
+  </ul>
+  <aside class="notes">One more 2 by 2, this time for decisions. Across the top, the truth; down the side, what the study concludes. If there is no effect and we declare one, that is a type I error, a false positive, and its probability is alpha, usually 5 percent. If there is a real effect and we miss it, that is a type II error, probability beta. Power is one minus beta: the chance of detecting an effect that is really there. Notice the parallel with sensitivity and specificity from Lecture 1. Power depends on effect size, sample size and number of events. Your thesis should have a sample size calculation for exactly this reason. And remember the lab: small studies that do find something tend to exaggerate it. That ends Part 1.</aside>
+</section>
+
+<!-- 16 -->
+<section>
+  <h2>Part 2. Bias: a systematic error in choosing or measuring</h2>
+  <p class="lede">Bias is any systematic error in the design, conduct or analysis of a study that gives a wrong estimate of the effect of an exposure.</p>
+  <div class="cards c2" style="margin-top:20px">
+    <div class="defcard warn"><h3>Selection bias</h3><p>Error in <b>who gets into the study</b>, or who stays in it. The people studied are not like the population the result is meant to describe.</p></div>
+    <div class="defcard warn"><h3>Information bias</h3><p>Error in <b>how exposure or outcome is measured</b>, so people are put in the wrong cell of the 2 by 2 table.</p></div>
+  </div>
+  <p class="claim fragment">Bias cannot be fixed by a bigger sample, and is very hard to fix in the analysis. It must be prevented by design.</p>
+  <aside class="notes">Part 2. Bias is a systematic error. There are dozens of named biases, and lists of them can be very long, but almost all fall into two families. Selection bias: the wrong people got into the study, or the wrong people dropped out. Information bias, also called measurement or observation bias: the right people, but we measured their exposure or their outcome wrongly. Some textbooks call confounding a third type of bias; we will treat it separately, because unlike the other two it can often be handled in the analysis. The key message: you cannot fix bias by enlarging the study, and you can rarely fix it afterwards. You prevent it when you design the study.</aside>
+</section>
+
+<!-- 17 -->
+<section>
+  <h2>Back to coffee: who were the controls?</h2>
+  <svg class="dg" viewBox="0 0 1152 300" role="img" aria-label="How the choice of controls inflated the coffee estimate">
+    <g class="fragment" data-fragment-index="1"><rect class="box" x="0" y="20" width="260" height="140" rx="8"/><text class="tb" x="16" y="56">Controls chosen</text><text class="t" x="16" y="88">patients of the same</text><text class="t" x="16" y="114">doctors, in hospital for</text><text class="t" x="16" y="140">other conditions</text></g>
+    <g class="fragment" data-fragment-index="2"><path class="arr" d="M266,90 L318,90"/><rect class="box" x="324" y="20" width="260" height="140" rx="8"/><text class="tb" x="340" y="56">Many had</text><text class="t" x="340" y="88">digestive diseases, such</text><text class="t" x="340" y="114">as ulcers, and had been</text><text class="t" x="340" y="140">told to cut down coffee</text></g>
+    <g class="fragment" data-fragment-index="3"><path class="arrw" d="M590,90 L642,90"/><rect class="boxw" x="648" y="20" width="230" height="140" rx="8"/><text class="tr" x="664" y="56">Controls drank</text><text class="tr" x="664" y="88">less coffee than</text><text class="tr" x="664" y="114">the population</text><text class="tr" x="664" y="140">the cases came from</text></g>
+    <g class="fragment" data-fragment-index="4"><path class="arrw" d="M884,90 L936,90"/><rect class="boxw" x="942" y="20" width="210" height="140" rx="8"/><text class="tr" x="958" y="56">Cases looked</text><text class="tr" x="958" y="88">like heavier</text><text class="tr" x="958" y="114">drinkers: odds</text><text class="tr" x="958" y="140">ratio inflated</text></g>
+    <g class="fragment" data-fragment-index="5"><text class="tb" x="0" y="220">The cases did not drink too much coffee. The controls drank too little.</text><text class="td" x="0" y="256">Critics also noted that controls with conditions linked to smoking or alcohol were excluded, which could remove coffee drinkers too.</text></g>
+  </svg>
+  <p class="claim" style="margin-top:4px">Controls must represent the population that produced the cases.</p>
+  <p class="cite">MacMahon B et al. N Engl J Med 1981;304:630-3. Feinstein AR, Horwitz RI, Spitzer WO, Battista RN. JAMA 1981;246:957-61.</p>
+  <aside class="notes">Let us solve the puzzle. Who were the controls? Click. Patients of the same doctors, in hospital for something else. Click. Many of those doctors were gastroenterologists, so many controls had digestive diseases, and patients with peptic ulcer and similar problems are often told to cut down on coffee. Click. So the controls drank less coffee than people in the general population from which the cases came. Click. Compared with these controls, the cases looked like heavy drinkers, and the odds ratio was inflated. The famous line is that the cases did not drink too much coffee; the controls drank too little. Alvan Feinstein and colleagues made this critique the same year. The rule: controls must come from the same population that gave rise to the cases, and their exposure must not be affected by the reason they were chosen.</aside>
+</section>
+
+<!-- 18 -->
+<section>
+  <h2>Selection bias needs selection linked to both exposure and disease</h2>
+  <table class="tt">
+    <tr><th></th><th>Cases</th><th>Controls</th></tr>
+    <tr><th class="rh">Exposed</th><td class="cell">a × s<sub>a</sub></td><td class="cell">b × s<sub>b</sub></td></tr>
+    <tr><th class="rh">Unexposed</th><td class="cell">c × s<sub>c</sub></td><td class="cell">d × s<sub>d</sub></td></tr>
+  </table>
+  <p class="eq sm" style="margin-top:6px">Observed OR <span class="op">=</span> True OR <span class="op">×</span> <span class="frac"><span class="n">s<sub>a</sub> × s<sub>d</sub></span><span class="d">s<sub>b</sub> × s<sub>c</sub></span></span></p>
+  <ul class="tight">
+    <li class="fragment">If everyone has the same chance of selection, even 50%, the ratio is 1: no bias, only fewer people.</li>
+    <li class="fragment">Coffee: exposed controls were under-selected (s<sub>b</sub> too small), so the odds ratio went up.</li>
+  </ul>
+  <aside class="notes">Here is the mechanism, which residents should be able to write down. Each cell of the true 2 by 2 table is multiplied by the probability that those people get into the study. s a is the selection probability for exposed cases, and so on. The observed odds ratio equals the true odds ratio times a selection odds ratio. If all four selection probabilities are the same, it cancels: losing half your participants at random makes the study smaller, not biased. Bias appears only when selection depends on exposure and disease together. In the coffee study, exposed controls were under-represented, s b was too small, so the bias factor was above 1 and the odds ratio went up. You will play with this in the Bias Lab.</aside>
+</section>
+
+<!-- 19 -->
+<section>
+  <h2>The healthy worker effect: why workers seem to live longer</h2>
+  <div class="cards c2">
+    <div class="defcard"><h3>What happens</h3><p>People who are ill or disabled are less likely to be hired and more likely to leave work.</p><p>So any working group is healthier than the general population, which includes the sick.</p><p>Workers in a hazardous industry can have <b>lower</b> death rates than the population, and the hazard is hidden.</p></div>
+    <div class="defcard good"><h3>How to avoid it</h3><p>Compare workers with other workers: exposed jobs against unexposed jobs in the same industry.</p><p>Compare by level or duration of exposure within the workforce.</p><p>Follow people who leave the job too.</p></div>
+  </div>
+  <p class="claim">The comparison group was chosen by health itself.</p>
+  <p class="cite">Described by William Ogle, 1885. Named in McMichael AJ, Spirtas R, Kupper LL. J Occup Med 1974;16:458-64; McMichael AJ. J Occup Med 1976;18:165-8.</p>
+  <aside class="notes">A classic form of selection bias in occupational studies. Suppose we want to know whether working in a chemical plant is harmful. We compare death rates of workers with the general population. Workers often come out better, even in dangerous jobs. Why? To get a job and keep it, you have to be reasonably healthy. The general population includes people too ill to work. So the comparison is unfair from the start. This was noticed as early as 1885 by William Ogle in England, and named the healthy worker effect by McMichael and colleagues in 1974. The fix is to choose a better comparison: other workers, or compare high and low exposure within the same workforce.</aside>
+</section>
+
+<!-- 20 -->
+<section>
+  <h2>Berkson, 1946: hospital data can invent an association</h2>
+  <div class="side">
+    <div><h3>In the community: 10,000 people</h3>
+      <table class="tt"><tr><th></th><th>Disease B</th><th>No B</th></tr>
+        <tr><th class="rh">Disease A</th><td class="cell">100</td><td class="cell">900</td></tr>
+        <tr><th class="rh">No A</th><td class="cell">900</td><td class="cell">8,100</td></tr>
+        <tr><th class="rh">Odds ratio</th><td class="or" colspan="2">1.0</td></tr></table></div>
+    <div class="fragment"><h3>In the hospital: the same people, admitted</h3>
+      <table class="tt"><tr><th></th><th>Disease B</th><th>No B</th></tr>
+        <tr><th class="rh">Disease A</th><td class="cell w">39</td><td class="cell w">216</td></tr>
+        <tr><th class="rh">No A</th><td class="cell w">216</td><td class="cell w">405</td></tr>
+        <tr><th class="rh">Odds ratio</th><td class="or" colspan="2" style="color:var(--warn)">0.34</td></tr></table></div>
+  </div>
+  <p class="small dim" style="margin-top:4px">Each disease leads to admission in 20% of people who have it; 5% are admitted for other reasons. Having both diseases makes admission more likely.</p>
+  <p class="cite">Berkson J. Biometrics Bulletin 1946;2:47-53. Numbers illustrative, constructed for teaching.</p>
+  <aside class="notes">Joseph Berkson, a statistician at the Mayo Clinic, pointed this out in 1946. He was worried about studies done only on hospital patients. In this illustration, two diseases, A and B, are completely unrelated in the community: odds ratio exactly 1. Now suppose each disease gets you admitted to hospital with some probability, and people with both diseases have two reasons to be admitted. Click. Among hospital patients, the same diseases now show an odds ratio of 0.34, as if disease A protected against disease B. Nothing biological changed; only who ended up in hospital. Berkson's original example was gallbladder disease and diabetes. Hospital-based case-control studies are cheap and convenient, and this is their risk.</aside>
+</section>
+
+<!-- 21 -->
+<section>
+  <h2>2020: did smoking protect against COVID-19?</h2>
+  <svg class="dg" viewBox="0 0 1152 250" role="img" aria-label="Smoking and COVID-19 both affect who gets tested or admitted">
+    <rect class="box" x="40" y="30" width="280" height="80" rx="8"/><text class="tb" x="180" y="78" text-anchor="middle">Smoking</text>
+    <rect class="box" x="832" y="30" width="280" height="80" rx="8"/><text class="tb" x="972" y="78" text-anchor="middle">COVID-19</text>
+    <g class="fragment" data-fragment-index="1"><rect class="boxw" x="400" y="150" width="352" height="80" rx="8"/><text class="tr" x="576" y="186" text-anchor="middle">Tested, or admitted,</text><text class="tr" x="576" y="214" text-anchor="middle">so included in the study</text>
+    <path class="arr" d="M200,114 L440,148"/><path class="arr" d="M952,114 L712,148"/></g>
+    <g class="fragment" data-fragment-index="2"><path class="arrd" d="M330,70 L822,70"/><text class="td" x="576" y="58" text-anchor="middle">an association appears here, with no causal link</text></g>
+  </svg>
+  <ul class="tight">
+    <li>Early reports found few smokers among hospital patients with COVID-19: about 5% against about 27% in the population.</li>
+    <li class="fragment" data-fragment-index="3">Who got tested or admitted was shaped by many traits, including health conditions linked to smoking. Selection alone could create a "protective" odds ratio below 0.5.</li>
+  </ul>
+  <p class="cite">Griffith GJ et al. Collider bias undermines our understanding of COVID-19 disease risk and severity. Nat Commun 2020;11:5749.</p>
+  <aside class="notes">The same trap, 75 years after Berkson. In early 2020, a French hospital study found only about 5 percent of COVID-19 inpatients smoked, against about a quarter of the French population. There was even talk of nicotine patches to protect against COVID. Click. But who was in the sample? People who were tested or admitted. Both smoking-related illness and COVID-19 make you more likely to be tested and admitted, so being in the study depends on both. Click. When selection depends on both, an association appears that does not exist in the population. Griffith and colleagues showed that selection alone could produce an odds ratio below 0.5. This structure has a name, collider bias, which you will meet properly in the causal diagrams session. For today: if inclusion depends on exposure and outcome, beware.</aside>
+</section>
+
+<!-- 22 -->
+<section>
+  <h2>Losses to follow-up bias a cohort when they depend on both</h2>
+  <div class="side">
+    <div><h3>Everyone followed</h3>
+      <table class="tt"><tr><th></th><th>Ill</th><th>Total</th><th>Risk</th></tr>
+        <tr><th class="rh">Exposed</th><td class="cell">200</td><td class="cell">1,000</td><td class="or">20%</td></tr>
+        <tr><th class="rh">Unexposed</th><td class="cell">100</td><td class="cell">1,000</td><td class="or">10%</td></tr>
+        <tr><th class="rh">Risk ratio</th><td class="or" colspan="3">2.0</td></tr></table></div>
+    <div class="fragment"><h3>Exposed people who fall ill drop out more</h3>
+      <table class="tt"><tr><th></th><th>Ill</th><th>Total</th><th>Risk</th></tr>
+        <tr><th class="rh">Exposed</th><td class="cell w">100</td><td class="cell w">820</td><td class="or" style="color:var(--warn)">12%</td></tr>
+        <tr><th class="rh">Unexposed</th><td class="cell">90</td><td class="cell">900</td><td class="or">10%</td></tr>
+        <tr><th class="rh">Risk ratio</th><td class="or" colspan="3" style="color:var(--warn)">1.2</td></tr></table></div>
+  </div>
+  <p class="small dim">Half of the exposed who fall ill are lost; 10% of everyone else is lost.</p>
+  <p class="claim fragment">Volunteers and people who stay in studies are usually healthier. Aim for complete follow-up, and compare those lost with those followed.</p>
+  <p class="cite">Illustrative, constructed for teaching. Greenland S. Response and follow-up bias in cohort studies. Am J Epidemiol 1977;106:184-7.</p>
+  <aside class="notes">Selection bias also happens after a study starts. A cohort study follows exposed and unexposed people. On the left, perfect follow-up: risk 20 percent against 10, risk ratio 2. Click. Now suppose exposed people who fall ill are more likely to be lost, perhaps too sick to come back, or they move for treatment. Half of them are lost, against 10 percent of everyone else. The observed risk ratio drops to 1.2. If losses were the same in every group, the risk ratio would be unchanged. Losses matter when they depend on both exposure and outcome. The same applies to non-response at the start: volunteers are usually healthier and better off. Good studies report how many were lost and compare them with those who stayed.</aside>
+</section>
+
+<!-- 23 -->
+<section>
+  <h2>Information bias: right people, wrong measurement</h2>
+  <div class="cards c3">
+    <div class="defcard"><h3>Recall bias</h3><p>Cases remember or report past exposures differently from controls.</p></div>
+    <div class="defcard"><h3>Interviewer bias</h3><p>An interviewer who knows who is a case asks more, or differently.</p></div>
+    <div class="defcard"><h3>Observer bias</h3><p>An assessor who knows the exposure looks harder for the outcome.</p></div>
+    <div class="defcard"><h3>Reporting bias</h3><p>People under-report what is disapproved of: alcohol, tobacco, sexual behaviour.</p></div>
+    <div class="defcard"><h3>Detection bias</h3><p>Exposed people are examined more often, so their disease is found more often.</p></div>
+    <div class="defcard"><h3>Instrument error</h3><p>A badly calibrated machine or a vague question misclassifies people.</p></div>
+  </div>
+  <p class="claim">All of them put people in the wrong cell of the 2 by 2 table. This is called misclassification.</p>
+  <aside class="notes">The second family. The people in the study are fine, but we measure them wrongly. Recall bias: in a case-control study, cases have often thought hard about why they got ill, and they remember differently. Interviewer bias: if the interviewer knows who has the disease, she may probe harder. Observer bias: in a cohort or trial, an assessor who knows who was exposed may look harder for the outcome; this is why trials blind the assessors. Reporting bias: people under-report things that are disapproved of. Detection bias: for example, women on hormone therapy see doctors more and get more tests. All of these do the same thing to the data: they move people into the wrong cell. The general name is misclassification.</aside>
+</section>
+
+<!-- 24 -->
+<section>
+  <h2>Recall bias is real, but it depends on the exposure</h2>
+  <div class="side">
+    <table class="wide">
+      <tr><th>Exposure in pregnancy</th><th class="num">Relative sensitivity</th></tr>
+      <tr><td>Birth control use after conception</td><td class="num">7.6</td></tr>
+      <tr><td>Urinary or yeast infection</td><td class="num">2.7</td></tr>
+      <tr><td>History of infertility</td><td class="num">1.4</td></tr>
+      <tr><td>Antibiotic or antifungal use</td><td class="num">1.2</td></tr>
+      <tr><td>Over-the-counter drug use</td><td class="num">1.0</td></tr>
+      <tr><td>Nausea or vomiting</td><td class="num">0.8</td></tr>
+    </table>
+    <div>
+      <p class="small">Mothers' interview answers after delivery were checked against their antenatal records.</p>
+      <p class="small"><b>Relative sensitivity</b> = how completely case mothers (malformed babies) reported an exposure, divided by how completely control mothers did. 1 means equal.</p>
+      <p class="claim fragment" style="font-size:25px;margin:12px 0 0">One remedy: choose controls who are also searching their memory, such as mothers of babies with a different malformation.</p>
+    </div>
+  </div>
+  <p class="cite">Werler MM, Pober BR, Nelson K, Holmes LB. Reporting accuracy among mothers of malformed and nonmalformed infants. Am J Epidemiol 1989;129:415-21.</p>
+  <aside class="notes">The classic setting for recall bias is a mother whose baby has a malformation. She will have gone over everything she did in pregnancy. A mother of a healthy baby has no reason to. Werler and colleagues tested this. They interviewed mothers after delivery and compared what they said with what was written in the antenatal records. For some exposures, case mothers reported far more completely: birth control use after conception, 7.6 times; infections, 2.7 times. For others, there was hardly any difference. So recall bias is real, but it is not uniform. One design remedy: use as controls mothers of babies with some other malformation. They are also searching their memories, so the recall is comparable. Better still, use records written before the outcome was known.</aside>
+</section>
+
+<!-- 25 -->
+<section>
+  <h2>Misclassification: the same error, or a different error?</h2>
+  <div class="side3">
+    <div><h3>The truth</h3>
+      <table class="tt"><tr><th></th><th>Cases</th><th>Controls</th></tr>
+        <tr><th class="rh">Exp.</th><td class="cell">80</td><td class="cell">50</td></tr>
+        <tr><th class="rh">Unexp.</th><td class="cell">120</td><td class="cell">150</td></tr>
+        <tr><th class="rh">OR</th><td class="or" colspan="2">2.0</td></tr></table></div>
+    <div class="fragment"><h3>Non-differential</h3>
+      <table class="tt"><tr><th></th><th>Cases</th><th>Controls</th></tr>
+        <tr><th class="rh">Exp.</th><td class="cell w">68</td><td class="cell w">50</td></tr>
+        <tr><th class="rh">Unexp.</th><td class="cell w">132</td><td class="cell w">150</td></tr>
+        <tr><th class="rh">OR</th><td class="or" colspan="2" style="color:var(--warn)">1.5</td></tr></table>
+      <p class="small dim">Sensitivity 70%, specificity 90% in both groups. Toward the null.</p></div>
+    <div class="fragment"><h3>Differential</h3>
+      <table class="tt"><tr><th></th><th>Cases</th><th>Controls</th></tr>
+        <tr><th class="rh">Exp.</th><td class="cell w">82</td><td class="cell w">42.5</td></tr>
+        <tr><th class="rh">Unexp.</th><td class="cell w">118</td><td class="cell w">157.5</td></tr>
+        <tr><th class="rh">OR</th><td class="or" colspan="2" style="color:var(--warn)">2.6</td></tr></table>
+      <p class="small dim">Cases recall 95% of exposure, controls 70%. Here, away from the null.</p></div>
+  </div>
+  <p class="cite">Illustrative, constructed for teaching. The same numbers are in Lab 13.</p>
+  <aside class="notes">Two kinds of misclassification. On the left, the truth: odds ratio 2. Click. Non-differential misclassification means the error is the same in cases and controls. Here both groups recall only 70 percent of true exposure, and 10 percent of the unexposed wrongly say they were exposed. The groups become more alike, and the odds ratio falls to 1.5, toward the null. A real effect looks weaker. Click. Differential misclassification means the error differs between cases and controls. Here cases recall 95 percent of their exposure and controls only 70 percent. That is recall bias, and the odds ratio rises to 2.6. Differential error can push the estimate either way, up or down, even across 1. Non-differential error of a yes or no exposure tends to push toward the null.</aside>
+</section>
+
+<!-- 26 -->
+<section>
+  <h2>"Non-differential means toward the null" has limits</h2>
+  <p class="small dim rev"><span class="pill warn">Revision slide</span> For residents and PhD scholars. Can be skipped in class.</p>
+  <ul>
+    <li><b>An average, not a guarantee.</b> Over many studies, non-differential error of a binary exposure biases toward the null. Any single study can still overestimate, by chance.</li>
+    <li><b>More than two categories.</b> With low, medium and high exposure, middle categories can be biased away from the null.</li>
+    <li><b>Errors that are linked.</b> If the errors in exposure and outcome are correlated, for example both from the same interview, the bias can go either way.</li>
+    <li><b>So you cannot say</b> "the true effect must be bigger than we found" simply because misclassification was non-differential.</li>
+  </ul>
+  <p class="cite">Jurek AM, Greenland S, Maldonado G, Church TR. Int J Epidemiol 2005;34:680-7. Rothman KJ, Greenland S, Lash TL. Modern Epidemiology, chapter on measurement error.</p>
+  <aside class="notes">For residents. Many discussion sections say: any misclassification was probably non-differential, so our estimate is conservative, and the true effect is even larger. Be careful. The toward-the-null rule holds on average for a binary exposure with independent errors. In a single study, random error can still push the estimate above the truth. With more than two exposure categories, middle categories can move away from the null. And if the errors in measuring exposure and outcome are correlated, for example both come from the same questionnaire, the direction is unpredictable. Jurek and colleagues wrote a clear paper on this in 2005.</aside>
+</section>
+
+<!-- 27 -->
+<section>
+  <h2>Lab 13: break a study on purpose</h2>
+  <iframe class="lab" src="../widgets/bias-lab.html?embed=1" title="Bias Lab" loading="lazy"></iframe>
+  <p class="small dim labnote">Try each scenario. Then tick "non-differential" and lower sensitivity: which way does the odds ratio move? <a href="../widgets/bias-lab.html" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">The Bias Lab has a true case-control study with an odds ratio of 2. There are no chance errors, only bias, so you can see its pure effect. In the first tab, information bias: choose Same poor memory in both groups and see the odds ratio fall toward 1. Choose Cases search their memory harder and it goes up. Move the sliders yourself. In the second tab, selection bias: Half refuse at random changes nothing. Controls who had cut down coffee reproduces the MacMahon problem. Ask students to find a combination that makes the exposure look protective.</aside>
+</section>
+
+<!-- 28 -->
+<section>
+  <h2>Prevent bias by design: it is hard to fix later</h2>
+  <table class="wide" style="margin-left:64px;width:1152px">
+    <tr><th style="width:300px">Problem</th><th>Prevention</th></tr>
+    <tr><td>Wrong controls</td><td>Choose controls from the population that produced the cases; consider more than one control group.</td></tr>
+    <tr><td>Non-response, losses</td><td>Maximise participation and follow-up; record and compare those lost.</td></tr>
+    <tr><td>Recall bias</td><td>Use records made before the outcome; choose controls with a similar reason to remember.</td></tr>
+    <tr><td>Interviewer, observer bias</td><td>Blind interviewers and outcome assessors to case or exposure status; train them.</td></tr>
+    <tr><td>Measurement error</td><td>Standard, tested questionnaires and calibrated instruments; validate in a subsample.</td></tr>
+    <tr><td>Detection bias</td><td>Look for the outcome the same way in exposed and unexposed people.</td></tr>
+  </table>
+  <aside class="notes">Here is a practical table for your own studies. For each problem, the solution is in the design. Choose controls carefully. Chase every participant. Use records written before anyone knew who would become a case. Blind interviewers and assessors. Use standard, validated tools, and validate your own measure in a subsample if you can. Examine everyone the same way. When you review a paper, go through this table and ask whether each was done. When you write your thesis protocol, put a paragraph on how you prevented each of these.</aside>
+</section>
+
+<!-- 29 -->
+<section class="break">
+  <h2>Break: 10 minutes</h2>
+  <p class="q">Before Part 3, think about this.</p>
+  <p class="lede" style="margin-top:28px">In the 1980s and 1990s, women who took hormone replacement therapy after menopause had about half the heart disease of women who did not.</p>
+  <p class="lede">Should every woman have been given it?</p>
+  <aside class="notes">Take a ten-minute break. Leave this slide up. When we come back, we start with this question: women on hormone replacement therapy had about half the rate of heart disease. Should all women have been given it to protect their hearts? Ask them to think about what kind of women chose to take hormones in the 1980s.</aside>
+</section>
+
+<!-- 30 -->
+<section>
+  <h2>Part 3. You have met confounding before</h2>
+  <table class="tt">
+    <tr><th></th><th>Open surgery</th><th>PCNL</th><th></th></tr>
+    <tr><th class="rh">All stones</th><td class="cell">78%<small>273 / 350</small></td><td class="cell g">83%<small>289 / 350</small></td><td class="rh" style="text-align:left">PCNL looks better</td></tr>
+    <tr class="fragment"><th class="rh">Small stones</th><td class="cell g">93%<small>81 / 87</small></td><td class="cell">87%<small>234 / 270</small></td><td class="rh" style="text-align:left">open surgery better</td></tr>
+    <tr class="fragment"><th class="rh">Large stones</th><td class="cell g">73%<small>192 / 263</small></td><td class="cell">69%<small>55 / 80</small></td><td class="rh" style="text-align:left">open surgery better</td></tr>
+  </table>
+  <p class="claim fragment">Large stones are harder to treat, and were mostly treated with open surgery. Stone size was mixed up with the treatment.</p>
+  <p class="cite">Charig CR et al. BMJ 1986;292:879-82. Julious SA, Mullee MA. BMJ 1994;309:1480-1. Also in Lab 3.</p>
+  <aside class="notes">Welcome back. You saw this in Lecture 1. Kidney stones treated by open surgery or by percutaneous nephrolithotomy, PCNL. Overall, PCNL succeeds 83 percent of the time against 78. Click. Small stones: open surgery is better. Click. Large stones: open surgery is better again. How can a treatment be better in both groups and worse overall? Click. Because large stones are harder to treat whatever you do, and surgeons chose open surgery mostly for large stones. Stone size is linked to the treatment and to the outcome. That is confounding. It even reversed the direction here, which is called Simpson's paradox.</aside>
+</section>
+
+<!-- 31 -->
+<section>
+  <h2>A confounder meets three conditions</h2>
+  <svg class="dg" viewBox="0 0 1152 290" role="img" aria-label="Confounder linked to exposure and to disease">
+    <rect class="box" x="60" y="190" width="280" height="80" rx="8"/><text class="tb" x="200" y="238" text-anchor="middle">Exposure</text>
+    <rect class="box" x="812" y="190" width="280" height="80" rx="8"/><text class="tb" x="952" y="238" text-anchor="middle">Disease</text>
+    <path class="arrd" d="M346,230 L806,230"/><text class="td" x="576" y="262" text-anchor="middle">the association we want to study</text>
+    <g class="fragment" data-fragment-index="1"><rect class="boxw" x="436" y="10" width="280" height="80" rx="8"/><text class="tr" x="576" y="58" text-anchor="middle">Confounder</text></g>
+    <g class="fragment" data-fragment-index="1"><path class="ln" d="M430,70 L250,184"/><text class="tn" x="200" y="120">1</text></g>
+    <g class="fragment" data-fragment-index="2"><path class="arr" d="M722,70 L900,184"/><text class="tn" x="930" y="120">2</text></g>
+  </svg>
+  <ol class="tight" style="margin-top:6px">
+    <li class="fragment" data-fragment-index="1">It is associated with the exposure in the source population.</li>
+    <li class="fragment" data-fragment-index="2">It is a risk factor for the disease, even among the unexposed.</li>
+    <li class="fragment" data-fragment-index="3">It is <b>not</b> a step on the causal path from exposure to disease.</li>
+  </ol>
+  <aside class="notes">The three conditions every MBBS student should be able to state. Click. One: the confounder is associated with the exposure. Smokers drink more coffee. Click. Two: it is a cause, or a marker of a cause, of the disease, independently of the exposure: smoking causes lung cancer even in people who do not drink coffee. Click. Three, the one most often forgotten: it must not lie on the causal pathway. If the exposure causes the disease through the third factor, then the third factor is a mediator, part of the effect, and adjusting for it removes the very effect you want to measure. Next slide, try these on some examples.</aside>
+</section>
+
+<!-- 32 -->
+<section>
+  <h2>Confounder or not?</h2>
+  <table class="wide" style="margin-left:64px;width:1152px">
+    <tr><th style="width:420px">Question</th><th style="width:230px">Third factor</th><th>Answer</th></tr>
+    <tr><td>Coffee and lung cancer</td><td>Smoking</td><td class="fragment ans">Confounder: linked to coffee, causes lung cancer.</td></tr>
+    <tr><td>Alcohol and myocardial infarction, any study of adults</td><td>Age</td><td class="fragment ans">Almost always a confounder: linked to most exposures and diseases.</td></tr>
+    <tr><td>High-fat diet and heart attack</td><td>Blood cholesterol</td><td class="fragment ans">Not a confounder: diet raises cholesterol, which causes heart attack. It is a step on the path.</td></tr>
+    <tr><td>Obesity and knee osteoarthritis</td><td>Grey hair</td><td class="fragment ans">Not by itself: grey hair does not cause arthritis. It may stand in for age, the real confounder.</td></tr>
+  </table>
+  <aside class="notes">Ask the room for each row before you click. Coffee and lung cancer, smoking: confounder, as we have seen. Alcohol and heart attack, age: age is linked to almost every exposure and almost every disease, which is why nearly every study adjusts for age and sex. Diet and heart attack, cholesterol: this is a trap. Diet raises cholesterol, and cholesterol causes heart attacks. Cholesterol is on the causal pathway, a mediator. If you adjust for it you take away part of the real effect of diet. Grey hair: it does not cause osteoarthritis, but it is a marker of age, which may be. The rule: think about how the third factor fits, do not just adjust for everything you measured.</aside>
+</section>
+
+<!-- 33 -->
+<section>
+  <h2>Hormone therapy: the cohort and the trial disagreed</h2>
+  <div class="cards c2">
+    <div class="card"><h3>Nurses' Health Study, 1991</h3><p class="small">48,470 postmenopausal nurses followed for 10 years.</p><div class="stat"><span class="n">0.56</span><span class="l">relative risk of major coronary disease, current users (0.40 to 0.80)</span></div></div>
+    <div class="card bad fragment"><h3>Women's Health Initiative trial, 2002</h3><p class="small">16,608 women randomised to estrogen plus progestin or placebo.</p><div class="stat"><span class="n" style="color:var(--bad)">1.29</span><span class="l">hazard ratio for coronary heart disease (1.02 to 1.63)</span></div></div>
+  </div>
+  <p class="claim fragment">Women who chose hormones were healthier, wealthier and saw doctors more. The trial took away the choice.</p>
+  <p class="cite">Stampfer MJ et al. N Engl J Med 1991;325:756-62. Rossouw JE et al. JAMA 2002;288:321-33. Lawlor DA, Davey Smith G, Ebrahim S. Int J Epidemiol 2004;33:464-7.</p>
+  <aside class="notes">Back to the break question. The Nurses' Health Study, a large and careful cohort, found that women currently using estrogen had about half the risk of major coronary disease. Many doctors prescribed hormones partly to protect the heart. Click. Then the Women's Health Initiative randomised over 16,000 women. Hormones did not protect; coronary heart disease was 29 percent higher, along with more breast cancer, stroke and clots. Click. What happened? The women who chose hormones in the cohort studies were, on average, better educated, wealthier, slimmer, more active, and in closer contact with doctors. Those things, not the hormones, protected their hearts. Confounding by socioeconomic position and healthy behaviour, sometimes called the healthy user effect. The cohort adjusted for many factors, but you cannot adjust well for everything. Randomisation does it for you.</aside>
+</section>
+
+<!-- 34 -->
+<section>
+  <h2>Confounding by indication: sicker patients get the drug</h2>
+  <div class="cards c2">
+    <div class="defcard"><h3>The idea</h3><p>Doctors give treatment to patients who need it. The reason for treatment, the <b>indication</b>, is itself linked to the outcome.</p><p>So in routine data, treated patients often do worse, and the drug looks harmful.</p></div>
+    <div class="defcard warn"><h3>New Zealand, 1989: fenoterol and asthma deaths</h3><p>117 asthma deaths, aged 5 to 45. Fenoterol inhaler: relative risk 1.55 (1.04 to 2.33).</p><p>Critics: sicker asthmatics were prescribed fenoterol. Investigators: among the most severe patients, the risk was even higher, 13.3.</p></div>
+  </div>
+  <p class="claim fragment">To study an intended effect of a treatment, the strongest answer is a randomised trial.</p>
+  <p class="cite">Miettinen OS. Stat Med 1983;2:267-71. Crane J, Pearce N, Flatt A, et al. Lancet 1989;1:917-22.</p>
+  <aside class="notes">A special and very common kind of confounding. In everyday practice, we give treatments to people who need them. So patients on insulin have more complications than diabetics on diet alone. That is not because insulin causes complications; it is because people on insulin have more severe diabetes. The indication confounds. Miettinen described this in 1983 and argued that for intended effects of treatment, randomisation is needed. A famous debate: in New Zealand in the 1980s, asthma deaths rose. A case-control study found fenoterol users had a higher risk. The obvious objection was confounding by severity. The investigators answered by restricting to the most severe patients, and the association became stronger, not weaker. That is a good example of using restriction to test a confounding explanation.</aside>
+</section>
+
+<!-- 35 -->
+<section>
+  <h2>Control confounding at the design stage</h2>
+  <table class="wide" style="margin-left:64px;width:1152px">
+    <tr><th style="width:220px">Method</th><th>How</th><th style="width:380px">Limits</th></tr>
+    <tr><td><b>Randomisation</b></td><td>Chance decides who is exposed, so confounders, known and unknown, are balanced on average.</td><td>Only for trials; can fail by chance in small trials.</td></tr>
+    <tr class="fragment"><td><b>Restriction</b></td><td>Study only one level of the confounder: only non-smokers, only men aged 40 to 60.</td><td>Fewer people; results apply only to that group.</td></tr>
+    <tr class="fragment"><td><b>Matching</b></td><td>Pick controls with the same values of the confounder as each case: same age, sex, village.</td><td>Cannot study the matched factor; must use a matched analysis.</td></tr>
+  </table>
+  <p class="claim fragment">Only randomisation deals with confounders nobody has thought of.</p>
+  <aside class="notes">How do we deal with confounding? First, at the design stage. Randomisation is the strongest, because it balances confounders we have not even thought of, on average. That is why the 1954 polio trial and the Women's Health Initiative were randomised. Click. Restriction: if you study only non-smokers, smoking cannot confound. Simple and powerful, but you lose people and generalisability. Click. Matching: in a case-control study, choose controls who match each case on age, sex and so on. Two cautions. You can no longer study the effect of the matched variable. And matched data must be analysed as matched; otherwise the estimate is biased. Click. Only randomisation handles unknown confounders.</aside>
+</section>
+
+<!-- 36 -->
+<section>
+  <h2>Control confounding in the analysis: stratify, then combine</h2>
+  <div class="side">
+    <div>
+      <p><b>Stratification:</b> split the data by the confounder and estimate the effect within each level.</p>
+      <p><b>Mantel-Haenszel:</b> a weighted average of the stratum estimates.</p>
+      <p><b>Standardisation:</b> apply rates to a standard population (age standardisation).</p>
+      <p><b>Multivariable regression:</b> adjust for many confounders at once.</p>
+    </div>
+    <div class="defcard fragment"><h3>Mantel-Haenszel odds ratio</h3>
+      <div class="eq sm" style="margin:10px 0"><span>OR<sub>MH</sub></span><span class="op">=</span><span class="frac"><span class="n">Σ a<sub>i</sub>d<sub>i</sub> / n<sub>i</sub></span><span class="d">Σ b<sub>i</sub>c<sub>i</sub> / n<sub>i</sub></span></span></div>
+      <p>i is each stratum; n<sub>i</sub> is the number of people in it. Kidney stones: crude 0.94, adjusted 1.07 (risk ratios for success).</p></div>
+  </div>
+  <p class="claim fragment">Adjusting removes confounding only by factors that were measured, and measured well.</p>
+  <aside class="notes">At the analysis stage, the basic tool is stratification, as with the kidney stones. Look at the effect separately at each level of the confounder. If the stratum results are similar, we can combine them into one adjusted estimate. The Mantel-Haenszel method is a weighted average; the formula for the odds ratio is here for residents. Age standardisation, which you learn in measures of mortality, does the same for rates. Multiple regression extends the idea to many confounders at once. Click. The limit: you can only adjust for what you measured. If smoking is recorded as just yes or no, heavy and light smokers are lumped together, and some confounding remains. That is residual confounding. The hormone studies adjusted for a lot, and still got it wrong.</aside>
+</section>
+
+<!-- 37 -->
+<section>
+  <h2>Is there confounding? Compare crude and adjusted</h2>
+  <div class="eq sm"><span>Change</span><span class="op">=</span><span class="frac"><span class="n">crude − adjusted</span><span class="d">adjusted</span></span></div>
+  <ul>
+    <li>A common working rule: if the estimate changes by more than about 10% when you adjust for a factor, that factor is confounding.</li>
+    <li class="fragment">Do not use a significance test of the factor to decide. Simulation studies found change-in-estimate rules worked better than significance testing for choosing confounders.</li>
+    <li class="fragment">Confounding is about the data in hand, not about p-values. A factor can confound strongly without being "significant".</li>
+  </ul>
+  <p class="cite">Mickey RM, Greenland S. Am J Epidemiol 1989;129:125-37. Greenland S. Am J Public Health 1989;79:340-9.</p>
+  <aside class="notes">How do we decide whether a factor is actually confounding in our data? Compare the crude estimate with the estimate adjusted for that factor. If they differ by more than about 10 percent, it matters. The 10 percent is a convention, not a law. Click. A common mistake is to test whether the factor is significantly associated with the outcome and adjust only if it is. Mickey and Greenland compared strategies by simulation in 1989 and found change-in-estimate approaches did better than significance testing, unless a very loose significance level was used. Click. Confounding is a property of the data you have, not a hypothesis test. Residents: when you have many potential confounders and need a principled choice, that is where causal diagrams come in, in the next session on them.</aside>
+</section>
+
+<!-- 38 -->
+<section>
+  <h2>Think first</h2>
+  <p class="q">Crude relative risk 3.0. Adjusted for smoking: 1.0.</p>
+  <p class="q" style="font-size:36px">What did smoking do? What would you report?</p>
+  <p class="lede fragment ans" style="margin-top:36px">Smoking explained the whole association. It was confounding. Report the adjusted estimate: no association.</p>
+  <p class="lede fragment" style="margin-top:4px">Now: in smokers 5.0, in non-smokers 1.0. What would you report?</p>
+  <p class="lede fragment ans">The effect differs by smoking: report each stratum. That is the next part.</p>
+  <aside class="notes">Two quick checks. Crude relative risk 3, adjusted for smoking 1. Smoking accounted for the entire association: confounding. Report the adjusted result. Click through. Now a different pattern: within smokers the relative risk is 5, within non-smokers 1. Here averaging into one adjusted number would hide something real. The effect depends on smoking. That is effect modification, and that is Part 4.</aside>
+</section>
+
+<!-- 39 -->
+<section>
+  <h2>Part 4. Effect modification: the effect differs between groups</h2>
+  <table class="wide" style="margin-left:64px;width:1152px">
+    <tr><th style="width:240px"></th><th>Confounding</th><th>Effect modification</th></tr>
+    <tr><td><b>What it is</b></td><td>A distortion, from a third factor mixed with the exposure</td><td>A real difference in the effect across levels of a third factor</td></tr>
+    <tr><td><b>The sign</b></td><td>Crude and adjusted estimates differ; stratum estimates are similar</td><td>Stratum estimates differ from each other</td></tr>
+    <tr><td><b>What to do</b></td><td>Remove it: adjust, and report the adjusted estimate</td><td>Describe it: report each stratum separately</td></tr>
+    <tr><td><b>Attitude</b></td><td>A nuisance</td><td>A finding</td></tr>
+  </table>
+  <p class="claim">Interaction is the statistical name for the same idea. It always depends on the scale: ratio or difference.</p>
+  <aside class="notes">Part 4. Confounding and effect modification both appear when we stratify, and students mix them up, so here they are side by side. Confounding is a distortion we want to remove; the clue is that crude and adjusted differ while the strata agree. Effect modification is a real phenomenon we want to describe; the clue is that the strata disagree with each other. With confounding, report the adjusted estimate. With effect modification, report each stratum; do not average them. One is a nuisance, the other is a finding, often the most useful finding in the paper. Interaction is the statistical term for the same thing, and as we will see now, whether interaction exists depends on whether you measure effects as ratios or differences.</aside>
+</section>
+
+<!-- 40 -->
+<section>
+  <h2>Asbestos and smoking: lung cancer deaths per 100,000 a year</h2>
+  <table class="tt">
+    <tr><th></th><th>Not exposed to asbestos</th><th>Asbestos workers</th></tr>
+    <tr><th class="rh">Non-smokers</th><td class="cell">11.3<small>reference</small></td><td class="cell fragment" data-fragment-index="1">58.4<small>5.2 times</small></td></tr>
+    <tr><th class="rh">Smokers</th><td class="cell fragment" data-fragment-index="2">122.6<small>10.9 times</small></td><td class="cell w fragment" data-fragment-index="3">601.6<small>53 times</small></td></tr>
+  </table>
+  <p class="q fragment" data-fragment-index="4" style="font-size:34px;margin-top:20px !important">Is 601.6 what you would expect from asbestos plus smoking?</p>
+  <p class="cite">Hammond EC, Selikoff IJ, Seidman H. Asbestos exposure, cigarette smoking and death rates. Ann N Y Acad Sci 1979;330:473-90. 17,800 insulation workers; age-standardised rates per 100,000 man-years.</p>
+  <aside class="notes">The classic example. Hammond, Selikoff and Seidman followed 17,800 asbestos insulation workers in the United States and compared them with a large group of men not exposed to asbestos. These are lung cancer death rates per 100,000 per year. Men with neither exposure: 11.3. Click. Asbestos alone: 58.4, about 5 times. Click. Smoking alone: 122.6, about 11 times. Click. Both: 601.6, 53 times. Ask: is that what you expected? What would you expect if the two simply added together? What if they multiplied? Work it out before the next slide.</aside>
+</section>
+
+<!-- 41 -->
+<section>
+  <h2>Additive or multiplicative? It depends on the scale</h2>
+  <svg class="dg" viewBox="0 0 1152 330" role="img" aria-label="Observed and expected lung cancer death rates">
+    <line class="axis" x1="80" x2="1120" y1="280" y2="280"/>
+    <line class="grid" x1="80" x2="1120" y1="180" y2="180"/><line class="grid" x1="80" x2="1120" y1="80" y2="80"/>
+    <text class="td" x="70" y="286" text-anchor="end">0</text><text class="td" x="70" y="186" text-anchor="end">300</text><text class="td" x="70" y="86" text-anchor="end">600</text>
+    <rect class="b1" x="120" y="276" width="120" height="4"/><text class="tb" x="180" y="266" text-anchor="middle">11</text><text class="td" x="180" y="310" text-anchor="middle">neither</text>
+    <rect class="b1" x="290" y="261" width="120" height="19"/><text class="tb" x="350" y="250" text-anchor="middle">58</text><text class="td" x="350" y="310" text-anchor="middle">asbestos</text>
+    <rect class="b1" x="460" y="239" width="120" height="41"/><text class="tb" x="520" y="228" text-anchor="middle">123</text><text class="td" x="520" y="310" text-anchor="middle">smoking</text>
+    <g class="fragment" data-fragment-index="1"><rect class="b2" x="660" y="223" width="120" height="57"/><text class="tb" x="720" y="212" text-anchor="middle">170</text><text class="td" x="720" y="310" text-anchor="middle">if they add</text></g>
+    <g class="fragment" data-fragment-index="2"><rect class="b2" x="830" y="69" width="120" height="211"/><text class="tb" x="890" y="58" text-anchor="middle">634</text><text class="td" x="890" y="310" text-anchor="middle">if they multiply</text></g>
+    <g class="fragment" data-fragment-index="3"><rect class="b3" x="1000" y="79" width="120" height="201"/><text class="tr" x="1060" y="68" text-anchor="middle">602</text><text class="td" x="1060" y="310" text-anchor="middle">observed</text></g>
+  </svg>
+  <ul class="tight">
+    <li class="fragment" data-fragment-index="4"><b>Ratio scale:</b> smoking multiplies risk about 10 times with or without asbestos. Almost no interaction.</li>
+    <li class="fragment" data-fragment-index="5"><b>Difference scale:</b> smoking adds 111 deaths without asbestos, 543 with it. Strong interaction.</li>
+  </ul>
+  <aside class="notes">Work it out. Additive expectation: start with the background of 11.3, add the extra from asbestos, 47, and the extra from smoking, 111. That gives about 170. Click. Multiplicative expectation: 11.3 times 5.2 times 10.9, about 634. Click. Observed: 602. Almost exactly multiplicative. So on the ratio scale, there is hardly any interaction: smoking multiplies the risk by about ten, with or without asbestos. Click. But on the difference scale, smoking adds 111 deaths per 100,000 a year in men without asbestos and 543 in asbestos workers. Huge interaction. Both statements are true. Which matters? For public health, the difference scale: getting asbestos workers to stop smoking prevents five times as many deaths as the same effort in other men. Always say which scale you mean.</aside>
+</section>
+
+<!-- 42 -->
+<section>
+  <h2>The pill and factor V Leiden: a risk that multiplies</h2>
+  <svg class="dg" viewBox="0 0 1152 300" role="img" aria-label="Venous thrombosis incidence by pill use and factor V Leiden">
+    <line class="axis" x1="80" x2="1000" y1="250" y2="250"/>
+    <text class="td" x="80" y="20">venous thrombosis per 10,000 women a year</text>
+    <rect class="b1" x="120" y="244" width="150" height="6"/><text class="tb" x="195" y="234" text-anchor="middle">0.8</text><text class="td" x="195" y="280" text-anchor="middle">neither</text>
+    <rect class="b1" x="330" y="226" width="150" height="24"/><text class="tb" x="405" y="216" text-anchor="middle">3.0</text><text class="td" x="405" y="280" text-anchor="middle">pill only</text>
+    <rect class="b1" x="540" y="204" width="150" height="46"/><text class="tb" x="615" y="194" text-anchor="middle">5.7</text><text class="td" x="615" y="280" text-anchor="middle">factor V Leiden only</text>
+    <g class="fragment"><rect class="b3" x="750" y="30" width="150" height="220"/><text class="tw" x="825" y="70" text-anchor="middle">28.5</text><text class="td" x="825" y="280" text-anchor="middle">both</text></g>
+    <g class="fragment"><text class="t" x="930" y="150">If they</text><text class="t" x="930" y="176">only added:</text><text class="tn" x="930" y="206">about 7.9</text></g>
+  </svg>
+  <p class="lede fragment" style="margin-top:6px">Odds ratios against women with neither: pill 3.7, mutation 6.9, both 34.7.</p>
+  <p class="cite">Vandenbroucke JP et al. Lancet 1994;344:1453-7. 155 cases, 169 controls. Incidence and stratified counts as in the CDC HuGE case study.</p>
+  <aside class="notes">A second example, from Leiden in the Netherlands. Factor V Leiden is a common inherited mutation that makes blood clot more easily. Vandenbroucke and colleagues studied venous thrombosis in young women. Among women with neither the mutation nor the pill, about 0.8 per 10,000 per year. Pill alone, 3. Mutation alone, 5.7. Click. Both: 28.5, far more than the 7.9 you would expect if the extra risks simply added. Click. In the case-control analysis, against women with neither, the odds ratio was 3.7 for the pill alone, 6.9 for the mutation alone and 34.7 for both. A woman who knows she carries the mutation has a strong reason to choose another contraceptive. Whether to screen all women before prescribing is debated, because the mutation is common and clots are still rare.</aside>
+</section>
+
+<!-- 43 -->
+<section>
+  <h2>Measuring interaction on the additive scale: RERI</h2>
+  <p class="small dim rev"><span class="pill warn">Revision slide</span> For residents and PhD scholars. Can be skipped in class.</p>
+  <div class="eq sm" style="margin-top:4px"><span>RERI</span><span class="op">=</span><span>RR<sub>11</sub></span><span class="op">−</span><span>RR<sub>10</sub></span><span class="op">−</span><span>RR<sub>01</sub></span><span class="op">+</span><span>1</span></div>
+  <p class="eqnote">RR<sub>11</sub>: both exposures; RR<sub>10</sub>, RR<sub>01</sub>: each alone; all against people with neither. Relative excess risk due to interaction.</p>
+  <table class="wide" style="margin-left:64px;width:1152px">
+    <tr><th></th><th class="num">RR<sub>10</sub></th><th class="num">RR<sub>01</sub></th><th class="num">RR<sub>11</sub></th><th class="num">RERI</th><th class="num">RR<sub>11</sub> ÷ (RR<sub>10</sub> × RR<sub>01</sub>)</th></tr>
+    <tr><td>Smoking, asbestos</td><td class="num">10.9</td><td class="num">5.2</td><td class="num">53.2</td><td class="num"><b>38</b></td><td class="num">0.95</td></tr>
+    <tr><td>Pill, factor V Leiden (odds ratios)</td><td class="num">3.7</td><td class="num">6.9</td><td class="num">34.7</td><td class="num"><b>25</b></td><td class="num">1.35</td></tr>
+  </table>
+  <p class="small">RERI &gt; 0: more than additive. RERI = 0: exactly additive. The last column is the multiplicative interaction: 1 means exactly multiplicative.</p>
+  <p class="cite">Rothman KJ. The estimation of synergy or antagonism. Am J Epidemiol 1976;103:506-11. Rothman KJ. Modern Epidemiology. 1986.</p>
+  <aside class="notes">For residents. Additive interaction is usually measured by the relative excess risk due to interaction, RERI, introduced by Rothman. Take the relative risk for both exposures together, subtract each single-exposure relative risk, and add 1. If effects are exactly additive, RERI is zero. For asbestos and smoking, RERI is 38; for the pill and factor V Leiden, about 25. Both strongly more than additive. The last column measures interaction on the multiplicative scale: joint relative risk divided by the product of the two single ones. Asbestos and smoking: 0.95, essentially no multiplicative interaction. Recommendation from the methods literature: report both, and give the stratum-specific and joint estimates so readers can judge. Logistic regression interaction terms are multiplicative by default, so additive interaction must be computed separately.</aside>
+</section>
+
+<!-- 44 -->
+<section>
+  <h2>When the effect differs, report it by group</h2>
+  <ul>
+    <li>Give the estimate in each stratum, with confidence intervals, and the joint effects against people with neither factor.</li>
+    <li class="fragment">Say which scale: ratio or difference. Effects that multiply are almost always unequal on the difference scale.</li>
+    <li class="fragment">Test interaction formally. "Significant in men, not in women" is not evidence of a difference (remember the star signs).</li>
+    <li class="fragment">Plan the subgroups in advance, and keep them few.</li>
+    <li class="fragment">Use the difference scale to decide who benefits most: the group with the largest absolute risk reduction.</li>
+  </ul>
+  <aside class="notes">Practical advice for reporting. If the effect differs, show each stratum with its confidence interval, and, for two exposures, the joint table against those with neither. State the scale. Do not claim a difference just because one subgroup is significant and another is not; that is the star-sign mistake again. The proper test is whether the two estimates differ from each other. Specify subgroups before you see the data. And for decisions about who to treat or target, the absolute scale is usually what matters: treat those who will gain the most.</aside>
+</section>
+
+<!-- 45 -->
+<section>
+  <h2>Lab 14: confounding, effect modification, both or neither?</h2>
+  <iframe class="lab" src="../widgets/stratify-lab.html?embed=1" title="Stratify Lab" loading="lazy"></iframe>
+  <p class="small dim labnote">Try each example: decide, then check. Change any number to build your own. <a href="../widgets/stratify-lab.html" target="_blank" rel="noopener">Open full screen</a></p>
+  <aside class="notes">The Stratify Lab puts the whole of Parts 3 and 4 together. Each example shows a crude table and two strata, the crude estimate, the stratum estimates and the Mantel-Haenszel adjusted estimate. Students decide: confounding, effect modification, both or neither. Do Kidney stones, then Vaccine town A, then Vaccine town B. Town A is modification only, town B is both. Then Asbestos and Pill and factor V Leiden, which show the joint effects and RERI. Students can type their own numbers; the lab then applies the 10 percent and 1.5 times rules of thumb.</aside>
+</section>
+
+<!-- 46 -->
+<section>
+  <h2>Before you believe an association: five questions</h2>
+  <svg class="dg" viewBox="0 0 1152 250" role="img" aria-label="Five steps from association to causal judgement">
+    <g><rect class="boxn" x="0" y="20" width="200" height="120" rx="8"/><text class="tw" x="100" y="70" text-anchor="middle">An</text><text class="tw" x="100" y="98" text-anchor="middle">association</text></g>
+    <g class="fragment"><path class="ln" style="marker-end:url(#ah)" d="M204,80 L232,80"/><rect class="box" x="236" y="20" width="210" height="120" rx="8"/><text class="tb" x="341" y="58" text-anchor="middle">1. Chance?</text><text class="td" x="341" y="90" text-anchor="middle">confidence interval,</text><text class="td" x="341" y="116" text-anchor="middle">number of tests</text></g>
+    <g class="fragment"><path class="ln" style="marker-end:url(#ah)" d="M450,80 L478,80"/><rect class="box" x="482" y="20" width="210" height="120" rx="8"/><text class="tb" x="587" y="58" text-anchor="middle">2. Bias?</text><text class="td" x="587" y="90" text-anchor="middle">who was chosen,</text><text class="td" x="587" y="116" text-anchor="middle">how measured</text></g>
+    <g class="fragment"><path class="ln" style="marker-end:url(#ah)" d="M696,80 L724,80"/><rect class="box" x="728" y="20" width="210" height="120" rx="8"/><text class="tb" x="833" y="58" text-anchor="middle">3. Confounding?</text><text class="td" x="833" y="90" text-anchor="middle">crude vs adjusted,</text><text class="td" x="833" y="116" text-anchor="middle">randomised?</text></g>
+    <g class="fragment"><path class="ln" style="marker-end:url(#ah)" d="M942,80 L968,80"/><rect class="boxg" x="972" y="20" width="180" height="120" rx="8"/><text class="tg" x="1062" y="58" text-anchor="middle">4. Same for</text><text class="tg" x="1062" y="86" text-anchor="middle">everyone?</text><text class="td" x="1062" y="116" text-anchor="middle">strata differ?</text></g>
+    <g class="fragment"><text class="tb" x="0" y="196">5. Only then: is it causal? Strength, consistency, temporality, dose-response, plausibility...</text><text class="td" x="0" y="228">That is the session "From association to causation".</text></g>
+  </svg>
+  <p class="claim fragment">Coffee and pancreatic cancer failed at step 2. Hormones and the heart failed at step 3.</p>
+  <aside class="notes">Here is the summary to carry out of the room. Faced with any association, in a paper, a headline or your own data, ask in order. Is it chance? Look at the confidence interval and ask how many comparisons were made. Is it bias? Who got into the study, and how was exposure and outcome measured? Is it confounding? Compare crude and adjusted, and ask whether it was randomised. Is it the same for everyone? Look at the strata. Only then ask whether it is causal, using Bradford Hill's considerations, which is a separate session. Click. Our two stories: coffee failed at the bias step; hormones failed at the confounding step. Both were published in top journals by excellent scientists. That is why we teach this.</aside>
+</section>
+
+<!-- 47 -->
+<section>
+  <h2>Viva traps: chance and bias</h2>
+  <p class="small dim rev"><span class="pill warn">Revision slide</span> Can be skipped in class; students review it online.</p>
+  <div class="traps">
+    <div class="t1"><p>"A bigger sample removes bias."</p><p class="a">No. It shrinks random error only. A biased study just becomes precisely wrong.</p></div>
+    <div class="t1"><p>"p &gt; 0.05, so there is no effect."</p><p class="a">No. The study may be too small. Look at the confidence interval.</p></div>
+    <div class="t1"><p>"p = 0.01 means a 1% chance the result is due to chance."</p><p class="a">No. It is the chance of data this extreme if there were no effect.</p></div>
+    <div class="t1"><p>"Recall bias means cases lie."</p><p class="a">No. Cases search their memory harder; controls under-report.</p></div>
+    <div class="t1"><p>"Non-differential misclassification always underestimates."</p><p class="a">Only on average, for a yes or no exposure. A single study can still overestimate.</p></div>
+    <div class="t1"><p>"Half the participants refused, so the study is biased."</p><p class="a">Not necessarily. Bias needs refusal linked to both exposure and disease. Check it.</p></div>
+  </div>
+  <aside class="notes">Common viva traps on the first half. Read each question and let students answer before you reveal, or leave the slide for them to study online. The key ideas: sample size cures random error only; a non-significant result is not proof of no effect; a p-value is conditional on the null; recall bias is about differential memory, not lying; non-differential misclassification biases toward the null only on average; and losses alone do not bias, losses linked to both exposure and outcome do.</aside>
+</section>
+
+<!-- 48 -->
+<section>
+  <h2>Viva traps: confounding and interaction</h2>
+  <p class="small dim rev"><span class="pill warn">Revision slide</span> Can be skipped in class; students review it online.</p>
+  <div class="traps">
+    <div class="t1"><p>"Adjust for everything linked to the outcome."</p><p class="a">No. Not for steps on the causal path, such as cholesterol for diet.</p></div>
+    <div class="t1"><p>"Matching cases and controls is enough."</p><p class="a">No. Matched data need a matched analysis, and you cannot study the matched factor.</p></div>
+    <div class="t1"><p>"Randomisation removes all bias."</p><p class="a">It balances confounders at the start, on average. Losses and unblinded assessment can still bias.</p></div>
+    <div class="t1"><p>"Confounding and effect modification are the same."</p><p class="a">No. Confounding is a distortion to remove; effect modification is a finding to report.</p></div>
+    <div class="t1"><p>"There is no interaction between asbestos and smoking."</p><p class="a">On the ratio scale, almost none. On the difference scale, a lot. Always name the scale.</p></div>
+    <div class="t1"><p>"Significant in men, not in women: the effect differs by sex."</p><p class="a">Not shown. Test whether the two estimates differ from each other.</p></div>
+  </div>
+  <aside class="notes">The second set. Do not adjust for mediators. Matching needs a matched analysis. Randomisation handles baseline confounding, not everything that happens later. Confounding and effect modification are different, and handled in opposite ways. Interaction depends on the scale. And a difference in significance is not a significant difference. If students can answer these six, they understand the session.</aside>
+</section>
+
+<!-- 49 -->
+<section>
+  <h2>Sources and further reading</h2>
+  <ol class="sources two">
+    <li>MacMahon B et al. Coffee and cancer of the pancreas. N Engl J Med 1981;304:630-3. Feinstein AR et al. JAMA 1981;246:957-61.</li>
+    <li>Hsieh CC et al. N Engl J Med 1986;315:587-9. IARC Monographs Volume 116, press release, 15 June 2016.</li>
+    <li>ISIS-2 Collaborative Group. Lancet 1988;2:349-60. Sleight P. Curr Control Trials Cardiovasc Med 2000;1:25-7.</li>
+    <li>McMichael AJ, Spirtas R, Kupper LL. J Occup Med 1974;16:458-64. McMichael AJ. J Occup Med 1976;18:165-8.</li>
+    <li>Berkson J. Biometrics Bulletin 1946;2:47-53. Griffith GJ et al. Nat Commun 2020;11:5749.</li>
+    <li>Greenland S. Response and follow-up bias in cohort studies. Am J Epidemiol 1977;106:184-7.</li>
+    <li>Werler MM, Pober BR, Nelson K, Holmes LB. Am J Epidemiol 1989;129:415-21.</li>
+    <li>Jurek AM, Greenland S, Maldonado G, Church TR. Int J Epidemiol 2005;34:680-7.</li>
+    <li>Charig CR et al. BMJ 1986;292:879-82. Julious SA, Mullee MA. BMJ 1994;309:1480-1.</li>
+    <li>Stampfer MJ et al. N Engl J Med 1991;325:756-62. Rossouw JE et al. JAMA 2002;288:321-33. Lawlor DA et al. Int J Epidemiol 2004;33:464-7.</li>
+    <li>Miettinen OS. Stat Med 1983;2:267-71. Crane J, Pearce N, Flatt A, et al. Lancet 1989;1:917-22.</li>
+    <li>Mickey RM, Greenland S. Am J Epidemiol 1989;129:125-37. Greenland S. Am J Public Health 1989;79:340-9.</li>
+    <li>Hammond EC, Selikoff IJ, Seidman H. Ann N Y Acad Sci 1979;330:473-90.</li>
+    <li>Vandenbroucke JP et al. Lancet 1994;344:1453-7. CDC HuGE case study: factor V Leiden.</li>
+    <li>Rothman KJ. Am J Epidemiol 1976;103:506-11. Rothman KJ, Greenland S, Lash TL. Modern Epidemiology.</li>
+    <li>Celentano DD, Szklo M. Gordis Epidemiology. Elsevier.</li>
+  </ol>
+  <p class="small faint">Prepared at AIIMS Bhopal with Claude (Anthropic) as drafting and coding assistant.</p>
+  <aside class="notes">All the sources are here, and every number on the slides traces back to one of them. Students who want one book: the chapters on bias, confounding and interaction in Gordis. Residents: Modern Epidemiology by Rothman, Greenland and Lash, and the papers by Jurek and by Griffith are short and worth reading in full.</aside>
+</section>
+
+</div></div>
+<script src="../vendor/reveal.js/dist/reveal.js"></script>
+<script src="../vendor/reveal.js/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280, height: 720, margin: 0, center: false, transition: 'fade',
+    hash: true, slideNumber: 'c/t', plugins: [RevealNotes]
+  });
+</script>
+</body>
+</html>

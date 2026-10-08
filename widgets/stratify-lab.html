@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stratify Lab</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="widget.css">
+<script src="theme.js"></script>
+<style>
+  .main2 { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 900px) { .main2 { grid-template-columns: 1fr; } }
+  .tabs3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 620px) { .tabs3 { grid-template-columns: 1fr; } }
+  .tb { border-top: 3px solid var(--band); background: var(--wash); padding: 6px 8px 8px; }
+  .tb.crude { border-top-color: var(--warn); }
+  .tb h3 { font: 600 15px var(--font-head); margin: 0 0 4px; }
+  .tb table { width: 100%; font-size: 14px; } .tb td, .tb th { padding: 2px 4px; border: 0; } .tb th { font-weight: 600; color: var(--dim); font-size: 13px; }
+  .tb .m { margin-top: 6px; font-size: 14px; color: var(--dim); } .tb .m b { font: 600 20px var(--font-head); color: var(--ink); }
+  input.ci2 { font: 600 14px var(--font-body); width: 3.9em; padding: 3px 5px; border: 1px solid var(--rule); border-radius: 5px; background: var(--paper); color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+  .tb td.ro { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; padding-right: 8px; }
+  .sum { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+  .q { display: grid; gap: 8px; }
+  .q h3 { font: 600 17px var(--font-head); margin: 0; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .opts button { font: 600 14px var(--font-body); padding: 8px 6px; border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); color: var(--ink); cursor: pointer; }
+  .opts button.right { background: var(--good-wash); border-color: var(--good); }
+  .opts button.wrong { background: var(--warn-wash); border-color: var(--warn); }
+  .fb { font-size: 15px; line-height: 1.4; }
+  table.ix { width: 100%; font-size: 14px; margin-top: 10px; } table.ix td, table.ix th { padding: 2px 6px; }
+  .scale { display: flex; gap: 6px; align-items: center; font-size: 14px; color: var(--dim); }
+  html.embed main { gap: 10px; } html.embed .panel { gap: 6px; }
+  html.embed .stat { padding: 5px 9px; } html.embed .stat .n { font-size: 20px; } html.embed .stat .l { font-size: 13px; }
+  html.embed .chip { padding: 5px 11px; font-size: 14px; }
+  html.embed .note.src { display: none; }
+  html.embed .tb .m { margin-top: 3px; } html.embed .sum { margin-top: 8px; gap: 8px; }
+</style>
+</head>
+<body>
+<header class="band"><div>
+  <p class="kicker"><a href="../index.html">Epidemiological Thinking series</a> · Lab 14</p>
+  <h1>Stratify Lab</h1>
+  <p>Split a 2 by 2 table by a third factor. Compare the crude estimate, the stratum estimates and the adjusted estimate, then decide: confounding, effect modification, both or neither?</p>
+</div></header>
+<main>
+  <section class="panel">
+    <div class="row"><span class="label noembed">Example</span><div class="row" id="pre" role="group" aria-label="Example"></div></div>
+  </section>
+  <section class="main2">
+    <div>
+      <div class="tabs3" id="tabs"></div>
+      <div class="sum" id="sum" aria-live="polite"></div>
+      <div id="ixw"></div>
+    </div>
+    <div class="q">
+      <h3 id="qh">What is the third factor doing?</h3>
+      <div class="opts" id="opts"></div>
+      <p class="fb" id="fb"></p>
+    </div>
+  </section>
+  <p class="note src" id="src"></p>
+  <footer>Change any number in the tables to make your own example. Built for teaching at AIIMS Bhopal.</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+// kind: 'co' cohort [cases, total]; 'cc' case-control [cases, controls]; 'rt' rates per 100,000 person-years
+// s[z] = [exposed, unexposed], each a pair as above
+const P = [
+  { k: 'stones', name: 'Kidney stones', kind: 'co', e: 'Open surgery', u: 'PCNL', z: 'Stone size', zl: ['Small', 'Large'], out: 'success',
+    s: [[[81, 87], [234, 270]], [[192, 263], [55, 80]]], ans: 'conf',
+    why: 'Confounding. Within each stone size open surgery does slightly better (1.07 and 1.06), but the crude ratio favours PCNL, because PCNL was mostly given to small stones. The stratum estimates agree, so there is no effect modification.',
+    src: 'Charig CR et al. BMJ 1986;292:879-82; Julious SA, Mullee MA. BMJ 1994;309:1480-1.' },
+  { k: 'coffee', name: 'Coffee', kind: 'co', e: 'Coffee', u: 'No coffee', z: 'Smoking', zl: ['Smokers', 'Non-smokers'], out: 'lung cancer',
+    s: [[[40, 400], [10, 100]], [[1, 100], [4, 400]]], ans: 'conf',
+    why: 'Confounding. Coffee has no effect in smokers or non-smokers (1.0 and 1.0), yet crude coffee drinkers look nearly three times as likely to get lung cancer, because more of them smoke.',
+    src: 'Illustrative, constructed for teaching.' },
+  { k: 'vacA', name: 'Vaccine, town A', kind: 'co', e: 'Vaccinated', u: 'Not vaccinated', z: 'Age', zl: ['Under 60', '60 and over'], out: 'disease',
+    s: [[[10, 1000], [50, 1000]], [[70, 1000], [100, 1000]]], ans: 'mod',
+    why: 'Effect modification only. The vaccine works much better in younger people (0.20) than older people (0.70). Age is spread equally across the vaccinated and unvaccinated, so the crude and adjusted estimates are the same: no confounding. Report the two age groups separately.',
+    src: 'Illustrative, constructed for teaching.' },
+  { k: 'vacB', name: 'Vaccine, town B', kind: 'co', e: 'Vaccinated', u: 'Not vaccinated', z: 'Age', zl: ['Under 60', '60 and over'], out: 'disease',
+    s: [[[15, 1500], [25, 500]], [[35, 500], [150, 1500]]], ans: 'both',
+    why: 'Both. The effect differs by age (0.20 vs 0.70): effect modification. And the vaccinated are mostly young, who get less disease anyway, so the crude estimate (0.29) exaggerates the benefit: confounding. Report by age; a single adjusted number would hide the difference.',
+    src: 'Illustrative, constructed for teaching.' },
+  { k: 'walk', name: 'Walking', kind: 'co', e: 'Walks daily', u: 'Does not', z: 'Sex', zl: ['Men', 'Women'], out: 'hip fracture',
+    s: [[[20, 1000], [40, 1000]], [[30, 1000], [60, 1000]]], ans: 'none',
+    why: 'Neither. The ratio is 0.50 in men and in women, and the crude ratio is also 0.50. Sex is neither confounding nor modifying this (illustrative) association.',
+    src: 'Illustrative, constructed for teaching.' },
+  { k: 'asb', jt: true, name: 'Asbestos and smoking', kind: 'rt', e: 'Smoker', u: 'Non-smoker', z: 'Asbestos', zl: ['No asbestos', 'Asbestos workers'], out: 'lung cancer death',
+    s: [[[122.6, 0], [11.3, 0]], [[601.6, 0], [58.4, 0]]], ans: 'mod',
+    why: 'Effect modification, on the additive scale. The rate ratio for smoking is about 10 with or without asbestos: nearly perfect multiplication. But smoking adds about 111 deaths per 100,000 a year without asbestos and about 543 with it. Whether you see "interaction" depends on the scale. For prevention, the additive scale matters: stopping smoking in asbestos workers prevents the most deaths.',
+    src: 'Hammond EC, Selikoff IJ, Seidman H. Ann N Y Acad Sci 1979;330:473-90. Age-standardised lung cancer death rates per 100,000 man-years.' },
+  { k: 'fvl', jt: true, name: 'Pill and factor V Leiden', kind: 'cc', e: 'Pill', u: 'No pill', z: 'Factor V Leiden', zn: 'factor V Leiden', zl: ['Non-carriers', 'Carriers'], out: 'venous thrombosis',
+    s: [[[84, 63], [36, 100]], [[25, 2], [10, 4]]], ans: 'mod',
+    why: 'Effect modification, mainly on the additive scale. The crude and adjusted odds ratios are the same, so no confounding. The pill alone gives an odds ratio of 3.7, the mutation alone 6.9, and both together 34.7, far more than the 9.6 expected if their effects simply added. Screening is debated, but carriers should know.',
+    src: 'Vandenbroucke JP et al. Lancet 1994;344:1453-7: 155 cases, 169 controls. Stratified counts as tabulated in the CDC HuGE case study.' },
+];
+const LBL = { conf: 'Confounding', mod: 'Effect modification', both: 'Both', none: 'Neither' };
+let p, D, own = false;
+function load(i) {
+  p = P[i]; own = false; D = JSON.parse(JSON.stringify(p.s));
+  document.querySelectorAll('#pre .chip').forEach((b, k) => b.setAttribute('aria-pressed', k === i));
+  $('src').textContent = p.src; build(); calc(); resetQ();
+}
+function resetQ() {
+  $('opts').innerHTML = Object.entries(LBL).map(([k, l]) => `<button type="button" data-k="${k}">${l}</button>`).join('');
+  $('opts').querySelectorAll('button').forEach(b => b.onclick = () => answer(b));
+  $('fb').textContent = 'Compare the crude estimate with the adjusted one, and the two strata with each other. Then choose.';
+  $('ixw').innerHTML = '';
+}
+const head = () => p.kind === 'co' ? '<th></th><th class="num">Cases</th><th class="num">Total</th>' : p.kind === 'cc' ? '<th></th><th class="num">Cases</th><th class="num">Controls</th>' : '<th></th><th class="num" colspan="2">Rate per 100,000</th>';
+function build() {
+  const T = (id, title, cls, z) => `<div class="tb ${cls}"><h3>${title}</h3><table><tr>${head()}</tr>` +
+    [0, 1].map(r => `<tr><td>${r ? p.u : p.e}</td>` + (z < 0
+      ? `<td class="ro" id="c${r}0"></td>` + (p.kind === 'rt' ? '' : `<td class="ro" id="c${r}1"></td>`)
+      : `<td class="num"${p.kind === 'rt' ? ' colspan="2"' : ''}><input class="ci2" inputmode="decimal" data-z="${z}" data-r="${r}" data-c="0" value="${D[z][r][0]}" aria-label="${p.zl[z]} ${r ? p.u : p.e} ${p.kind === 'cc' ? 'cases' : p.kind === 'rt' ? 'rate' : 'cases'}"></td>` + (p.kind === 'rt' ? '' : `<td class="num"><input class="ci2" inputmode="decimal" data-z="${z}" data-r="${r}" data-c="1" value="${D[z][r][1]}" aria-label="${p.zl[z]} ${r ? p.u : p.e} ${p.kind === 'cc' ? 'controls' : 'total'}"></td>`)) + '</tr>').join('') +
+    `</table><div class="m" id="m${id}"></div></div>`;
+  $('tabs').innerHTML = (p.kind === 'rt' ? `<div class="tb crude"><h3>All together</h3><p class="m">Not shown: these are age-standardised rates, so there is no single crude table. Compare the strata.</p><div class="m" id="mc"></div></div>` : T('c', 'All together (crude)', 'crude', -1)) + T('0', p.zl[0], '', 0) + T('1', p.zl[1], '', 1);
+  document.querySelectorAll('input.ci2').forEach(inp => inp.addEventListener('input', () => {
+    const v = parseFloat(inp.value); if (!(v >= 0)) return;
+    D[+inp.dataset.z][+inp.dataset.r][+inp.dataset.c] = v; own = true; calc(); resetQ();
+  }));
+}
+// measures
+function ratio(st) { const [[a, x], [c, y]] = st; return p.kind === 'cc' ? (a * y) / (x * c) : p.kind === 'rt' ? a / c : (a / x) / (c / y); }
+function diff(st) { const [[a, x], [c, y]] = st; return p.kind === 'rt' ? a - c : p.kind === 'co' ? (a / x - c / y) : NaN; }
+function mh() {
+  let n = 0, d = 0;
+  D.forEach(([[a, x], [c, y]]) => {
+    if (p.kind === 'cc') { const N = a + x + c + y; n += a * y / N; d += x * c / N; }
+    else { const N = x + y; n += a * y / N; d += c * x / N; }
+  });
+  return n / d;
+}
+const zn = () => p.zn || p.z.toLowerCase();
+const RN = () => p.kind === 'cc' ? 'odds ratio' : p.kind === 'rt' ? 'rate ratio' : 'risk ratio';
+const f2 = x => !isFinite(x) ? '–' : x >= 10 ? x.toFixed(1) : x.toFixed(2);
+let M = {};
+function calc() {
+  const r0 = ratio(D[0]), r1 = ratio(D[1]);
+  let crude = NaN, adj = NaN;
+  if (p.kind !== 'rt') {
+    const C = [[D[0][0][0] + D[1][0][0], D[0][0][1] + D[1][0][1]], [D[0][1][0] + D[1][1][0], D[0][1][1] + D[1][1][1]]];
+    [0, 1].forEach(r => [0, 1].forEach(c => { const el = $(`c${r}${c}`); if (el) el.textContent = (+C[r][c].toFixed(1)).toLocaleString('en-IN'); }));
+    crude = ratio(C); adj = mh();
+    $('mc').innerHTML = `${RN()} <b>${f2(crude)}</b>` + (p.kind === 'co' ? `<br>risk difference ${(100 * diff(C)).toFixed(1)} per 100` : '');
+  }
+  const dl = st => p.kind === 'rt' ? `<br>rate difference ${diff(st).toFixed(0)}` : p.kind === 'co' ? `<br>risk difference ${(100 * diff(st)).toFixed(1)} per 100` : '';
+  $('m0').innerHTML = `${RN()} <b>${f2(r0)}</b>${dl(D[0])}`; $('m1').innerHTML = `${RN()} <b>${f2(r1)}</b>${dl(D[1])}`;
+  const het = Math.max(r0, r1) / Math.min(r0, r1);
+  const chg = p.kind === 'rt' ? NaN : Math.abs(crude / adj - 1);
+  const stat = (n, l, c = '') => `<div class="stat ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  $('sum').innerHTML = p.kind === 'rt'
+    ? stat(f2(het), `ratio of the two stratum ${RN()}s`) + stat(f2(diff(D[1]) / diff(D[0])), 'ratio of the two rate differences', 'warn')
+    : stat(f2(crude), `crude ${RN()}`, 'warn') + stat(f2(adj), `adjusted for ${zn()} (Mantel-Haenszel)`, 'good') + stat(Math.round(100 * chg) + '%', 'change from crude to adjusted') + stat(f2(het), 'larger stratum estimate ÷ smaller');
+  M = { r0, r1, crude, adj, het, chg };
+}
+function verdict() {
+  if (!own) return p.ans;
+  const mod = M.het > 1.5 || (M.r0 - 1) * (M.r1 - 1) < 0, conf = p.kind !== 'rt' && M.chg > 0.1;
+  return mod && conf ? 'both' : mod ? 'mod' : conf ? 'conf' : 'none';
+}
+function answer(b) {
+  const v = verdict(), ok = b.dataset.k === v;
+  $('opts').querySelectorAll('button').forEach(x => x.className = x.dataset.k === v ? 'right' : x === b ? 'wrong' : '');
+  $('fb').textContent = (ok ? 'Yes. ' : 'Not quite. ') + (own
+    ? `Rule of thumb used for your numbers: confounding if crude and adjusted differ by more than 10% (here ${Math.round(100 * M.chg)}%); effect modification if the stratum ratios differ by more than 1.5 times or point in opposite directions (here ${f2(M.het)} times). Real decisions also weigh chance and prior knowledge.`
+    : p.why);
+  // joint effects against the doubly unexposed
+  const R = (st, er) => p.kind === 'cc' ? (st[er][0] / st[er][1]) : p.kind === 'rt' ? st[er][0] : st[er][0] / st[er][1];
+  const ref = R(D[0], 1), r10 = R(D[0], 0) / ref, r01 = R(D[1], 1) / ref, r11 = R(D[1], 0) / ref;
+  const reri = r11 - r10 - r01 + 1;
+  if (!p.jt) { $('ixw').innerHTML = ''; return; }
+  $('ixw').innerHTML = `<table class="ix"><tr><th colspan="2">Joint effects, against people with neither (${RN()})</th></tr>
+    <tr><td>${p.e} only</td><td class="num">${f2(r10)}</td></tr><tr><td>${p.z} only</td><td class="num">${f2(r01)}</td></tr>
+    <tr class="sel"><td>Both</td><td class="num">${f2(r11)}</td></tr>
+    <tr><td>Expected if effects add</td><td class="num">${f2(r10 + r01 - 1)}</td></tr><tr><td>Expected if effects multiply</td><td class="num">${f2(r10 * r01)}</td></tr>
+    <tr><td>RERI = both − ${p.e.toLowerCase()} only − ${zn()} only + 1</td><td class="num"><b>${f2(reri)}</b></td></tr></table>`;
+}
+$('pre').innerHTML = P.map((q, i) => `<button type="button" class="chip" data-i="${i}">${q.name}</button>`).join('');
+$('pre').querySelectorAll('.chip').forEach(b => b.onclick = () => load(+b.dataset.i));
+const q = new URLSearchParams(location.search).get('set'); load(Math.max(0, P.findIndex(x => x.k === q)));
+</script>
+</body>
+</html>

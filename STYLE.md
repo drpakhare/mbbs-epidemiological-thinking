@@ -8,7 +8,8 @@ Every lecture in this repo follows the same rules, so that the decks look and re
 2. Add any new labs to `widgets/`. Labs are numbered across the whole series (Lab 1, Lab 2, ... in order of first use).
 3. Add `lectures/NN-slug.html`, modelled on an existing lecture page: a card for the slides, one card per lab, and a "What the lecture covers" list.
 4. Add the lecture to the list on `index.html` and its objectives to `README.md`.
-5. Run the checker (below) until it reports `all clean`, then look at every slide and lab in light mode, dark mode and at phone width.
+5. Topic sessions, which are not tied to a place in the sequence, drop the number: `slides/slug.html` and `lectures/slug.html`, with the kicker `Epidemiological Thinking · Topic name`. They are listed under "Topic sessions" on `index.html`.
+6. Run the checker (below) until it reports `all clean`, then look at every slide and lab in light mode, dark mode and at phone width.
 
 ## Slides
 
@@ -22,7 +23,7 @@ Every lecture in this repo follows the same rules, so that the decks look and re
 - Plain English: short sentences, define a term the first time it is used.
 - Colours carry meaning: navy for the main series and claims, green for what works or resolves, amber for caution or a trap, red only for reject or harm.
 - Real data wherever possible, cited on the slide (`.cite`) and in the sources slide. Any made-up example is labelled "Illustrative, constructed for teaching".
-- The cover kicker reads `Epidemiological Thinking · Lecture N`. No personal names on any visible page; credit AIIMS Bhopal.
+- The cover kicker reads `Epidemiological Thinking · Lecture N` (or `Epidemiological Thinking · Topic name` for a topic session). No personal names on any visible page; credit AIIMS Bhopal.
 
 ## Labs
 

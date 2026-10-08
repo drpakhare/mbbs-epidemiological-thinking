@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chance Lab</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="widget.css">
+<script src="theme.js"></script>
+<style>
+  label.sl { display: grid; gap: 4px; } label.sl .top { display: flex; justify-content: space-between; gap: 10px; }
+  label.sl output { font: 600 17px var(--font-head); font-variant-numeric: tabular-nums; }
+  .ctr { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 24px; }
+  @media (max-width: 760px) { .ctr { grid-template-columns: 1fr; } }
+  .btn { font: 600 15px var(--font-body); background: var(--band); color: var(--band-ink); border: 0; border-radius: 8px; padding: 8px 16px; cursor: pointer; }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--rule); }
+  .btn:focus-visible { outline: 3px solid var(--warn); outline-offset: 2px; }
+  svg .sig { stroke: var(--mark); stroke-width: 3; } svg .ns { stroke: var(--mark2); stroke-width: 3; }
+  :root[data-theme="dark"] svg .ns { stroke: #5d6782; }
+  svg .dsig { fill: var(--mark); } svg .dns { fill: var(--paper); stroke: var(--faint); stroke-width: 1.6; }
+  svg .truth { stroke: var(--good); stroke-width: 2.5; } svg .truthl { font-size: 13px; fill: var(--good); font-weight: 600; }
+  svg .null { stroke: var(--faint); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  svg .all { stroke: var(--warn); stroke-width: 4; } svg .dall { fill: var(--warn); }
+  .key { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: var(--dim); }
+  .key i { display: inline-block; width: 22px; height: 4px; vertical-align: middle; margin-right: 6px; }
+  html.embed main { gap: 10px; }
+  html.embed .stat { padding: 6px 10px; } html.embed .stat .n { font-size: 22px; } html.embed .stat .l { font-size: 13px; }
+  html.embed .claim { font-size: 16px; padding: 6px 12px; }
+  html.embed .note.src { display: none; }
+  html.embed .ctr { gap: 4px 24px; } html.embed .panel { gap: 6px; } html.embed .key { font-size: 13px; }
+</style>
+</head>
+<body>
+<header class="band"><div>
+  <p class="kicker"><a href="../index.html">Epidemiological Thinking series</a> · Lab 12</p>
+  <h1>Chance Lab</h1>
+  <p>Run the same study again and again, with the truth fixed. See what chance alone can do to a result.</p>
+</div></header>
+<main>
+  <section class="panel">
+    <div class="row"><span class="label">Experiment</span>
+      <div class="seg" role="group" aria-label="Experiment">
+        <button type="button" data-m="rep">Repeat one study</button><button type="button" data-m="star">Slice a trial by star sign</button>
+      </div>
+    </div>
+    <div class="ctr">
+      <label class="sl"><span class="top"><span id="l1">True risk ratio</span><output id="o1"></output></span><input type="range" id="rr" min="0.5" max="2" step="0.05" aria-label="True risk ratio"></label>
+      <label class="sl"><span class="top"><span id="l2">Risk without exposure</span><output id="o2"></output></span><input type="range" id="p0" min="2" max="40" step="1" aria-label="Baseline risk"></label>
+      <label class="sl"><span class="top"><span id="l3">People per group</span><output id="o3"></output></span><input type="range" id="nn" min="0" max="8" step="1" aria-label="People per group"></label>
+    </div>
+    <div class="row" id="btns"></div>
+  </section>
+
+  <section class="stats" aria-live="polite" id="stats"></section>
+
+  <section class="panel">
+    <svg id="ch" viewBox="0 0 1100 200" style="width:100%" role="img" aria-label="Risk ratios with 95% confidence intervals"></svg>
+    <div class="key" id="key"></div>
+    <p class="claim" id="msg"></p>
+    <p class="note src" id="src"></p>
+  </section>
+  <footer id="foot">Simulated studies. Each one draws random people from a population where the true risk ratio is the one you set. Built for teaching at AIIMS Bhopal.</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const NS = [25, 50, 100, 200, 400, 800, 1600, 3200, 8500];
+const SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+let mode = 'rep', runs = [], signs = [];
+const st = { rep: { rr: 1, p0: 20, nn: 2 }, star: { rr: 0.8, p0: 12, nn: 8 } };
+
+function binom(n, p) { let k = 0; for (let i = 0; i < n; i++) if (Math.random() < p) k++; return k; }
+function phi(z) { // standard normal CDF
+  const t = 1 / (1 + 0.2316419 * Math.abs(z)), d = 0.3989423 * Math.exp(-z * z / 2);
+  const q = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+  return z > 0 ? 1 - q : q;
+}
+function est(a, n1, c, n0) { // risk ratio, 95% CI and two-sided p
+  if (a === 0 || c === 0) { a += 0.5; c += 0.5; n1 += 1; n0 += 1; }
+  const lr = Math.log((a / n1) / (c / n0)), se = Math.sqrt(1 / a - 1 / n1 + 1 / c - 1 / n0);
+  return { rr: Math.exp(lr), lo: Math.exp(lr - 1.96 * se), hi: Math.exp(lr + 1.96 * se), p: 2 * (1 - phi(Math.abs(lr / se))) };
+}
+function one(n, p0, rr) { const p1 = Math.min(0.99, p0 * rr); return est(binom(n, p1), n, binom(n, p0), n); }
+
+function setMode(m) {
+  mode = m; const s = st[m];
+  document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === m));
+  $('rr').value = s.rr; $('p0').value = s.p0; $('nn').value = s.nn;
+  $('l1').textContent = m === 'rep' ? 'True risk ratio' : 'True effect of aspirin (risk ratio)';
+  $('l2').textContent = m === 'rep' ? 'Risk without exposure' : 'Risk of death on placebo';
+  $('l3').textContent = m === 'rep' ? 'People per group' : 'People per arm';
+  $('btns').innerHTML = m === 'rep'
+    ? '<button type="button" class="btn" id="b1">Run 1 study</button><button type="button" class="btn" id="b20">Run 20 studies</button><button type="button" class="btn ghost" id="bc">Clear</button>'
+    : '<button type="button" class="btn" id="bs">Run the trial again</button>';
+  if (m === 'rep') {
+    $('b1').onclick = () => add(1); $('b20').onclick = () => add(20); $('bc').onclick = () => { runs = []; draw(); };
+    $('src').textContent = 'A p-value below 0.05 is called "statistically significant". The 95% confidence interval is the range of true values compatible with the data.';
+    runs = []; add(20);
+  } else {
+    $('bs').onclick = star;
+    $('src').textContent = 'ISIS-2 (Lancet 1988;2:349-60) randomised 17,187 people with suspected heart attack. For those born under Gemini or Libra, aspirin showed a 9% (SD 13) increase in the odds of death; for all other signs, a 28% (SD 5) reduction. The authors added this to show how unreliable subgroup results are.';
+    star();
+  }
+}
+function vals() { const s = st[mode]; s.rr = +$('rr').value; s.p0 = +$('p0').value; s.nn = +$('nn').value;
+  $('o1').textContent = s.rr.toFixed(2); $('o2').textContent = s.p0 + '%'; $('o3').textContent = NS[s.nn].toLocaleString('en-IN'); return s; }
+function add(k) { const s = vals(); for (let i = 0; i < k; i++) runs.push(one(NS[s.nn], s.p0 / 100, s.rr)); if (runs.length > 60) runs = runs.slice(-60); draw(); }
+function star() {
+  const s = vals(), n = NS[s.nn], p0 = s.p0 / 100, p1 = p0 * s.rr;
+  // deal people to 12 signs at random, then count deaths per sign
+  let A = 0, C = 0; signs = SIGNS.map(() => ({ a: 0, n1: 0, c: 0, n0: 0 }));
+  for (let i = 0; i < n; i++) { const g = signs[Math.floor(Math.random() * 12)]; g.n1++; if (Math.random() < p1) { g.a++; A++; } }
+  for (let i = 0; i < n; i++) { const g = signs[Math.floor(Math.random() * 12)]; g.n0++; if (Math.random() < p0) { g.c++; C++; } }
+  signs = signs.map((g, i) => Object.assign(est(g.a, g.n1, g.c, g.n0), { name: SIGNS[i] }));
+  signs.all = est(A, n, C, n); draw();
+}
+const fmt = x => x < 10 ? x.toFixed(2) : x.toFixed(1);
+function draw() {
+  const s = vals(), W = 1100, H = 200, L = 56, R = 76, T = 10, B = mode === 'star' ? 30 : 12;
+  const lo = mode === 'star' ? 0.4 : 0.25, hi = mode === 'star' ? 2.5 : 4, y = v => T + (Math.log(hi) - Math.log(Math.min(hi, Math.max(lo, v)))) / (Math.log(hi) - Math.log(lo)) * (H - T - B);
+  let g = '';
+  (mode === 'star' ? [0.5, 1, 2] : [0.25, 0.5, 1, 2, 4]).forEach(v => g += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text class="tk" x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${v}</text>`);
+  g += `<line class="null" x1="${L}" x2="${W - R}" y1="${y(1)}" y2="${y(1)}"/>`;
+  g += `<line class="truth" x1="${L}" x2="${W - R}" y1="${y(s.rr)}" y2="${y(s.rr)}"/><text class="truthl" x="${W - R + 6}" y="${y(s.rr) + 4}">truth ${s.rr.toFixed(2)}</text>`;
+  g += `<text class="tk" x="12" y="${T + 6}" transform="rotate(-90 12 ${T + 6})" text-anchor="end">risk ratio (log scale)</text>`;
+  const items = mode === 'rep' ? runs : [Object.assign({}, signs.all, { name: 'Whole trial', all: true })].concat(signs);
+  const slot = (W - L - R - 20) / (mode === 'rep' ? 60 : 13);
+  items.forEach((r, i) => {
+    const x = L + 20 + slot * (i + 0.5), sig = r.p < 0.05;
+    const cl = r.all ? 'all' : sig ? 'sig' : 'ns', dc = r.all ? 'dall' : sig ? 'dsig' : 'dns';
+    g += `<line class="${cl}" x1="${x}" x2="${x}" y1="${y(r.hi)}" y2="${y(r.lo)}"/><circle class="${dc}" cx="${x}" cy="${y(r.rr)}" r="${mode === 'rep' ? 4 : 6}"/>`;
+    if (mode === 'star') g += `<text class="tk" x="${x}" y="${H - B + 20}" text-anchor="middle"${r.all ? ' style="font-weight:700;fill:var(--warn)"' : ''}>${r.name}</text>`;
+  });
+  $('ch').innerHTML = g;
+  const stat = (n, l, c = '') => `<div class="stat ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  if (mode === 'rep') {
+    const k = runs.length, sig = runs.filter(r => r.p < 0.05).length, cov = runs.filter(r => r.lo <= s.rr && s.rr <= r.hi).length;
+    const pct = x => k ? Math.round(100 * x / k) + '%' : '–';
+    const last = runs[k - 1];
+    $('stats').innerHTML = stat(k, 'studies run (last 60 shown)') + stat(last ? `${fmt(last.rr)}` : '–', last ? `latest study, 95% CI ${fmt(last.lo)} to ${fmt(last.hi)}, p = ${last.p < 0.001 ? '<0.001' : last.p.toFixed(3)}` : 'latest study')
+      + stat(pct(sig), 'came out "significant" (p < 0.05)', s.rr === 1 ? 'warn' : 'good') + stat(pct(cov), 'of 95% CIs contain the truth');
+    const nul = Math.abs(s.rr - 1) < 1e-9;
+    $('msg').textContent = !k ? 'Run some studies.' : nul
+      ? `There is no effect. Still, ${sig} of ${k} studies came out "significant". At p < 0.05, about 1 study in 20 will, by chance alone.`
+      : `The effect is real. ${pct(sig)} of studies detected it: that is the power at ${NS[s.nn].toLocaleString('en-IN')} per group. Small studies miss real effects, and the ones that "find" them overestimate them.`;
+    $('msg').className = 'claim ' + (nul ? 'warn' : '');
+    $('key').innerHTML = '<span><i style="background:var(--mark)"></i>p &lt; 0.05</span><span><i style="background:var(--mark2)"></i>not significant</span><span><i style="background:var(--good)"></i>the truth you set</span>';
+  } else {
+    const ns = signs.filter(r => r.hi >= 1).length, harm = signs.filter(r => r.rr >= 1).length, A = signs.all;
+    const worst = signs.reduce((a, b) => b.rr > a.rr ? b : a);
+    $('stats').innerHTML = stat(fmt(A.rr), `whole trial, 95% CI ${fmt(A.lo)} to ${fmt(A.hi)}`, 'good') + stat(`${ns} of 12`, 'signs with no significant benefit', 'warn')
+      + stat(`${harm} of 12`, 'signs where aspirin looks harmful') + stat(worst.name, `"worst" sign, risk ratio ${fmt(worst.rr)}`);
+    $('msg').textContent = `Every sign got the same aspirin with the same true effect. By chance alone, ${ns} of 12 signs show no significant benefit${harm ? ` and ${harm} look${harm === 1 ? 's' : ''} harmful` : ''}. Trust the whole-trial result.`;
+    $('msg').className = 'claim warn';
+    $('key').innerHTML = '<span><i style="background:var(--warn)"></i>whole trial</span><span><i style="background:var(--mark)"></i>sign, p &lt; 0.05</span><span><i style="background:var(--mark2)"></i>sign, not significant</span><span><i style="background:var(--good)"></i>the truth you set</span>';
+  }
+}
+['rr', 'p0', 'nn'].forEach(id => $(id).addEventListener('input', () => { if (mode === 'rep') { runs = []; add(20); } else star(); }));
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.m)));
+setMode(new URLSearchParams(location.search).get('m') === 'star' ? 'star' : 'rep');
+</script>
+</body>
+</html>

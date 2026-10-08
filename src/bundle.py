@@ -16,7 +16,7 @@ def inline(path):
     html = re.sub(r'<script src="([^"]+)"></script>', lambda m: '<script>\n' + (base / m.group(1)).read_text().replace('</script', '<\\/script') + '\n</script>', html)
     return html
 
-for deck in sorted((root / 'slides').glob('[0-9][0-9]-*.html')):
+for deck in sorted(d for d in (root / 'slides').glob('*.html') if not d.name.startswith('_') and 'Reveal.initialize' in d.read_text()):
     html = inline(deck).replace('<style>\n  /* per-deck', '<style>\n  html, body { background: #ffffff; }\n  /* per-deck', 1)
     html = html.replace('../widgets/', (base_url + 'widgets/') if base_url else '')
     (dist / deck.name).write_text(html)

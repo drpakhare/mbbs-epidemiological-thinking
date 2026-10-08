@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bias Lab</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="widget.css">
+<script src="theme.js"></script>
+<style>
+  label.sl { display: grid; gap: 2px; } label.sl .top { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; }
+  label.sl output { font: 600 16px var(--font-head); font-variant-numeric: tabular-nums; }
+  .ctr { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 20px; }
+  @media (max-width: 760px) { .ctr { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 480px) { .ctr { grid-template-columns: 1fr; } }
+  .side { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr); gap: 18px; align-items: start; }
+  @media (max-width: 860px) { .side { grid-template-columns: 1fr 1fr; } .side > .rul { grid-column: 1 / -1; } }
+  @media (max-width: 520px) { .side { grid-template-columns: 1fr; } }
+  table.t { width: 100%; } table.t td, table.t th { padding: 4px 8px; }
+  table.t caption { text-align: left; font: 600 16px var(--font-head); padding-bottom: 4px; }
+  table.t .or { font: 600 18px var(--font-head); }
+  .chg { color: var(--warn); font-weight: 600; }
+  svg .tr { fill: var(--good); } svg .ob { fill: var(--warn); } svg .obl { font-size: 14px; font-weight: 700; fill: var(--warn); } svg .trl { font-size: 14px; font-weight: 700; fill: var(--good); }
+  svg .arr { stroke: var(--warn); stroke-width: 2.5; fill: none; }
+  svg .nulz { fill: var(--wash); }
+  html.embed main { gap: 10px; } html.embed .panel { gap: 6px; }
+  html.embed .claim { font-size: 16px; padding: 6px 12px; }
+</style>
+</head>
+<body>
+<header class="band"><div>
+  <p class="kicker"><a href="../index.html">Epidemiological Thinking series</a> · Lab 13</p>
+  <h1>Bias Lab</h1>
+  <p>A case-control study where we know the truth. Measure exposure badly, or pick the wrong people, and watch the odds ratio move.</p>
+</div></header>
+<main>
+  <section class="panel">
+    <div class="row"><span class="label">Error</span>
+      <div class="seg" role="group" aria-label="Kind of error"><button type="button" data-m="mis">Wrong exposure (information bias)</button><button type="button" data-m="sel">Wrong people (selection bias)</button></div>
+    </div>
+    <div class="row"><span class="label">Scenario</span><div class="row" id="pre" role="group" aria-label="Scenario"></div></div>
+    <div class="ctr" id="ctr"></div>
+    <div class="row" id="lockrow"><label class="check"><input type="checkbox" id="lock"> Same in cases and controls (non-differential)</label></div>
+  </section>
+
+  <section class="side">
+    <div><table class="t" id="t0"></table></div>
+    <div><table class="t" id="t1"></table></div>
+    <div class="rul"><svg id="rul" viewBox="0 0 440 150" style="width:100%" role="img" aria-label="True and observed odds ratio"></svg></div>
+  </section>
+  <section class="panel">
+    <p class="claim" id="msg"></p>
+    <p class="note src" id="src"></p>
+  </section>
+  <footer>Illustrative study, constructed for teaching: 200 cases and 200 controls, true odds ratio 2.0. Expected counts are shown, so there is no chance error here, only bias. Built for teaching at AIIMS Bhopal.</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const T = { a: 80, b: 120, c: 50, d: 150 }; // truth: exposed cases, unexposed cases, exposed controls, unexposed controls
+const MIS = [['seC', 'Sensitivity in cases'], ['seK', 'Sensitivity in controls'], ['spC', 'Specificity in cases'], ['spK', 'Specificity in controls']];
+const SEL = [['sA', 'Exposed cases enrolled'], ['sB', 'Unexposed cases enrolled'], ['sC', 'Exposed controls enrolled'], ['sD', 'Unexposed controls enrolled']];
+const PRE = {
+  mis: [
+    ['Perfect measurement', { seC: 100, seK: 100, spC: 100, spK: 100 }, true, 'Every exposed person is recorded as exposed, and every unexposed person as unexposed. The study sees the truth.'],
+    ['Same poor memory in both groups', { seC: 70, seK: 70, spC: 90, spK: 90 }, true, 'Non-differential misclassification: the same error in cases and controls. On average it pulls a binary exposure toward the null, so a real effect looks weaker. It does not guarantee that any one study underestimates.'],
+    ['Cases search their memory harder', { seC: 95, seK: 70, spC: 95, spK: 95 }, false, 'Recall bias. Mothers of malformed infants, for example, report some exposures more completely than control mothers (Werler 1989). Differential error can push the estimate either way; here it inflates it.'],
+    ['Controls over-report exposure', { seC: 90, seK: 90, spC: 95, spK: 75 }, false, 'Differential error in the other direction: false positive exposure among controls. The effect shrinks, and could even vanish.'],
+  ],
+  sel: [
+    ['Everyone enrolled', { sA: 100, sB: 100, sC: 100, sD: 100 }, null, 'All eligible cases and controls take part. No selection bias.'],
+    ['Half refuse, at random', { sA: 50, sB: 50, sC: 50, sD: 50 }, null, 'Losing people does not by itself bias the odds ratio. What matters is whether selection depends on both exposure and disease status.'],
+    ['Controls who had cut down coffee', { sA: 100, sB: 100, sC: 55, sD: 100 }, null, 'MacMahon 1981 chose hospital controls, many with digestive illness, who may have cut down coffee. Exposure among controls is too low, so the odds ratio is inflated. A 1986 re-study did not confirm the finding.'],
+    ['Exposed cases referred more', { sA: 100, sB: 60, sC: 100, sD: 100 }, null, 'If exposed people with the disease are more likely to be diagnosed or referred to the study hospital, cases are enriched for exposure, and the odds ratio is inflated.'],
+  ]
+};
+let mode = 'mis', v = {}, pi = 0;
+const pct = (x, n) => Math.round(100 * x / n) + '%';
+const OR = t => (t.a * t.d) / (t.b * t.c);
+function load(m, i) {
+  mode = m; pi = i; const p = PRE[m][i];
+  document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === m));
+  $('pre').innerHTML = PRE[m].map((q, k) => `<button type="button" class="chip" data-i="${k}" aria-pressed="${k === i}">${q[0]}</button>`).join('');
+  $('pre').querySelectorAll('.chip').forEach(b => b.onclick = () => load(mode, +b.dataset.i));
+  const S = m === 'mis' ? MIS : SEL;
+  $('ctr').innerHTML = S.map(([k, l]) => `<label class="sl"><span class="top"><span>${l}</span><output id="o_${k}"></output></span><input type="range" id="${k}" min="${m === 'mis' ? 50 : 10}" max="100" step="1" aria-label="${l}"></label>`).join('');
+  S.forEach(([k]) => { $(k).value = p[1][k]; $(k).oninput = () => { if (mode === 'mis' && $('lock').checked) { if (k === 'seC') $('seK').value = $('seC').value; if (k === 'spC') $('spK').value = $('spC').value; if (k === 'seK') $('seC').value = $('seK').value; if (k === 'spK') $('spC').value = $('spK').value; } pi = -1; draw(); }; });
+  $('lockrow').style.display = m === 'mis' ? '' : 'none';
+  if (m === 'mis') $('lock').checked = p[2];
+  draw();
+}
+$('lock').onchange = () => { if ($('lock').checked) { $('seK').value = $('seC').value; $('spK').value = $('spC').value; } pi = -1; draw(); };
+function observed() {
+  const g = k => +$(k).value / 100;
+  if (mode === 'mis') {
+    const nCa = T.a + T.b, nCo = T.c + T.d;
+    const a = g('seC') * T.a + (1 - g('spC')) * T.b, c = g('seK') * T.c + (1 - g('spK')) * T.d;
+    return { a, b: nCa - a, c, d: nCo - c };
+  }
+  return { a: T.a * g('sA'), b: T.b * g('sB'), c: T.c * g('sC'), d: T.d * g('sD') };
+}
+function table(id, cap, t, ref) {
+  const f = x => (Math.round(x * 10) / 10).toLocaleString('en-IN');
+  const cell = (x, y) => `<td class="num${ref && Math.abs(x - y) > 0.05 ? ' chg' : ''}">${f(x)}</td>`;
+  const r = ref || t;
+  $(id).innerHTML = `<caption>${cap}</caption><tr><th></th><th class="num">Cases</th><th class="num">Controls</th></tr>
+    <tr><td>Exposed</td>${cell(t.a, r.a)}${cell(t.c, r.c)}</tr><tr><td>Unexposed</td>${cell(t.b, r.b)}${cell(t.d, r.d)}</tr>
+    <tr><td>% exposed</td><td class="num">${pct(t.a, t.a + t.b)}</td><td class="num">${pct(t.c, t.c + t.d)}</td></tr>
+    <tr class="sel"><td>Odds ratio</td><td class="num or" colspan="2">${OR(t).toFixed(2)}</td></tr>`;
+}
+function draw() {
+  (mode === 'mis' ? MIS : SEL).forEach(([k]) => $('o_' + k).textContent = $(k).value + '%');
+  document.querySelectorAll('#pre .chip').forEach(b => b.setAttribute('aria-pressed', +b.dataset.i === pi));
+  const o = observed(), t0 = OR(T), t1 = OR(o);
+  table('t0', 'The truth', T); table('t1', 'What the study sees', o, T);
+  // ruler on log scale 0.25 to 8
+  const L = 20, R = 420, x = v => L + (Math.log(v) - Math.log(0.25)) / (Math.log(8) - Math.log(0.25)) * (R - L), Y = 92;
+  let s = `<rect class="nulz" x="${x(1) - 1}" y="${Y - 50}" width="2" height="60"/>`;
+  s += `<line class="axis" x1="${L}" x2="${R}" y1="${Y}" y2="${Y}"/>`;
+  [0.25, 0.5, 1, 2, 4, 8].forEach(v => s += `<line class="axis" x1="${x(v)}" x2="${x(v)}" y1="${Y}" y2="${Y + 6}"/><text class="tk" x="${x(v)}" y="${Y + 22}" text-anchor="middle">${v}</text>`);
+  s += `<text class="tk" x="${x(1)}" y="${Y + 40}" text-anchor="middle">odds ratio (log scale) · 1 = no association</text>`;
+  const c1 = Math.min(8, Math.max(0.25, t1));
+  if (Math.abs(t1 - t0) > 0.01) s += `<path class="arr" d="M${x(t0)} ${Y - 30} L${x(c1)} ${Y - 30}"/><path class="arr" d="M${x(c1) + (c1 > t0 ? -8 : 8)} ${Y - 36} L${x(c1)} ${Y - 30} L${x(c1) + (c1 > t0 ? -8 : 8)} ${Y - 24}"/>`;
+  s += `<circle class="tr" cx="${x(t0)}" cy="${Y}" r="8"/><text class="trl" x="${x(t0)}" y="${Y - 50}" text-anchor="middle">truth ${t0.toFixed(2)}</text>`;
+  s += `<circle class="ob" cx="${x(c1)}" cy="${Y}" r="6"/><text class="obl" x="${x(c1)}" y="${Y - 8 - 6}" text-anchor="${c1 > t0 ? 'start' : 'end'}" dx="${c1 > t0 ? 8 : -8}">study ${t1.toFixed(2)}</text>`;
+  $('rul').innerHTML = s;
+  let verdict;
+  const d = Math.log(t1) - Math.log(t0);
+  if (Math.abs(d) < 0.01) verdict = 'No bias: the study sees the true odds ratio.';
+  else if (t1 < 1) verdict = `Past the null: the study now suggests the exposure protects (odds ratio ${t1.toFixed(2)}).`;
+  else if (d < 0) verdict = `Toward the null: a real effect of ${t0.toFixed(1)} now looks like ${t1.toFixed(2)}.`;
+  else verdict = `Away from the null: a true effect of ${t0.toFixed(1)} now looks like ${t1.toFixed(2)}.`;
+  $('msg').textContent = verdict;
+  $('msg').className = 'claim ' + (Math.abs(d) < 0.01 ? 'good' : 'warn');
+  $('src').textContent = pi >= 0 ? PRE[mode][pi][3] : (mode === 'mis' ? 'Sensitivity: the share of truly exposed people recorded as exposed. Specificity: the share of truly unexposed people recorded as unexposed.' : 'The bias depends on the selection odds ratio: (exposed cases × unexposed controls) ÷ (unexposed cases × exposed controls), using the enrolment fractions.');
+}
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => load(b.dataset.m, 0)));
+const q = new URLSearchParams(location.search);
+load(q.get('m') === 'sel' ? 'sel' : 'mis', +(q.get('p') || 0));
+</script>
+</body>
+</html>
